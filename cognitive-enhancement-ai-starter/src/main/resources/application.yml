@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: CognitiveEnhancementJAi
+server:
+  port: 8803
+cog:
+  persistence:
+    enabled: true
+    dir: data/cognitive-enhancement-ai
