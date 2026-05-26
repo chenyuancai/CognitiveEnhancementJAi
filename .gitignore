@@ -1,8 +1,13 @@
 HELP.md
 target/
+data/
+.m2-task1/
+.mvn/local-repo/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+./docs
+./scripts
 
 ### STS ###
 .apt_generated
