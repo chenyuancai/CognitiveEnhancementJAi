@@ -3,7 +3,7 @@ package cn.cyc.ai.cog.runtime.service;
 import cn.cyc.ai.cog.core.exception.BusinessException;
 import cn.cyc.ai.cog.core.metadata.capability.CapabilityDefinition;
 import cn.cyc.ai.cog.core.metadata.type.SchemaDefinition;
-import cn.cyc.ai.cog.runtime.api.ExecutionResult;
+import cn.cyc.ai.cog.core.runtime.ExecutionResult;
 import cn.cyc.ai.cog.runtime.spi.OutputSchemaValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

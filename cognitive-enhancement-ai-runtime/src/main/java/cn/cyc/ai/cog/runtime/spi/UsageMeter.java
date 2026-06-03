@@ -1,7 +1,7 @@
 package cn.cyc.ai.cog.runtime.spi;
 
-import cn.cyc.ai.cog.runtime.api.ExecutionResult;
-import cn.cyc.ai.cog.runtime.domain.ExecutionContext;
+import cn.cyc.ai.cog.core.runtime.ExecutionResult;
+import cn.cyc.ai.cog.core.runtime.ExecutionContext;
 import cn.cyc.ai.cog.runtime.domain.UsageRecord;
 
 /**

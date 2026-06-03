@@ -2,7 +2,7 @@ package cn.cyc.ai.cog.runtime.spi;
 
 import cn.cyc.ai.cog.core.metadata.model.ModelDefinition;
 import cn.cyc.ai.cog.runtime.api.LlmInvocationResult;
-import cn.cyc.ai.cog.runtime.domain.ExecutionContext;
+import cn.cyc.ai.cog.core.runtime.ExecutionContext;
 
 /**
  * LLM 调用网关预留接口。

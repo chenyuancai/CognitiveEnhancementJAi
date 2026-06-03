@@ -18,8 +18,10 @@ import cn.cyc.ai.cog.core.metadata.type.ExecutionMode;
 import cn.cyc.ai.cog.core.metadata.type.ParameterConstraintDefinition;
 import cn.cyc.ai.cog.core.metadata.type.RiskLevel;
 import cn.cyc.ai.cog.core.metadata.type.SchemaDefinition;
+import cn.cyc.ai.cog.runtime.config.DashscopeProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,6 +39,8 @@ import java.util.Map;
 @Configuration
 public class CenterDemoDataInitializer {
 
+    @Autowired
+    private DashscopeProperties dashscopeProperties;
     /**
      * 初始化日志。
      */
@@ -87,7 +91,7 @@ public class CenterDemoDataInitializer {
                         "Qwen Plus",
                         "CHAT",
                         "https://dashscope.aliyuncs.com/compatible-mode/v1",
-                        "env:DASHSCOPE_API_KEY",
+                        dashscopeProperties.getApiKey(),
                         30_000,
                         2,
                         CommonStatus.ENABLED,

@@ -2,7 +2,7 @@ package cn.cyc.ai.cog.runtime.spi;
 
 import cn.cyc.ai.cog.core.metadata.capability.CapabilityDefinition;
 import cn.cyc.ai.cog.core.metadata.agent.AgentDefinition;
-import cn.cyc.ai.cog.runtime.api.CapabilityExecuteRequest;
+import cn.cyc.ai.cog.core.runtime.CapabilityExecuteRequest;
 
 /**
  * 执行参数校验器，负责在运行时入口对通用执行参数做收口校验。

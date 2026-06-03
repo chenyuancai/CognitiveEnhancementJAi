@@ -4,7 +4,7 @@ import cn.cyc.ai.cog.core.exception.BusinessException;
 import cn.cyc.ai.cog.core.metadata.model.ModelDefinition;
 import cn.cyc.ai.cog.runtime.api.LlmInvocationRequest;
 import cn.cyc.ai.cog.runtime.api.LlmInvocationResult;
-import cn.cyc.ai.cog.runtime.domain.ExecutionContext;
+import cn.cyc.ai.cog.core.runtime.ExecutionContext;
 import cn.cyc.ai.cog.runtime.spi.LlmGateway;
 import cn.cyc.ai.cog.runtime.spi.LlmProviderHandler;
 import org.slf4j.Logger;

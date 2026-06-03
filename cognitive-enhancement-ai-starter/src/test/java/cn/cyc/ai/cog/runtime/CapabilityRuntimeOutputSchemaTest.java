@@ -6,7 +6,7 @@ import cn.cyc.ai.cog.core.metadata.type.CommonStatus;
 import cn.cyc.ai.cog.core.trace.TraceIdGenerator;
 import cn.cyc.ai.cog.infra.web.TraceContextFilter;
 import cn.cyc.ai.cog.runtime.api.LlmInvocationResult;
-import cn.cyc.ai.cog.runtime.domain.ExecutionContext;
+import cn.cyc.ai.cog.core.runtime.ExecutionContext;
 import cn.cyc.ai.cog.runtime.spi.LlmGateway;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

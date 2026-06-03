@@ -1,10 +1,13 @@
 package cn.cyc.ai.cog.runtime.service;
 
 import cn.cyc.ai.cog.core.exception.BusinessException;
+import cn.cyc.ai.cog.runtime.config.DashscopeProperties;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * 默认 LLM 凭证解析器测试。
@@ -14,9 +17,18 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class DefaultLlmCredentialResolverTest {
 
     /**
+     * 构造一个未配置 apiKey 的 DashscopeProperties mock。
+     */
+    private DashscopeProperties emptyDashscopeProperties() {
+        DashscopeProperties props = mock(DashscopeProperties.class);
+        when(props.getApiKey()).thenReturn("");
+        return props;
+    }
+
+    /**
      * 待测试的凭证解析器。
      */
-    private final DefaultLlmCredentialResolver resolver = new DefaultLlmCredentialResolver();
+    private final DefaultLlmCredentialResolver resolver = new DefaultLlmCredentialResolver(emptyDashscopeProperties());
 
     /**
      * 验证系统属性中的凭证可以被正确解析。

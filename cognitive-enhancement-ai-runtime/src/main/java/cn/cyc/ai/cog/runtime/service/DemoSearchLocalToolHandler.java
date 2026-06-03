@@ -1,7 +1,7 @@
 package cn.cyc.ai.cog.runtime.service;
 
 import cn.cyc.ai.cog.runtime.api.ToolInvocationRequest;
-import cn.cyc.ai.cog.runtime.domain.ExecutionContext;
+import cn.cyc.ai.cog.core.runtime.ExecutionContext;
 import cn.cyc.ai.cog.runtime.spi.LocalToolHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

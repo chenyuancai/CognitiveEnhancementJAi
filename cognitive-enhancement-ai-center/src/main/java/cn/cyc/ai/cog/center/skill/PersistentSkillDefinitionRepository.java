@@ -3,6 +3,7 @@ package cn.cyc.ai.cog.center.skill;
 import cn.cyc.ai.cog.center.support.AbstractJsonFileMetadataRepository;
 import cn.cyc.ai.cog.core.metadata.skill.SkillDefinition;
 import cn.cyc.ai.cog.core.metadata.skill.SkillDefinitionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
@@ -19,6 +20,7 @@ import java.nio.file.Path;
 public class PersistentSkillDefinitionRepository extends AbstractJsonFileMetadataRepository<SkillDefinition>
         implements SkillDefinitionRepository {
 
+    @Autowired
     public PersistentSkillDefinitionRepository(@Value("${cog.persistence.dir:data/cognitive-enhancement-ai}") String persistenceDir) {
         this(Path.of(persistenceDir));
     }

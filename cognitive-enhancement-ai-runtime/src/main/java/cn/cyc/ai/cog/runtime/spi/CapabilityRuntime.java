@@ -1,7 +1,7 @@
 package cn.cyc.ai.cog.runtime.spi;
 
-import cn.cyc.ai.cog.runtime.api.CapabilityExecuteRequest;
-import cn.cyc.ai.cog.runtime.api.CapabilityExecuteResponse;
+import cn.cyc.ai.cog.core.runtime.CapabilityExecuteRequest;
+import cn.cyc.ai.cog.core.runtime.CapabilityExecuteResponse;
 
 /**
  * 能力运行时入口。

@@ -7,7 +7,7 @@ import cn.cyc.ai.cog.core.metadata.tool.ToolProtocolType;
 import cn.cyc.ai.cog.core.metadata.type.CommonStatus;
 import cn.cyc.ai.cog.runtime.api.ToolInvocationRequest;
 import cn.cyc.ai.cog.runtime.api.ToolInvocationResult;
-import cn.cyc.ai.cog.runtime.domain.ExecutionContext;
+import cn.cyc.ai.cog.core.runtime.ExecutionContext;
 import cn.cyc.ai.cog.runtime.spi.ToolRuntime;
 import cn.cyc.ai.cog.runtime.support.LocalToolRegistry;
 import org.slf4j.Logger;

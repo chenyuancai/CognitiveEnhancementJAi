@@ -7,6 +7,7 @@ import cn.cyc.ai.cog.runtime.domain.ModelCheckRecord;
 import cn.cyc.ai.cog.runtime.spi.ModelCheckRecordRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -38,6 +39,7 @@ public class PersistentModelCheckRecordRepository implements ModelCheckRecordRep
 
     private final CopyOnWriteArrayList<ModelCheckRecord> records = new CopyOnWriteArrayList<>();
 
+    @Autowired
     public PersistentModelCheckRecordRepository(@Value("${cog.persistence.dir:data/cognitive-enhancement-ai}") String persistenceDir) {
         this(Path.of(persistenceDir));
     }

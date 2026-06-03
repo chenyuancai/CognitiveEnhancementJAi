@@ -1,7 +1,7 @@
 package cn.cyc.ai.cog.runtime.spi;
 
 import cn.cyc.ai.cog.runtime.api.ToolInvocationResult;
-import cn.cyc.ai.cog.runtime.domain.ExecutionContext;
+import cn.cyc.ai.cog.core.runtime.ExecutionContext;
 
 /**
  * Tool 运行时预留接口。

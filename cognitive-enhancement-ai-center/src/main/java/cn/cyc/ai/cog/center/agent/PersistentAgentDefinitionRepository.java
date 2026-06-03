@@ -3,6 +3,7 @@ package cn.cyc.ai.cog.center.agent;
 import cn.cyc.ai.cog.center.support.AbstractJsonFileMetadataRepository;
 import cn.cyc.ai.cog.core.metadata.agent.AgentDefinition;
 import cn.cyc.ai.cog.core.metadata.agent.AgentDefinitionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
@@ -19,6 +20,7 @@ import java.nio.file.Path;
 public class PersistentAgentDefinitionRepository extends AbstractJsonFileMetadataRepository<AgentDefinition>
         implements AgentDefinitionRepository {
 
+    @Autowired
     public PersistentAgentDefinitionRepository(@Value("${cog.persistence.dir:data/cognitive-enhancement-ai}") String persistenceDir) {
         this(Path.of(persistenceDir));
     }

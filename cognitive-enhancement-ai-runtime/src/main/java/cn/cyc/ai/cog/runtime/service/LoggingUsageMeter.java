@@ -1,9 +1,9 @@
 package cn.cyc.ai.cog.runtime.service;
 
-import cn.cyc.ai.cog.runtime.api.ExecutionResult;
+import cn.cyc.ai.cog.core.runtime.ExecutionResult;
 import cn.cyc.ai.cog.runtime.api.LlmInvocationResult;
 import cn.cyc.ai.cog.runtime.api.ToolInvocationResult;
-import cn.cyc.ai.cog.runtime.domain.ExecutionContext;
+import cn.cyc.ai.cog.core.runtime.ExecutionContext;
 import cn.cyc.ai.cog.runtime.domain.UsageRecord;
 import cn.cyc.ai.cog.runtime.spi.UsageRecordRepository;
 import cn.cyc.ai.cog.runtime.spi.UsageMeter;

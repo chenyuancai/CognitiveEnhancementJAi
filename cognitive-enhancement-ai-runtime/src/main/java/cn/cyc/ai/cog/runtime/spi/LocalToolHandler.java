@@ -1,7 +1,7 @@
 package cn.cyc.ai.cog.runtime.spi;
 
 import cn.cyc.ai.cog.runtime.api.ToolInvocationRequest;
-import cn.cyc.ai.cog.runtime.domain.ExecutionContext;
+import cn.cyc.ai.cog.core.runtime.ExecutionContext;
 
 /**
  * 本地 Tool 处理器。

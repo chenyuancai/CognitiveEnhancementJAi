@@ -1,4 +1,4 @@
-package cn.cyc.ai.cog.runtime.api;
+package cn.cyc.ai.cog.core.runtime;
 
 import cn.cyc.ai.cog.core.metadata.agent.AgentDefinition;
 import cn.cyc.ai.cog.core.metadata.capability.CapabilityDefinition;

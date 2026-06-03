@@ -4,7 +4,7 @@ import cn.cyc.ai.cog.core.exception.BusinessException;
 import cn.cyc.ai.cog.core.metadata.agent.AgentDefinition;
 import cn.cyc.ai.cog.core.metadata.capability.CapabilityDefinition;
 import cn.cyc.ai.cog.core.metadata.type.ParameterConstraintDefinition;
-import cn.cyc.ai.cog.runtime.api.CapabilityExecuteRequest;
+import cn.cyc.ai.cog.core.runtime.CapabilityExecuteRequest;
 import cn.cyc.ai.cog.runtime.spi.ExecutionParameterValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

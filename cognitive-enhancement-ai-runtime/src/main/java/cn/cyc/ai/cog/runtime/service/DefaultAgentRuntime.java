@@ -6,14 +6,14 @@ import cn.cyc.ai.cog.core.metadata.agent.AgentDefinitionRepository;
 import cn.cyc.ai.cog.core.metadata.model.ModelDefinition;
 import cn.cyc.ai.cog.core.metadata.model.ModelDefinitionRepository;
 import cn.cyc.ai.cog.core.metadata.prompt.PromptTemplate;
+import cn.cyc.ai.cog.core.harness.SkillLoader;
 import cn.cyc.ai.cog.core.metadata.skill.SkillDefinition;
-import cn.cyc.ai.cog.core.metadata.skill.SkillDefinitionRepository;
 import cn.cyc.ai.cog.core.metadata.type.CommonStatus;
-import cn.cyc.ai.cog.runtime.api.ExecutionResult;
+import cn.cyc.ai.cog.core.runtime.ExecutionResult;
 import cn.cyc.ai.cog.runtime.api.LlmInvocationResult;
 import cn.cyc.ai.cog.runtime.api.ToolInvocationResult;
 import cn.cyc.ai.cog.runtime.domain.AgentRuntimeResult;
-import cn.cyc.ai.cog.runtime.domain.ExecutionContext;
+import cn.cyc.ai.cog.core.runtime.ExecutionContext;
 import cn.cyc.ai.cog.runtime.spi.AgentRuntime;
 import cn.cyc.ai.cog.runtime.spi.ExecutionParameterValidator;
 import cn.cyc.ai.cog.runtime.spi.LlmGateway;
@@ -48,9 +48,9 @@ public class DefaultAgentRuntime implements AgentRuntime {
     private final AgentDefinitionRepository agentDefinitionRepository;
 
     /**
-     * Skill 定义仓储。
+     * 技能装载器。
      */
-    private final SkillDefinitionRepository skillDefinitionRepository;
+    private final SkillLoader skillLoader;
 
     /**
      * 模型定义仓储。
@@ -95,7 +95,7 @@ public class DefaultAgentRuntime implements AgentRuntime {
      * @param outputSchemaValidator     输出 Schema 校验器
      */
     public DefaultAgentRuntime(AgentDefinitionRepository agentDefinitionRepository,
-                               SkillDefinitionRepository skillDefinitionRepository,
+                               SkillLoader skillLoader,
                                ModelDefinitionRepository modelDefinitionRepository,
                                ExecutionParameterValidator executionParameterValidator,
                                ToolRuntime toolRuntime,
@@ -103,7 +103,7 @@ public class DefaultAgentRuntime implements AgentRuntime {
                                LlmGateway llmGateway,
                                OutputSchemaValidator outputSchemaValidator) {
         this.agentDefinitionRepository = agentDefinitionRepository;
-        this.skillDefinitionRepository = skillDefinitionRepository;
+        this.skillLoader = skillLoader;
         this.modelDefinitionRepository = modelDefinitionRepository;
         this.executionParameterValidator = executionParameterValidator;
         this.toolRuntime = toolRuntime;
@@ -128,9 +128,7 @@ public class DefaultAgentRuntime implements AgentRuntime {
         }
         executionParameterValidator.validate(context.request(), context.capability(), agent);
 
-        List<SkillDefinition> skills = agent.allowedSkillCodes().stream()
-                .map(this::loadEnabledSkill)
-                .toList();
+        List<SkillDefinition> skills = skillLoader.loadForAgent(agent);
         ModelDefinition model = loadEnabledModel(agent.modelCode());
         PromptTemplate promptTemplate = promptResolver.resolve(context);
         ExecutionContext routedContext = context.withAgentPromptAndSkills(agent, promptTemplate, skills);
@@ -148,21 +146,6 @@ public class DefaultAgentRuntime implements AgentRuntime {
                 : buildToolResult(routedContext, boundToolCodes);
         outputSchemaValidator.validate(routedContext.capability(), result);
         return new AgentRuntimeResult(routedContext, result);
-    }
-
-    /**
-     * 读取并校验启用中的 Skill。
-     *
-     * @param skillCode Skill 编码
-     * @return Skill 定义
-     */
-    private SkillDefinition loadEnabledSkill(String skillCode) {
-        SkillDefinition skill = skillDefinitionRepository.findByCode(skillCode)
-                .orElseThrow(() -> new BusinessException("NOT_FOUND", "未找到 Skill: " + skillCode));
-        if (skill.status() != CommonStatus.ENABLED) {
-            throw new BusinessException("CONFLICT", "Skill 未启用: " + skillCode);
-        }
-        return skill;
     }
 
     /**

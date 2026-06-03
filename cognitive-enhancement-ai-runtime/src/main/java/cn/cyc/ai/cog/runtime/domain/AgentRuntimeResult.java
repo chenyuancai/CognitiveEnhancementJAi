@@ -1,6 +1,7 @@
 package cn.cyc.ai.cog.runtime.domain;
 
-import cn.cyc.ai.cog.runtime.api.ExecutionResult;
+import cn.cyc.ai.cog.core.runtime.ExecutionContext;
+import cn.cyc.ai.cog.core.runtime.ExecutionResult;
 
 /**
  * AgentRuntime 输出。

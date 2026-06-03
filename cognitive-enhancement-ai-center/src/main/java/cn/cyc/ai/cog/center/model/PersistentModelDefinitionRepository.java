@@ -3,6 +3,7 @@ package cn.cyc.ai.cog.center.model;
 import cn.cyc.ai.cog.center.support.AbstractJsonFileMetadataRepository;
 import cn.cyc.ai.cog.core.metadata.model.ModelDefinition;
 import cn.cyc.ai.cog.core.metadata.model.ModelDefinitionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
@@ -19,6 +20,7 @@ import java.nio.file.Path;
 public class PersistentModelDefinitionRepository extends AbstractJsonFileMetadataRepository<ModelDefinition>
         implements ModelDefinitionRepository {
 
+    @Autowired
     public PersistentModelDefinitionRepository(@Value("${cog.persistence.dir:data/cognitive-enhancement-ai}") String persistenceDir) {
         this(Path.of(persistenceDir));
     }

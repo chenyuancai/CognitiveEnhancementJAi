@@ -1,9 +1,9 @@
 package cn.cyc.ai.cog.runtime.web;
 
 import cn.cyc.ai.cog.api.response.ApiResponse;
-import cn.cyc.ai.cog.runtime.api.CapabilityExecuteRequest;
-import cn.cyc.ai.cog.runtime.api.CapabilityExecuteResponse;
-import cn.cyc.ai.cog.runtime.spi.CapabilityRuntime;
+import cn.cyc.ai.cog.core.harness.RuntimeHarness;
+import cn.cyc.ai.cog.core.runtime.CapabilityExecuteRequest;
+import cn.cyc.ai.cog.core.runtime.CapabilityExecuteResponse;
 import cn.cyc.ai.cog.runtime.support.RuntimeResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,17 +27,17 @@ public class CapabilityRuntimeController {
     private static final Logger log = LoggerFactory.getLogger(CapabilityRuntimeController.class);
 
     /**
-     * 能力运行时入口。
+     * 运行时治理器。
      */
-    private final CapabilityRuntime capabilityRuntime;
+    private final RuntimeHarness runtimeHarness;
 
     /**
      * 构造能力运行时控制器。
      *
-     * @param capabilityRuntime 能力运行时入口
+     * @param runtimeHarness 运行时治理器
      */
-    public CapabilityRuntimeController(CapabilityRuntime capabilityRuntime) {
-        this.capabilityRuntime = capabilityRuntime;
+    public CapabilityRuntimeController(RuntimeHarness runtimeHarness) {
+        this.runtimeHarness = runtimeHarness;
     }
 
     /**
@@ -49,6 +49,6 @@ public class CapabilityRuntimeController {
     @PostMapping("/execute")
     public ApiResponse<CapabilityExecuteResponse> execute(@RequestBody CapabilityExecuteRequest request) {
         log.info("收到 Runtime API 请求, capabilityCode={}", request.capabilityCode());
-        return RuntimeResponses.success(capabilityRuntime.execute(request));
+        return RuntimeResponses.success(runtimeHarness.execute(request));
     }
 }

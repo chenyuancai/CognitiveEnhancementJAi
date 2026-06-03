@@ -1,15 +1,16 @@
 package cn.cyc.ai.cog.runtime.service;
 
 import cn.cyc.ai.cog.core.exception.BusinessException;
+import cn.cyc.ai.cog.core.harness.OutputGovernance;
 import cn.cyc.ai.cog.core.metadata.capability.CapabilityDefinition;
 import cn.cyc.ai.cog.core.metadata.capability.CapabilityDefinitionRepository;
 import cn.cyc.ai.cog.core.metadata.type.CommonStatus;
 import cn.cyc.ai.cog.core.trace.TraceContext;
-import cn.cyc.ai.cog.runtime.api.CapabilityExecuteRequest;
-import cn.cyc.ai.cog.runtime.api.CapabilityExecuteResponse;
-import cn.cyc.ai.cog.runtime.api.ExecutionResult;
+import cn.cyc.ai.cog.core.runtime.CapabilityExecuteRequest;
+import cn.cyc.ai.cog.core.runtime.CapabilityExecuteResponse;
+import cn.cyc.ai.cog.core.runtime.ExecutionResult;
 import cn.cyc.ai.cog.runtime.domain.AgentRuntimeResult;
-import cn.cyc.ai.cog.runtime.domain.ExecutionContext;
+import cn.cyc.ai.cog.core.runtime.ExecutionContext;
 import cn.cyc.ai.cog.runtime.spi.AgentRuntime;
 import cn.cyc.ai.cog.runtime.spi.CapabilityRuntime;
 import cn.cyc.ai.cog.runtime.spi.ExecutionRecorder;
@@ -60,6 +61,11 @@ public class DefaultCapabilityRuntime implements CapabilityRuntime {
     private final UsageMeter usageMeter;
 
     /**
+     * 输出治理器。
+     */
+    private final OutputGovernance outputGovernance;
+
+    /**
      * 构造默认能力运行时。
      *
      * @param capabilityDefinitionRepository 能力定义仓储
@@ -67,17 +73,20 @@ public class DefaultCapabilityRuntime implements CapabilityRuntime {
      * @param inputSchemaValidator          输入 Schema 校验器
      * @param executionRecorder             执行记录器
      * @param usageMeter                    用量记录器
+     * @param outputGovernance              输出治理器
      */
     public DefaultCapabilityRuntime(CapabilityDefinitionRepository capabilityDefinitionRepository,
                                     AgentRuntime agentRuntime,
                                     InputSchemaValidator inputSchemaValidator,
                                     ExecutionRecorder executionRecorder,
-                                    UsageMeter usageMeter) {
+                                    UsageMeter usageMeter,
+                                    OutputGovernance outputGovernance) {
         this.capabilityDefinitionRepository = capabilityDefinitionRepository;
         this.agentRuntime = agentRuntime;
         this.inputSchemaValidator = inputSchemaValidator;
         this.executionRecorder = executionRecorder;
         this.usageMeter = usageMeter;
+        this.outputGovernance = outputGovernance;
     }
 
     /**
@@ -116,11 +125,13 @@ public class DefaultCapabilityRuntime implements CapabilityRuntime {
                 runtimeResult.context().agent().agentCode(),
                 executionResult.status());
 
+        ExecutionResult governedResult = outputGovernance.govern(executionResult, null);
+
         return new CapabilityExecuteResponse(
                 runtimeResult.context().traceId(),
                 capability,
                 runtimeResult.context().agent(),
-                executionResult
+                governedResult
         );
     }
 }

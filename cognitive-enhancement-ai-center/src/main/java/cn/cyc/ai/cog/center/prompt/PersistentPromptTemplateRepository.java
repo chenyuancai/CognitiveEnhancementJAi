@@ -3,6 +3,7 @@ package cn.cyc.ai.cog.center.prompt;
 import cn.cyc.ai.cog.center.support.AbstractJsonFileMetadataRepository;
 import cn.cyc.ai.cog.core.metadata.prompt.PromptTemplate;
 import cn.cyc.ai.cog.core.metadata.prompt.PromptTemplateRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
@@ -19,6 +20,7 @@ import java.nio.file.Path;
 public class PersistentPromptTemplateRepository extends AbstractJsonFileMetadataRepository<PromptTemplate>
         implements PromptTemplateRepository {
 
+    @Autowired
     public PersistentPromptTemplateRepository(@Value("${cog.persistence.dir:data/cognitive-enhancement-ai}") String persistenceDir) {
         this(Path.of(persistenceDir));
     }

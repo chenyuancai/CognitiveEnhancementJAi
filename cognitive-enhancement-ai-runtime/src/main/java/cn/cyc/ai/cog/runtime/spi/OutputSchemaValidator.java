@@ -1,7 +1,7 @@
 package cn.cyc.ai.cog.runtime.spi;
 
 import cn.cyc.ai.cog.core.metadata.capability.CapabilityDefinition;
-import cn.cyc.ai.cog.runtime.api.ExecutionResult;
+import cn.cyc.ai.cog.core.runtime.ExecutionResult;
 
 /**
  * 能力输出 Schema 校验器。

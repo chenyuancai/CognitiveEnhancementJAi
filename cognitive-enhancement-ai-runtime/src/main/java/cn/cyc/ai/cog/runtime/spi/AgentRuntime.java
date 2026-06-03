@@ -1,7 +1,7 @@
 package cn.cyc.ai.cog.runtime.spi;
 
 import cn.cyc.ai.cog.runtime.domain.AgentRuntimeResult;
-import cn.cyc.ai.cog.runtime.domain.ExecutionContext;
+import cn.cyc.ai.cog.core.runtime.ExecutionContext;
 
 /**
  * Agent 运行时入口。

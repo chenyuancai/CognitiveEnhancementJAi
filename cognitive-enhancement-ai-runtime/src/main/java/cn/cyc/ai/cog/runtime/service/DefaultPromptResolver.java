@@ -5,7 +5,7 @@ import cn.cyc.ai.cog.core.metadata.prompt.PromptTemplate;
 import cn.cyc.ai.cog.core.metadata.prompt.PromptTemplateRepository;
 import cn.cyc.ai.cog.core.metadata.type.SchemaDefinition;
 import cn.cyc.ai.cog.core.metadata.type.CommonStatus;
-import cn.cyc.ai.cog.runtime.domain.ExecutionContext;
+import cn.cyc.ai.cog.core.runtime.ExecutionContext;
 import cn.cyc.ai.cog.runtime.spi.PromptResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
