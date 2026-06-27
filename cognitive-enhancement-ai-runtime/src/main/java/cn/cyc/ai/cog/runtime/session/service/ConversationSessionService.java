@@ -1,5 +1,6 @@
 package cn.cyc.ai.cog.runtime.session.service;
 
+import cn.cyc.ai.cog.common.context.UserContext;
 import cn.cyc.ai.cog.core.exception.BusinessException;
 import cn.cyc.ai.cog.core.runtime.CapabilityExecuteRequest;
 import cn.cyc.ai.cog.core.runtime.CapabilityExecuteResponse;
@@ -58,10 +59,11 @@ public class ConversationSessionService {
      */
     public ConversationSession createSession(String userId, String capabilityCode, String title) {
         Instant now = Instant.now();
+        String ownerUserId = resolveOwnerUserId(userId);
         ConversationSession session = new ConversationSession(
                 TenantContext.currentTenantCode(),
                 UUID.randomUUID().toString(),
-                userId,
+                ownerUserId,
                 capabilityCode,
                 title,
                 SessionStatus.ACTIVE,
@@ -79,8 +81,10 @@ public class ConversationSessionService {
      * @return 会话记录
      */
     public ConversationSession getSession(String sessionId) {
-        return conversationSessionRepository.findBySessionId(sessionId)
+        ConversationSession session = conversationSessionRepository.findBySessionId(sessionId)
                 .orElseThrow(() -> new BusinessException("NOT_FOUND", "未找到会话: " + sessionId));
+        validateOwner(session);
+        return session;
     }
 
     /**
@@ -162,5 +166,26 @@ public class ConversationSessionService {
         }
         Object businessOutput = result.output().get("businessOutput");
         return businessOutput == null ? result.output().toString() : businessOutput.toString();
+    }
+
+    private String resolveOwnerUserId(String requestedUserId) {
+        Long currentUserId = UserContext.currentUserId();
+        if (currentUserId == null) {
+            return requestedUserId;
+        }
+        String current = String.valueOf(currentUserId);
+        if (StringUtils.hasText(requestedUserId) && !current.equals(requestedUserId)) {
+            throw new BusinessException("FORBIDDEN", "不能为其他用户创建会话");
+        }
+        return current;
+    }
+
+    private void validateOwner(ConversationSession session) {
+        Long currentUserId = UserContext.currentUserId();
+        if (currentUserId != null
+                && StringUtils.hasText(session.userId())
+                && !String.valueOf(currentUserId).equals(session.userId())) {
+            throw new BusinessException("FORBIDDEN", "会话不属于当前用户: " + session.sessionId());
+        }
     }
 }

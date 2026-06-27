@@ -33,7 +33,6 @@ public class DefaultRuntimeHarness implements RuntimeHarness {
     private static final Logger log = LoggerFactory.getLogger(DefaultRuntimeHarness.class);
 
     private static final String HUMAN_CONFIRMED_PARAMETER = "humanConfirmed";
-    private static final String SESSION_ID_PARAMETER = "sessionId";
 
     private final TraceHarness traceHarness;
     private final PolicyHarness policyHarness;
@@ -106,7 +105,6 @@ public class DefaultRuntimeHarness implements RuntimeHarness {
     private CapabilityExecuteRequest executionRequest(CapabilityExecuteRequest request) {
         Map<String, Object> parameters = new LinkedHashMap<>(request.parameters());
         parameters.remove(HUMAN_CONFIRMED_PARAMETER);
-        parameters.remove(SESSION_ID_PARAMETER);
         if (parameters.size() == request.parameters().size()) {
             return request;
         }
@@ -114,7 +112,7 @@ public class DefaultRuntimeHarness implements RuntimeHarness {
     }
 
     private void recordSessionMessages(CapabilityExecuteRequest request, CapabilityExecuteResponse response) {
-        Object sessionIdValue = request.parameters().get(SESSION_ID_PARAMETER);
+        Object sessionIdValue = request.parameters().get("sessionId");
         if (!(sessionIdValue instanceof String sessionId) || sessionId.isBlank()) {
             return;
         }

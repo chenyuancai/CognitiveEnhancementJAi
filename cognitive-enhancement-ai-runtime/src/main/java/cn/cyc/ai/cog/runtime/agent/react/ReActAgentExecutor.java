@@ -13,6 +13,8 @@ import cn.cyc.ai.cog.runtime.api.LlmToolCall;
 import cn.cyc.ai.cog.runtime.api.ModelGovernanceResolution;
 import cn.cyc.ai.cog.runtime.api.ToolInvocationResult;
 import cn.cyc.ai.cog.runtime.config.ReActProperties;
+import cn.cyc.ai.cog.runtime.session.service.ConversationContext;
+import cn.cyc.ai.cog.runtime.session.service.RuntimeConversationContextManager;
 import cn.cyc.ai.cog.runtime.spi.LlmGateway;
 import cn.cyc.ai.cog.runtime.tool.spi.ToolRuntime;
 import cn.cyc.ai.cog.runtime.trace.domain.TraceSpanType;
@@ -49,25 +51,29 @@ public class ReActAgentExecutor {
     private final ReActProperties reActProperties;
     private final TraceSpanRecorder traceSpanRecorder;
     private final ObjectMapper objectMapper;
+    private final RuntimeConversationContextManager conversationContextManager;
 
     public ReActAgentExecutor(LlmGateway llmGateway,
                               ToolRuntime toolRuntime,
                               ToolDefinitionRepository toolDefinitionRepository,
                               ReActProperties reActProperties,
                               TraceSpanRecorder traceSpanRecorder,
-                              ObjectMapper objectMapper) {
+                              ObjectMapper objectMapper,
+                              RuntimeConversationContextManager conversationContextManager) {
         this.llmGateway = llmGateway;
         this.toolRuntime = toolRuntime;
         this.toolDefinitionRepository = toolDefinitionRepository;
         this.reActProperties = reActProperties;
         this.traceSpanRecorder = traceSpanRecorder;
         this.objectMapper = objectMapper;
+        this.conversationContextManager = conversationContextManager;
     }
 
     public ExecutionResult execute(ExecutionContext context,
                                    ModelGovernanceResolution modelResolution,
                                    Object promptInput,
-                                   List<String> allowedToolCodes) {
+                                   List<String> allowedToolCodes,
+                                   ConversationContext conversationContext) {
         ModelDefinition model = modelResolution.resolvedModel();
         int maxIterations = resolveMaxIterations(context);
         List<ToolDefinition> tools = loadTools(allowedToolCodes);
@@ -76,6 +82,7 @@ public class ReActAgentExecutor {
         List<ChatMessage> messages = new ArrayList<>();
         messages.add(ChatMessage.system(REACT_SYSTEM_PROMPT));
         messages.add(ChatMessage.user(String.valueOf(promptInput)));
+        messages = new ArrayList<>(conversationContextManager.augmentMessages(messages, conversationContext));
 
         List<Map<String, Object>> steps = new ArrayList<>();
         LlmConversationResult lastResult = null;

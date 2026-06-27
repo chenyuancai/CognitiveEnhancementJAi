@@ -34,6 +34,8 @@ import cn.cyc.ai.cog.runtime.planner.TaskPlanner;
 import cn.cyc.ai.cog.runtime.reflection.ExecutionLoopGuard;
 import cn.cyc.ai.cog.runtime.reflection.ExecutionReflector;
 import cn.cyc.ai.cog.runtime.reflection.ReflectionOutcome;
+import cn.cyc.ai.cog.runtime.session.service.ConversationContext;
+import cn.cyc.ai.cog.runtime.session.service.RuntimeConversationContextManager;
 import cn.cyc.ai.cog.runtime.trace.domain.TraceSpanType;
 import cn.cyc.ai.cog.runtime.trace.span.TraceSpanRecorder;
 import cn.cyc.ai.cog.runtime.spi.PromptResolver;
@@ -147,6 +149,8 @@ public class DefaultAgentRuntime implements AgentRuntime {
 
     private final ReActProperties reActProperties;
 
+    private final RuntimeConversationContextManager conversationContextManager;
+
     /**
      * 构造默认 AgentRuntime。
      *
@@ -186,7 +190,8 @@ public class DefaultAgentRuntime implements AgentRuntime {
                                MultiAgentResultMerger multiAgentResultMerger,
                                PlanDrivenToolSelector planDrivenToolSelector,
                                ReActAgentExecutor reActAgentExecutor,
-                               ReActProperties reActProperties) {
+                               ReActProperties reActProperties,
+                               RuntimeConversationContextManager conversationContextManager) {
         this.agentDefinitionRepository = agentDefinitionRepository;
         this.skillLoader = skillLoader;
         this.modelDefinitionRepository = modelDefinitionRepository;
@@ -206,6 +211,7 @@ public class DefaultAgentRuntime implements AgentRuntime {
         this.planDrivenToolSelector = planDrivenToolSelector;
         this.reActAgentExecutor = reActAgentExecutor;
         this.reActProperties = reActProperties;
+        this.conversationContextManager = conversationContextManager;
     }
 
     /**
@@ -237,6 +243,7 @@ public class DefaultAgentRuntime implements AgentRuntime {
             ModelDefinition model = modelResolution.resolvedModel();
             PromptTemplate promptTemplate = promptResolver.resolve(context);
             ExecutionContext routedContext = context.withAgentPromptAndSkills(agent, promptTemplate, skills);
+            ConversationContext conversationContext = conversationContextManager.load(routedContext);
             Optional<TaskPlan> taskPlan = taskPlanner.plan(routedContext);
             log.info("AgentRuntime 已完成基础装载, traceId={}, capabilityCode={}, agentCode={}, primaryModelCode={}, modelCode={}, fallbackApplied={}, promptCode={}, skillCount={}, planning={}",
                     routedContext.traceId(),
@@ -252,14 +259,14 @@ public class DefaultAgentRuntime implements AgentRuntime {
             List<String> boundToolCodes = collectToolCodes(skills);
             ExecutionResult result;
             if (boundToolCodes.isEmpty()) {
-                result = buildLlmResult(routedContext, modelResolution);
+                result = buildLlmResult(routedContext, modelResolution, conversationContext);
             } else if (shouldUseReAct(routedContext)) {
                 Object promptInput = routedContext.prompt() == null
                         ? routedContext.request().input()
                         : promptResolver.render(routedContext.prompt(), routedContext);
-                result = reActAgentExecutor.execute(routedContext, modelResolution, promptInput, boundToolCodes);
+                result = reActAgentExecutor.execute(routedContext, modelResolution, promptInput, boundToolCodes, conversationContext);
             } else {
-                result = buildToolThenLlmResult(routedContext, boundToolCodes, modelResolution, taskPlan);
+                result = buildToolThenLlmResult(routedContext, boundToolCodes, modelResolution, taskPlan, conversationContext);
             }
             result = enrichExecutionResult(routedContext, result, taskPlan, executionStrategy);
             outputSchemaValidator.validate(routedContext.capability(), result);
@@ -344,12 +351,14 @@ public class DefaultAgentRuntime implements AgentRuntime {
     private ExecutionResult buildToolThenLlmResult(ExecutionContext context,
                                                    List<String> toolCodes,
                                                    ModelGovernanceResolution modelResolution,
-                                                   Optional<TaskPlan> taskPlan) {
+                                                   Optional<TaskPlan> taskPlan,
+                                                   ConversationContext conversationContext) {
         String selectedToolCode = planDrivenToolSelector.selectTool(toolCodes, taskPlan, context);
         executionLoopGuard.check(context.traceId(), "tool:" + selectedToolCode);
         ToolInvocationResult toolOutput = toolRuntime.invoke(context, selectedToolCode, context.request().input());
         taskBudgetController.chargeTool();
         Object promptInput = buildToolAugmentedPromptInput(context, toolOutput);
+        promptInput = conversationContextManager.augmentPromptInput(context, promptInput, conversationContext);
         LlmPipelineResult llmPipeline = invokeLlmWithReflection(context, modelResolution, promptInput);
         LlmInvocationResult llmOutput = llmPipeline.llmResult();
         ModelDefinition model = modelResolution.resolvedModel();
@@ -400,10 +409,13 @@ public class DefaultAgentRuntime implements AgentRuntime {
      * @param model   已校验模型定义
      * @return 执行结果
      */
-    private ExecutionResult buildLlmResult(ExecutionContext context, ModelGovernanceResolution modelResolution) {
+    private ExecutionResult buildLlmResult(ExecutionContext context,
+                                           ModelGovernanceResolution modelResolution,
+                                           ConversationContext conversationContext) {
         Object promptInput = context.prompt() == null
                 ? context.request().input()
                 : promptResolver.render(context.prompt(), context);
+        promptInput = conversationContextManager.augmentPromptInput(context, promptInput, conversationContext);
         LlmPipelineResult llmPipeline = invokeLlmWithReflection(context, modelResolution, promptInput);
         LlmInvocationResult llmOutput = llmPipeline.llmResult();
         ModelDefinition model = modelResolution.resolvedModel();
