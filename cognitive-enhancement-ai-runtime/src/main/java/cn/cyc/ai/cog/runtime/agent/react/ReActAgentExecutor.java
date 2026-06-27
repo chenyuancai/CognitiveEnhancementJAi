@@ -205,7 +205,9 @@ public class ReActAgentExecutor {
                                                ModelGovernanceResolution modelResolution) {
         Map<String, Object> output = new LinkedHashMap<>();
         output.put("answer", result.content());
+        output.put("businessOutput", Map.of("answer", result.content()));
         output.put("executionMode", "REACT");
+        output.put("executorType", "REACT");
         output.put("reactSteps", steps);
         output.put("modelCode", modelResolution.resolvedModel().modelCode());
         output.put("primaryModelCode", modelResolution.primaryModelCode());

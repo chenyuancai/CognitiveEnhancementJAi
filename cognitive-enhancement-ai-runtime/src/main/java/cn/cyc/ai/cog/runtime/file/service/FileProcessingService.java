@@ -5,12 +5,17 @@ import cn.cyc.ai.cog.runtime.file.domain.FileParseTask;
 import cn.cyc.ai.cog.runtime.file.domain.FileParseTaskStatus;
 import cn.cyc.ai.cog.runtime.file.domain.FileUploadRecord;
 import cn.cyc.ai.cog.runtime.file.domain.FileUploadStatus;
+import cn.cyc.ai.cog.runtime.file.spi.FileContentParser;
 import cn.cyc.ai.cog.runtime.file.spi.FileParseTaskRepository;
 import cn.cyc.ai.cog.runtime.file.spi.FileUploadRecordRepository;
 import cn.cyc.ai.cog.runtime.security.TenantContext;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -30,17 +35,25 @@ public class FileProcessingService {
      * 文件解析任务仓储。
      */
     private final FileParseTaskRepository fileParseTaskRepository;
+    private final FileContentParser fileContentParser;
+    private final ObjectMapper objectMapper;
 
     /**
      * 构造文件处理服务。
      *
      * @param fileUploadRecordRepository 文件上传记录仓储
      * @param fileParseTaskRepository    文件解析任务仓储
+     * @param fileContentParser          文件正文解析器
+     * @param objectMapper               JSON 序列化器
      */
     public FileProcessingService(FileUploadRecordRepository fileUploadRecordRepository,
-                                 FileParseTaskRepository fileParseTaskRepository) {
+                                 FileParseTaskRepository fileParseTaskRepository,
+                                 FileContentParser fileContentParser,
+                                 ObjectMapper objectMapper) {
         this.fileUploadRecordRepository = fileUploadRecordRepository;
         this.fileParseTaskRepository = fileParseTaskRepository;
+        this.fileContentParser = fileContentParser;
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -100,7 +113,8 @@ public class FileProcessingService {
         }
 
         Instant now = Instant.now();
-        String parseResult = "{\"textPreview\":\"mock parsed: " + escapeJson(upload.fileName()) + "\",\"cached\":false}";
+        String text = fileContentParser.parseText(upload);
+        String parseResult = buildParseResult(upload, text);
         FileParseTask task = new FileParseTask(
                 upload.tenantCode(),
                 UUID.randomUUID().toString(),
@@ -141,10 +155,25 @@ public class FileProcessingService {
                 .orElseThrow(() -> new BusinessException("NOT_FOUND", "未找到文件解析结果: " + fileId));
     }
 
-    private String escapeJson(String value) {
-        if (value == null) {
-            return "";
+    private String buildParseResult(FileUploadRecord upload, String text) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("fileName", upload.fileName());
+        result.put("contentType", upload.contentType());
+        result.put("sizeBytes", upload.sizeBytes());
+        result.put("text", text);
+        result.put("textPreview", preview(text));
+        result.put("cached", false);
+        try {
+            return objectMapper.writeValueAsString(result);
+        } catch (JsonProcessingException ex) {
+            throw new BusinessException("CONFLICT", "序列化文件解析结果失败: " + upload.fileId(), ex);
         }
-        return value.replace("\\", "\\\\").replace("\"", "\\\"");
+    }
+
+    private String preview(String text) {
+        if (text == null || text.length() <= 2000) {
+            return text;
+        }
+        return text.substring(0, 2000);
     }
 }

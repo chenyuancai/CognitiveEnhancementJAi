@@ -84,8 +84,8 @@ public class LoggingUsageMeter implements UsageMeter {
                 resolveToolCode(result.output()),
                 llmInvocationResult == null ? 0 : llmInvocationResult.inputTokenCount(),
                 llmInvocationResult == null ? 0 : llmInvocationResult.outputTokenCount(),
-                llmInvocationResult == null ? 0 : llmInvocationResult.totalTokenCount(),
-                calculateEstimatedCost(resolveExecutorType(result.output()), llmInvocationResult),
+                resolveTotalTokenCount(result.output(), llmInvocationResult),
+                calculateEstimatedCost(resolveExecutorType(result.output()), result.output(), llmInvocationResult),
                 Instant.now()
         );
         usageRecordRepository.save(record);
@@ -100,10 +100,15 @@ public class LoggingUsageMeter implements UsageMeter {
         return record;
     }
 
-    private BigDecimal calculateEstimatedCost(String executorType, LlmInvocationResult llmInvocationResult) {
+    private BigDecimal calculateEstimatedCost(String executorType, Object output, LlmInvocationResult llmInvocationResult) {
         if (llmInvocationResult != null) {
             return usageProperties.getCost().getLlmTokenCostAmount()
                     .multiply(BigDecimal.valueOf(llmInvocationResult.totalTokenCount()));
+        }
+        int totalTokenCount = resolveTotalTokenCount(output, null);
+        if (totalTokenCount > 0) {
+            return usageProperties.getCost().getLlmTokenCostAmount()
+                    .multiply(BigDecimal.valueOf(totalTokenCount));
         }
         if ("TOOL".equals(executorType)) {
             return usageProperties.getCost().getToolCallCostAmount();
@@ -186,10 +191,34 @@ public class LoggingUsageMeter implements UsageMeter {
         if (llmInvocationResult != null) {
             return llmInvocationResult.modelCode();
         }
+        if (output instanceof Map<?, ?> outputMap && outputMap.get("modelCode") != null) {
+            return String.valueOf(outputMap.get("modelCode"));
+        }
         if (!"LLM".equals(resolveExecutorType(output))) {
             return null;
         }
         return context.agent().modelCode();
+    }
+
+    /**
+     * 从执行输出中提取总 token 数，兼容 ReAct 输出结构。
+     *
+     * @param output              执行输出
+     * @param llmInvocationResult LLM 调用结果
+     * @return 总 token 数
+     */
+    private int resolveTotalTokenCount(Object output, LlmInvocationResult llmInvocationResult) {
+        if (llmInvocationResult != null) {
+            return llmInvocationResult.totalTokenCount();
+        }
+        if (!(output instanceof Map<?, ?> outputMap)) {
+            return 0;
+        }
+        Object totalTokens = outputMap.get("totalTokens");
+        if (totalTokens instanceof Number number) {
+            return number.intValue();
+        }
+        return 0;
     }
 
     /**

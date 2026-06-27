@@ -41,7 +41,7 @@ public class CatalogModelDefinitionRepository implements ModelDefinitionReposito
         ModelProviderDefinition provider = new ModelProviderDefinition(
                 definition.providerCode(),
                 definition.providerName(),
-                "OPENAI_COMPATIBLE",
+                definition.providerType(),
                 definition.endpoint(),
                 definition.apiKey(),
                 null,

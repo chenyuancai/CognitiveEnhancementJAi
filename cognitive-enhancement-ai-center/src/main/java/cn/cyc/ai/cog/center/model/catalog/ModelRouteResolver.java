@@ -72,6 +72,7 @@ public final class ModelRouteResolver {
         return new ModelDefinition(
                 provider.providerCode(),
                 provider.providerName(),
+                provider.providerType(),
                 model.modelCode(),
                 model.modelName(),
                 model.modelType(),

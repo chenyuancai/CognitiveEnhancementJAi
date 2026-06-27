@@ -1,5 +1,6 @@
 package cn.cyc.ai.cog.runtime.spi;
 
+import cn.cyc.ai.cog.core.metadata.model.ModelDefinition;
 import cn.cyc.ai.cog.runtime.api.LlmInvocationRequest;
 import cn.cyc.ai.cog.runtime.api.LlmInvocationResult;
 
@@ -11,12 +12,12 @@ import cn.cyc.ai.cog.runtime.api.LlmInvocationResult;
 public interface LlmProviderHandler {
 
     /**
-     * 判断是否支持指定 provider。
+     * 判断是否支持指定模型路由。
      *
-     * @param providerCode 模型提供方编码
+     * @param model 模型路由
      * @return 是否支持
      */
-    boolean supports(String providerCode);
+    boolean supports(ModelDefinition model);
 
     /**
      * 发起一次 provider 调用。

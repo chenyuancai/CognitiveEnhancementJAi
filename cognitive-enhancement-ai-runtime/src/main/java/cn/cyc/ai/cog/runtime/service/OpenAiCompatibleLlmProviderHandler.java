@@ -1,5 +1,6 @@
 package cn.cyc.ai.cog.runtime.service;
 
+import cn.cyc.ai.cog.core.metadata.model.ModelDefinition;
 import cn.cyc.ai.cog.runtime.api.LlmInvocationRequest;
 import cn.cyc.ai.cog.runtime.api.LlmInvocationResult;
 import cn.cyc.ai.cog.runtime.spi.LlmCredentialResolver;
@@ -10,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
+
 /**
  * OpenAI-compatible 协议 Provider 处理器（OpenAI / 百炼 / 其他兼容端点）。
  */
@@ -18,6 +21,8 @@ public class OpenAiCompatibleLlmProviderHandler implements LlmProviderHandler {
 
     private static final Logger log = LoggerFactory.getLogger(OpenAiCompatibleLlmProviderHandler.class);
     private static final String CHAT_COMPLETIONS_PATH = "/chat/completions";
+    private static final Set<String> SUPPORTED_PROVIDER_TYPES = Set.of("OPENAI_COMPATIBLE", "DASHSCOPE");
+    private static final Set<String> LEGACY_PROVIDER_CODES = Set.of("openai", "bailian", "dashscope");
 
     private final LlmCredentialResolver llmCredentialResolver;
     private final OpenAiCompatibleChatClient openAiCompatibleChatClient;
@@ -29,8 +34,15 @@ public class OpenAiCompatibleLlmProviderHandler implements LlmProviderHandler {
     }
 
     @Override
-    public boolean supports(String providerCode) {
-        return true;
+    public boolean supports(ModelDefinition model) {
+        if (model == null) {
+            return false;
+        }
+        String providerType = model.providerType() == null ? "" : model.providerType().trim().toUpperCase();
+        if (SUPPORTED_PROVIDER_TYPES.contains(providerType)) {
+            return true;
+        }
+        return LEGACY_PROVIDER_CODES.contains(model.providerCode());
     }
 
     @Override

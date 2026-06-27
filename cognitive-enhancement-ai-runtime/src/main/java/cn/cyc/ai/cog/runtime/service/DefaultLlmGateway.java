@@ -21,17 +21,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 一期默认 LLM Gateway mock 实现。
+ * 默认 LLM Gateway 实现，按 Provider 路由模型调用。
  *
  * @author cyc
  */
 @Service
-public class MockLlmGateway implements LlmGateway {
+public class DefaultLlmGateway implements LlmGateway {
 
     /**
      * 网关日志。
      */
-    private static final Logger log = LoggerFactory.getLogger(MockLlmGateway.class);
+    private static final Logger log = LoggerFactory.getLogger(DefaultLlmGateway.class);
 
     /**
      * Provider 处理器列表。
@@ -41,10 +41,10 @@ public class MockLlmGateway implements LlmGateway {
     private final OpenAiCompatibleChatClient openAiCompatibleChatClient;
     private final LlmCredentialResolver llmCredentialResolver;
 
-    public MockLlmGateway(List<LlmProviderHandler> llmProviderHandlers,
-                          TraceSpanRecorder traceSpanRecorder,
-                          OpenAiCompatibleChatClient openAiCompatibleChatClient,
-                          LlmCredentialResolver llmCredentialResolver) {
+    public DefaultLlmGateway(List<LlmProviderHandler> llmProviderHandlers,
+                             TraceSpanRecorder traceSpanRecorder,
+                             OpenAiCompatibleChatClient openAiCompatibleChatClient,
+                             LlmCredentialResolver llmCredentialResolver) {
         this.llmProviderHandlers = llmProviderHandlers;
         this.traceSpanRecorder = traceSpanRecorder;
         this.openAiCompatibleChatClient = openAiCompatibleChatClient;
@@ -61,10 +61,7 @@ public class MockLlmGateway implements LlmGateway {
      */
     @Override
     public LlmInvocationResult generate(ExecutionContext context, ModelDefinition model, Object promptInput) {
-        LlmProviderHandler handler = llmProviderHandlers.stream()
-                .filter(candidate -> candidate.supports(model.providerCode()))
-                .findFirst()
-                .orElseThrow(() -> new BusinessException("CONFLICT", "未找到可用的 LLM Provider 处理器: " + model.providerCode()));
+        LlmProviderHandler handler = resolveHandler(model);
 
         LlmInvocationRequest request = new LlmInvocationRequest(
                 context.traceId(),
@@ -100,6 +97,7 @@ public class MockLlmGateway implements LlmGateway {
 
     @Override
     public LlmConversationResult chat(ExecutionContext context, ModelDefinition model, LlmConversationRequest request) {
+        resolveHandler(model);
         String apiKey = llmCredentialResolver.resolve(model.apiKey());
         TraceSpanRecorder.SpanScope llmSpan = traceSpanRecorder.open(
                 context.traceId(),
@@ -121,5 +119,14 @@ public class MockLlmGateway implements LlmGateway {
             traceSpanRecorder.fail(llmSpan, ex, null);
             throw ex;
         }
+    }
+
+    private LlmProviderHandler resolveHandler(ModelDefinition model) {
+        return llmProviderHandlers.stream()
+                .filter(candidate -> candidate.supports(model))
+                .findFirst()
+                .orElseThrow(() -> new BusinessException(
+                        "CONFLICT",
+                        "未找到可用的 LLM Provider 处理器: " + model.providerCode()));
     }
 }

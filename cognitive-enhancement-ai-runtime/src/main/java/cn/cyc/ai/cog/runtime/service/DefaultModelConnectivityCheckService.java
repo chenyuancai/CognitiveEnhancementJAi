@@ -87,7 +87,7 @@ public class DefaultModelConnectivityCheckService implements ModelConnectivityCh
             return saveAndReturn(failure(model, 0L, "模型未启用: " + model.modelCode()));
         }
         LlmProviderHandler handler = llmProviderHandlers.stream()
-                .filter(candidate -> candidate.supports(model.providerCode()))
+                .filter(candidate -> candidate.supports(model))
                 .findFirst()
                 .orElse(null);
         if (handler == null) {

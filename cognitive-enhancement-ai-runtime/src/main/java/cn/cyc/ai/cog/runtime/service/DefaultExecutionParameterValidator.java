@@ -43,6 +43,7 @@ public class DefaultExecutionParameterValidator implements ExecutionParameterVal
             "planningMode",
             "reflectionEnabled",
             "reflectionMaxRetries",
+            "reactMaxIterations",
             "planDrivenToolEnabled",
             "preferredToolCode"
     );

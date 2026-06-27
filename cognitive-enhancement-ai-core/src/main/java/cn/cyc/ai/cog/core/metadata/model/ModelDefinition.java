@@ -13,6 +13,7 @@ import java.util.Objects;
 public record ModelDefinition(
         String providerCode,
         String providerName,
+        String providerType,
         String modelCode,
         String modelName,
         String modelType,
@@ -25,9 +26,28 @@ public record ModelDefinition(
         String fallbackModelCode
 ) implements MetadataDefinition {
 
+    public ModelDefinition(String providerCode,
+                           String providerName,
+                           String modelCode,
+                           String modelName,
+                           String modelType,
+                           String endpoint,
+                           String apiKey,
+                           int timeoutMs,
+                           int retryTimes,
+                           CommonStatus status,
+                           int routePriority,
+                           String fallbackModelCode) {
+        this(providerCode, providerName, providerCode, modelCode, modelName, modelType, endpoint,
+                apiKey, timeoutMs, retryTimes, status, routePriority, fallbackModelCode);
+    }
+
     public ModelDefinition {
         providerCode = Objects.requireNonNull(providerCode, "providerCode 不能为空");
         providerName = Objects.requireNonNull(providerName, "providerName 不能为空");
+        if (providerType == null || providerType.isBlank()) {
+            providerType = providerCode;
+        }
         modelCode = Objects.requireNonNull(modelCode, "modelCode 不能为空");
         modelName = Objects.requireNonNull(modelName, "modelName 不能为空");
         modelType = Objects.requireNonNull(modelType, "modelType 不能为空");
