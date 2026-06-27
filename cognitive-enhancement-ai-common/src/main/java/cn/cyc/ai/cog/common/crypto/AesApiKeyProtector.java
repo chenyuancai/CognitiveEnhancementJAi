@@ -77,7 +77,10 @@ public class AesApiKeyProtector implements ApiKeyProtector {
             cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(keyBytes, "AES"), new GCMParameterSpec(GCM_TAG_LENGTH, iv));
             return new String(cipher.doFinal(encrypted), StandardCharsets.UTF_8);
         } catch (Exception exception) {
-            throw new IllegalStateException("API Key 解密失败", exception);
+            throw new IllegalStateException(
+                    "API Key 解密失败：当前 cog.crypto.master-key（或环境变量 COG_CRYPTO_MASTER_KEY）"
+                            + "与写入数据库时不一致，请在 CMS 提供商管理中重新保存 apiKey",
+                    exception);
         }
     }
 }

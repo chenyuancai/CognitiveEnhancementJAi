@@ -14,4 +14,18 @@ public interface ApiKeyProtector {
      * 从 DB 读出后解密（非加密格式则原样返回，兼容历史明文）。
      */
     String reveal(String storedApiKey);
+
+    /**
+     * 解密失败时返回 {@code null}（用于绑定级覆盖 Key，可回退到提供商默认 Key）。
+     */
+    default String tryReveal(String storedApiKey) {
+        if (storedApiKey == null || storedApiKey.isBlank()) {
+            return storedApiKey;
+        }
+        try {
+            return reveal(storedApiKey);
+        } catch (RuntimeException ignored) {
+            return null;
+        }
+    }
 }

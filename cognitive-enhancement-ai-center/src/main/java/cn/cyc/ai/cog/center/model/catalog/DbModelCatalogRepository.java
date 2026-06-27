@@ -12,6 +12,8 @@ import cn.cyc.ai.cog.common.crypto.ApiKeyProtector;
 import cn.cyc.ai.cog.core.metadata.type.CommonStatus;
 import cn.cyc.ai.cog.runtime.security.TenantContext;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,8 @@ import java.util.Optional;
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true", matchIfMissing = true)
 public class DbModelCatalogRepository implements ModelCatalogRepository {
+
+    private static final Logger log = LoggerFactory.getLogger(DbModelCatalogRepository.class);
 
     private final ModelProviderMapper providerMapper;
     private final ModelMapper modelMapper;
@@ -200,7 +204,11 @@ public class DbModelCatalogRepository implements ModelCatalogRepository {
     }
 
     private ModelBindingDefinition toBindingDefinition(ModelProviderBindingEntity entity) {
-        String apiKey = apiKeyProtector.reveal(entity.getApiKey());
+        String apiKey = apiKeyProtector.tryReveal(entity.getApiKey());
+        if (apiKey == null && StringUtils.hasText(entity.getApiKey())) {
+            log.warn("绑定级 apiKey 解密失败，将回退提供商默认 Key, modelCode={}, providerCode={}",
+                    entity.getModelCode(), entity.getProviderCode());
+        }
         if (!ProviderApiKeySupport.isEffectiveApiKey(apiKey)) {
             apiKey = null;
         }
