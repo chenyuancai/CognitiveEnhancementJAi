@@ -1,6 +1,7 @@
 package cn.cyc.ai.cog.center.support;
 
-import cn.cyc.ai.cog.core.exception.BusinessException;
+import cn.cyc.ai.cog.common.exception.Errors;
+import cn.cyc.ai.cog.common.exception.PlatformErrorCode;
 import cn.cyc.ai.cog.core.metadata.MetadataDefinition;
 import cn.cyc.ai.cog.core.metadata.MetadataRepository;
 import org.slf4j.Logger;
@@ -67,7 +68,7 @@ public abstract class AbstractCenterMetadataService<T extends MetadataDefinition
     protected T getRequired(String code) {
         log.debug("查询{}定义详情，code={}", resourceLabel, code);
         return repository.findByCode(code)
-                .orElseThrow(() -> new BusinessException("NOT_FOUND", resourceLabel + "不存在: " + code));
+                .orElseThrow(() -> Errors.of(PlatformErrorCode.METADATA_NOT_FOUND, resourceLabel + "不存在: " + code));
     }
 
     /**
@@ -78,7 +79,7 @@ public abstract class AbstractCenterMetadataService<T extends MetadataDefinition
     protected void ensureAbsent(String code) {
         log.debug("校验{}定义编码是否可用，code={}", resourceLabel, code);
         if (repository.findByCode(code).isPresent()) {
-            throw new BusinessException("CONFLICT", resourceLabel + "已存在: " + code);
+            throw Errors.of(PlatformErrorCode.METADATA_ALREADY_EXISTS, resourceLabel + "已存在: " + code);
         }
     }
 

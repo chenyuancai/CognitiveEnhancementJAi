@@ -19,7 +19,8 @@ public record PromptTemplate(
         SchemaDefinition variableSchema,
         SchemaDefinition outputSchema,
         CommonStatus status,
-        Instant publishedAt
+        Instant publishedAt,
+        PromptLifecycleStatus lifecycleStatus
 ) implements MetadataDefinition {
 
     public PromptTemplate {
@@ -31,6 +32,25 @@ public record PromptTemplate(
         variableSchema = Objects.requireNonNull(variableSchema, "variableSchema 不能为空");
         outputSchema = Objects.requireNonNull(outputSchema, "outputSchema 不能为空");
         status = Objects.requireNonNull(status, "status 不能为空");
+        if (lifecycleStatus == null) {
+            lifecycleStatus = publishedAt != null ? PromptLifecycleStatus.PUBLISHED : PromptLifecycleStatus.DRAFT;
+        }
+    }
+
+    /**
+     * 兼容旧构造：未显式指定生命周期时，按 publishedAt 推断。
+     */
+    public PromptTemplate(String promptCode,
+                          String promptName,
+                          String scenarioCode,
+                          String version,
+                          String templateContent,
+                          SchemaDefinition variableSchema,
+                          SchemaDefinition outputSchema,
+                          CommonStatus status,
+                          Instant publishedAt) {
+        this(promptCode, promptName, scenarioCode, version, templateContent, variableSchema, outputSchema,
+                status, publishedAt, null);
     }
 
     @Override
@@ -41,5 +61,14 @@ public record PromptTemplate(
     @Override
     public String name() {
         return promptName;
+    }
+
+    /**
+     * 是否可被运行时直接解析（已发布且启用）。
+     *
+     * @return 是否运行时可见
+     */
+    public boolean runtimeVisible() {
+        return status == CommonStatus.ENABLED && lifecycleStatus == PromptLifecycleStatus.PUBLISHED;
     }
 }

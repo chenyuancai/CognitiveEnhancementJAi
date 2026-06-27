@@ -105,7 +105,7 @@ public class DefaultModelConnectivityCheckService implements ModelConnectivityCh
                     model.providerCode(),
                     model.modelCode(),
                     model.endpoint(),
-                    model.credentialRef(),
+                    model.apiKey(),
                     model.timeoutMs(),
                     null,
                     prompt,

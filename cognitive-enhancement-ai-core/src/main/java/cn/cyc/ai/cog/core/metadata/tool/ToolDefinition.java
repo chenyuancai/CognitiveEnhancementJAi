@@ -2,6 +2,7 @@ package cn.cyc.ai.cog.core.metadata.tool;
 
 import cn.cyc.ai.cog.core.metadata.MetadataDefinition;
 import cn.cyc.ai.cog.core.metadata.type.CommonStatus;
+import cn.cyc.ai.cog.core.metadata.type.RiskLevel;
 import cn.cyc.ai.cog.core.metadata.type.SchemaDefinition;
 
 import java.util.Objects;
@@ -16,6 +17,7 @@ public record ToolDefinition(
         SchemaDefinition requestSchema,
         SchemaDefinition responseSchema,
         String permissionScope,
+        RiskLevel riskLevel,
         int timeoutMs,
         RetryPolicy retryPolicy,
         String implRef,
@@ -29,6 +31,7 @@ public record ToolDefinition(
         requestSchema = Objects.requireNonNull(requestSchema, "requestSchema 不能为空");
         responseSchema = Objects.requireNonNull(responseSchema, "responseSchema 不能为空");
         permissionScope = Objects.requireNonNull(permissionScope, "permissionScope 不能为空");
+        riskLevel = riskLevel == null ? RiskLevel.LOW : riskLevel;
         if (timeoutMs <= 0) {
             throw new IllegalArgumentException("timeoutMs 必须大于 0");
         }

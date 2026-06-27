@@ -1,0 +1,9 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+cog:
+  auth:
+    storage:
+      mode: jdbc

@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName(value = "harness_step_report", autoResultMap = true)
+@TableName(value = "qz_rt_harness_step_report", autoResultMap = true)
 public class HarnessStepReportEntity extends BaseEntity {
     private String harnessId;
     private Integer sequence;

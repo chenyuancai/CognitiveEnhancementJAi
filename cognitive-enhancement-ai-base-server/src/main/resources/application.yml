@@ -1,0 +1,65 @@
+server:
+  port: 8805
+
+spring:
+  application:
+    name: cognitive-enhancement-ai-base-server
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      username: root
+      password: 123456
+    url: jdbc:mysql://${cog.mysql.ip:127.0.0.1}:${cog.mysql.port:3306}/cog?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+  flyway:
+    enabled: ${cog.persistence.enabled:true}
+    baseline-on-migrate: true
+    schemas: cog
+    table: flyway_base_history
+    locations: classpath:db/migration
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+springdoc:
+  api-docs:
+    enabled: ${cog.openapi.enabled:true}
+  swagger-ui:
+    enabled: ${cog.openapi.enabled:true}
+knife4j:
+  enable: false
+  setting:
+    language: zh_cn
+
+cog:
+  openapi:
+    enabled: true
+    gateway-url: http://localhost:8801
+  persistence:
+    enabled: true
+  mysql:
+    ip: 127.0.0.1
+    port: 3306
+  base:
+    default-biz-code: cog
+    default-share-scope: global
+    file:
+      url: http://localhost:8805
+  file:
+    storage-type: disk
+    disk:
+      root-path: ${user.home}/cog-files
+      max-file-size: 104857600
+
+logging:
+  level:
+    cn.cyc.ai.cog.base: info

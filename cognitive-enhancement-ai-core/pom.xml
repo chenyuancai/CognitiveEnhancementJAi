@@ -17,6 +17,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>cn.cyc.ai</groupId>
+            <artifactId>cognitive-enhancement-ai-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>

@@ -6,18 +6,20 @@ import cn.cyc.ai.cog.core.harness.PolicyHarness;
 import cn.cyc.ai.cog.core.harness.RuntimeHarness;
 import cn.cyc.ai.cog.core.harness.TraceHarness;
 import cn.cyc.ai.cog.core.metadata.capability.CapabilityDefinition;
-import cn.cyc.ai.cog.core.metadata.capability.CapabilityDefinitionRepository;
 import cn.cyc.ai.cog.core.metadata.type.CommonStatus;
 import cn.cyc.ai.cog.core.runtime.CapabilityExecuteRequest;
 import cn.cyc.ai.cog.core.runtime.CapabilityExecuteResponse;
 import cn.cyc.ai.cog.core.runtime.ExecutionContext;
 import cn.cyc.ai.cog.core.runtime.ExecutionResult;
 import cn.cyc.ai.cog.core.trace.TraceContext;
+import cn.cyc.ai.cog.runtime.release.router.CapabilityVersionResolver;
+import cn.cyc.ai.cog.runtime.session.service.ConversationSessionService;
 import cn.cyc.ai.cog.runtime.spi.CapabilityRuntime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -30,22 +32,28 @@ public class DefaultRuntimeHarness implements RuntimeHarness {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultRuntimeHarness.class);
 
+    private static final String HUMAN_CONFIRMED_PARAMETER = "humanConfirmed";
+    private static final String SESSION_ID_PARAMETER = "sessionId";
+
     private final TraceHarness traceHarness;
     private final PolicyHarness policyHarness;
-    private final CapabilityDefinitionRepository capabilityDefinitionRepository;
+    private final CapabilityVersionResolver capabilityVersionResolver;
     private final CapabilityRuntime capabilityRuntime;
     private final OutputGovernance outputGovernance;
+    private final ConversationSessionService conversationSessionService;
 
     public DefaultRuntimeHarness(TraceHarness traceHarness,
                                  PolicyHarness policyHarness,
-                                 CapabilityDefinitionRepository capabilityDefinitionRepository,
+                                 CapabilityVersionResolver capabilityVersionResolver,
                                  CapabilityRuntime capabilityRuntime,
-                                 OutputGovernance outputGovernance) {
+                                 OutputGovernance outputGovernance,
+                                 ConversationSessionService conversationSessionService) {
         this.traceHarness = traceHarness;
         this.policyHarness = policyHarness;
-        this.capabilityDefinitionRepository = capabilityDefinitionRepository;
+        this.capabilityVersionResolver = capabilityVersionResolver;
         this.capabilityRuntime = capabilityRuntime;
         this.outputGovernance = outputGovernance;
+        this.conversationSessionService = conversationSessionService;
     }
 
     @Override
@@ -55,8 +63,8 @@ public class DefaultRuntimeHarness implements RuntimeHarness {
                 Map.of("capabilityCode", request.capabilityCode()));
 
         try {
-            CapabilityDefinition capability = capabilityDefinitionRepository.findByCode(request.capabilityCode())
-                    .orElseThrow(() -> new BusinessException("NOT_FOUND", "未找到能力: " + request.capabilityCode()));
+            CapabilityDefinition capability = capabilityVersionResolver.resolve(
+                    request.capabilityCode(), traceContext.traceId());
             if (capability.status() != CommonStatus.ENABLED) {
                 throw new BusinessException("CONFLICT", "能力未启用: " + request.capabilityCode());
             }
@@ -69,18 +77,52 @@ public class DefaultRuntimeHarness implements RuntimeHarness {
                 throw new BusinessException("FORBIDDEN", "策略检查未通过: " + decision.reason());
             }
 
-            CapabilityExecuteResponse response = capabilityRuntime.execute(request);
+            CapabilityExecuteResponse response = capabilityRuntime.execute(executionRequest(request));
 
-            ExecutionResult governedResult = outputGovernance.govern(response.result(), null);
+            ExecutionResult governedResult = outputGovernance.govern(response.result(), Map.of(
+                    "riskLevel", response.capability().riskLevel().name(),
+                    "needHumanConfirm", response.capability().needHumanConfirm()
+            ));
 
-            return new CapabilityExecuteResponse(
+            CapabilityExecuteResponse governedResponse = new CapabilityExecuteResponse(
                     response.traceId(),
                     response.capability(),
                     response.agent(),
                     governedResult
             );
+            recordSessionMessages(request, governedResponse);
+            return governedResponse;
         } finally {
             traceHarness.finish(traceContext);
+        }
+    }
+
+    /**
+     * 构造下游执行请求，剥离 Runtime 治理参数。
+     *
+     * @param request 原始请求
+     * @return 下游执行请求
+     */
+    private CapabilityExecuteRequest executionRequest(CapabilityExecuteRequest request) {
+        Map<String, Object> parameters = new LinkedHashMap<>(request.parameters());
+        parameters.remove(HUMAN_CONFIRMED_PARAMETER);
+        parameters.remove(SESSION_ID_PARAMETER);
+        if (parameters.size() == request.parameters().size()) {
+            return request;
+        }
+        return new CapabilityExecuteRequest(request.capabilityCode(), request.input(), parameters);
+    }
+
+    private void recordSessionMessages(CapabilityExecuteRequest request, CapabilityExecuteResponse response) {
+        Object sessionIdValue = request.parameters().get(SESSION_ID_PARAMETER);
+        if (!(sessionIdValue instanceof String sessionId) || sessionId.isBlank()) {
+            return;
+        }
+        try {
+            conversationSessionService.recordExecution(sessionId, request, response);
+        } catch (RuntimeException ex) {
+            log.warn("记录会话消息失败, sessionId={}, traceId={}, reason={}",
+                    sessionId, response.traceId(), ex.getMessage());
         }
     }
 }

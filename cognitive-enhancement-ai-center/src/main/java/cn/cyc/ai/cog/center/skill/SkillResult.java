@@ -28,6 +28,7 @@ public record SkillResult(
         RiskLevel riskLevel,
         List<String> forbiddenRules,
         List<String> examples,
+        List<String> dependsOnSkillCodes,
         CommonStatus status
 ) {
 }

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 默认执行参数校验器，按 Capability 与 Agent 元数据收口执行参数。
@@ -24,6 +25,27 @@ public class DefaultExecutionParameterValidator implements ExecutionParameterVal
      * 校验日志。
      */
     private static final Logger log = LoggerFactory.getLogger(DefaultExecutionParameterValidator.class);
+
+    /**
+     * Runtime 治理/上下文参数，不参与 Capability/Agent 参数约束校验。
+     */
+    private static final Set<String> RUNTIME_CONTEXT_PARAMETERS = Set.of(
+            "humanConfirmed",
+            "sessionId",
+            "knowledgeEnabled",
+            "knowledgeScenario",
+            "fileId",
+            "multiAgentEnabled",
+            "delegateAgentCodes",
+            "planningEnabled",
+            "executionStrategy",
+            "taskBudgetAmount",
+            "planningMode",
+            "reflectionEnabled",
+            "reflectionMaxRetries",
+            "planDrivenToolEnabled",
+            "preferredToolCode"
+    );
 
     /**
      * 校验执行参数白名单与数值范围。
@@ -41,7 +63,12 @@ public class DefaultExecutionParameterValidator implements ExecutionParameterVal
         }
         log.info("开始校验执行参数, capabilityCode={}, parameterKeys={}, constraintKeys={}",
                 request.capabilityCode(), parameters.keySet(), constraints.keySet());
-        parameters.forEach((parameterName, value) -> validateParameter(parameterName, value, constraints));
+        parameters.forEach((parameterName, value) -> {
+            if (RUNTIME_CONTEXT_PARAMETERS.contains(parameterName)) {
+                return;
+            }
+            validateParameter(parameterName, value, constraints);
+        });
         constraints.forEach((parameterName, constraint) -> validateRequiredParameter(parameterName, constraint, parameters));
     }
 

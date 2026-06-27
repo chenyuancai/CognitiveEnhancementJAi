@@ -1,14 +1,15 @@
 package cn.cyc.ai.cog.center.agent;
 
 import cn.cyc.ai.cog.api.response.ApiResponse;
+import cn.cyc.ai.cog.center.common.CenterPageResult;
 import cn.cyc.ai.cog.center.support.CenterResponses;
-import cn.cyc.ai.cog.center.support.DefinitionListResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author cyc
  */
+@Tag(name = "Center - Agent", description = "Agent 元数据管理：定义角色、目标、绑定模型与技能")
 @RestController
 @RequestMapping("/api/center/agents")
 public class AgentAdminController {
@@ -46,10 +48,11 @@ public class AgentAdminController {
      *
      * @return Agent 定义列表
      */
-    @GetMapping
-    public ApiResponse<DefinitionListResult<AgentResult>> listAll() {
+    @Operation(summary = "分页查询 Agent 列表", description = "支持 agentCode/agentName/status 等条件分页查询 Agent 定义。")
+    @PostMapping("/page")
+    public ApiResponse<CenterPageResult<AgentResult>> listAll(@RequestBody AgentPageQuery query) {
         log.info("收到查询全部 Agent 定义请求");
-        return CenterResponses.success(agentAdminService.listAll());
+        return CenterResponses.success(agentAdminService.listPage(query));
     }
 
     /**
@@ -58,6 +61,7 @@ public class AgentAdminController {
      * @param code Agent 编码
      * @return Agent 定义详情
      */
+    @Operation(summary = "查询 Agent 详情", description = "按 agentCode 返回完整 Agent 定义。")
     @GetMapping("/{code}")
     public ApiResponse<AgentResult> getByCode(@PathVariable("code") String code) {
         log.info("收到查询 Agent 定义详情请求，code={}", code);
@@ -70,6 +74,7 @@ public class AgentAdminController {
      * @param request Agent 写入请求
      * @return 创建后的 Agent 定义
      */
+    @Operation(summary = "创建 Agent", description = "新建 Agent 定义；agentCode 唯一，创建后不可修改。")
     @PostMapping
     public ApiResponse<AgentResult> create(@RequestBody AgentUpsertRequest request) {
         log.info("收到创建 Agent 定义请求，agentCode={}", request.agentCode());
@@ -83,9 +88,10 @@ public class AgentAdminController {
      * @param request Agent 写入请求
      * @return 更新后的 Agent 定义
      */
-    @PutMapping("/{code}")
-    public ApiResponse<AgentResult> update(@PathVariable("code") String code, @RequestBody AgentUpsertRequest request) {
-        log.info("收到更新 Agent 定义请求，code={}", code);
-        return CenterResponses.success(agentAdminService.update(code, request));
+    @Operation(summary = "更新 Agent", description = "按 agentCode 更新 Agent 定义。")
+    @PostMapping("/update")
+    public ApiResponse<AgentResult> update(@RequestBody AgentUpsertRequest request) {
+        log.info("收到更新 Agent 定义请求，code={}", request.agentCode());
+        return CenterResponses.success(agentAdminService.update(request.agentCode(), request));
     }
 }

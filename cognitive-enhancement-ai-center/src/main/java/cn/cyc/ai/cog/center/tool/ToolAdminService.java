@@ -1,11 +1,17 @@
 package cn.cyc.ai.cog.center.tool;
 
+import cn.cyc.ai.cog.center.common.CenterPageResult;
 import cn.cyc.ai.cog.center.support.AbstractMetadataAdminService;
 import cn.cyc.ai.cog.core.metadata.tool.RetryPolicy;
 import cn.cyc.ai.cog.core.metadata.tool.ToolDefinition;
 import cn.cyc.ai.cog.core.metadata.tool.ToolDefinitionRepository;
+import cn.cyc.ai.cog.core.metadata.tool.ToolProtocolType;
+import cn.cyc.ai.cog.core.metadata.type.RiskLevel;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -26,6 +32,22 @@ public class ToolAdminService extends AbstractMetadataAdminService<ToolDefinitio
     }
 
     /**
+     * 分页查询 Tool 定义。
+     *
+     * @param query 查询参数
+     * @return 分页 Tool 列表
+     */
+    public CenterPageResult<ToolResult> listPage(ToolPageQuery query) {
+        return listPage(
+                query,
+                definition -> matches(query.getProtocolType(), definition.protocolType())
+                        && matches(query.getRiskLevel(), definition.riskLevel()),
+                ToolDefinition::status,
+                toolSorters()
+        );
+    }
+
+    /**
      * 将 Tool 写入请求转换为 Tool 定义。
      *
      * @param request      Tool 写入请求
@@ -42,6 +64,7 @@ public class ToolAdminService extends AbstractMetadataAdminService<ToolDefinitio
                 request.requestSchema(),
                 request.responseSchema(),
                 request.permissionScope(),
+                defaultRiskLevel(request.riskLevel()),
                 request.timeoutMs(),
                 new RetryPolicy(request.retryMaxAttempts()),
                 request.implRef(),
@@ -64,10 +87,31 @@ public class ToolAdminService extends AbstractMetadataAdminService<ToolDefinitio
                 definition.requestSchema(),
                 definition.responseSchema(),
                 definition.permissionScope(),
+                definition.riskLevel(),
                 definition.timeoutMs(),
                 definition.retryPolicy().maxAttempts(),
                 definition.implRef(),
                 definition.status()
         );
+    }
+
+    private RiskLevel defaultRiskLevel(RiskLevel riskLevel) {
+        return riskLevel == null ? RiskLevel.LOW : riskLevel;
+    }
+
+    private Map<String, Comparator<ToolDefinition>> toolSorters() {
+        Map<String, Comparator<ToolDefinition>> sorters = new LinkedHashMap<>(commonSorters(ToolDefinition::status));
+        sorters.put("protocolType", Comparator.comparing(definition -> definition.protocolType().name()));
+        sorters.put("riskLevel", Comparator.comparing(definition -> definition.riskLevel().name()));
+        sorters.put("timeoutMs", Comparator.comparingInt(ToolDefinition::timeoutMs));
+        return sorters;
+    }
+
+    private boolean matches(ToolProtocolType expected, ToolProtocolType actual) {
+        return expected == null || expected == actual;
+    }
+
+    private boolean matches(RiskLevel expected, RiskLevel actual) {
+        return expected == null || expected == actual;
     }
 }

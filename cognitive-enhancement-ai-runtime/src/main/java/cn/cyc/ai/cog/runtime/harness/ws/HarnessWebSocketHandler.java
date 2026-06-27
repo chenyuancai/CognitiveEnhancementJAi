@@ -4,6 +4,7 @@ import cn.cyc.ai.cog.runtime.harness.dto.HarnessContext;
 import cn.cyc.ai.cog.runtime.harness.dto.HarnessScenario;
 import cn.cyc.ai.cog.runtime.harness.dto.HarnessWsMessage;
 import cn.cyc.ai.cog.runtime.harness.domain.HarnessReport;
+import cn.cyc.ai.cog.runtime.harness.spi.HarnessCancellation;
 import cn.cyc.ai.cog.runtime.harness.spi.HarnessEngine;
 import cn.cyc.ai.cog.runtime.harness.spi.HarnessReportRepository;
 import cn.cyc.ai.cog.runtime.harness.spi.HarnessStep;
@@ -24,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Harness WebSocket 处理器，支持实时推送验证步骤进度。
+ * Harness WebSocket 处理器，支持实时推送验证步骤进度与可中断取消。
  *
  * @author cyc
  */
@@ -32,12 +33,17 @@ public class HarnessWebSocketHandler extends TextWebSocketHandler {
 
     private static final Logger log = LoggerFactory.getLogger(HarnessWebSocketHandler.class);
 
+    private static final String ATTR_HARNESS_ID = "harnessId";
+    private static final String ATTR_CANCELLATION = "cancellation";
+    private static final String ATTR_RUN_FUTURE = "runFuture";
+
     private final HarnessEngine harnessEngine;
     private final List<HarnessStep> steps;
     private final HarnessReportRepository reportRepository;
     private final ObjectMapper objectMapper;
 
-    private final Map<String, Boolean> cancelledSessions = new ConcurrentHashMap<>();
+    private final Map<String, HarnessCancellation> cancellationBySession = new ConcurrentHashMap<>();
+    private final Map<String, CompletableFuture<Void>> runFutureBySession = new ConcurrentHashMap<>();
 
     public HarnessWebSocketHandler(HarnessEngine harnessEngine,
                                     List<HarnessStep> steps,
@@ -53,8 +59,7 @@ public class HarnessWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String harnessId = "HAR-" + LocalDate.now().toString().replace("-", "")
                 + "-" + UUID.randomUUID().toString().substring(0, 6);
-        session.getAttributes().put("harnessId", harnessId);
-        cancelledSessions.put(session.getId(), false);
+        session.getAttributes().put(ATTR_HARNESS_ID, harnessId);
 
         HarnessWsMessage connected = new HarnessWsMessage("CONNECTED",
                 Map.of("harnessId", harnessId, "message", "WebSocket connected"));
@@ -75,7 +80,14 @@ public class HarnessWebSocketHandler extends TextWebSocketHandler {
     }
 
     private void handleRun(WebSocketSession session, HarnessWsMessage wsMessage) throws Exception {
-        String harnessId = (String) session.getAttributes().get("harnessId");
+        CompletableFuture<Void> existingFuture = runFutureBySession.get(session.getId());
+        if (existingFuture != null && !existingFuture.isDone()) {
+            sendMessage(session, new HarnessWsMessage("ERROR",
+                    Map.of("message", "Harness 正在执行中，请稍后再试")));
+            return;
+        }
+
+        String harnessId = (String) session.getAttributes().get(ATTR_HARNESS_ID);
         Map<String, Object> payload = wsMessage.payload();
 
         @SuppressWarnings("unchecked")
@@ -87,52 +99,75 @@ public class HarnessWebSocketHandler extends TextWebSocketHandler {
                 scenario, null, null, null, null, null, Map.of()
         );
 
+        HarnessCancellation cancellation = HarnessCancellation.create();
+        cancellationBySession.put(session.getId(), cancellation);
+        session.getAttributes().put(ATTR_CANCELLATION, cancellation);
+
         log.info("Harness WebSocket RUN started, harnessId={}", harnessId);
 
-        CompletableFuture.runAsync(() -> {
+        CompletableFuture<Void> runFuture = CompletableFuture.runAsync(() -> {
             HarnessReport report = harnessEngine.run(steps, context, stepReport -> {
                 try {
-                    if (Boolean.TRUE.equals(cancelledSessions.get(session.getId()))) {
-                        throw new RuntimeException("Harness cancelled by user");
-                    }
-                    HarnessWsMessage stepMsg = new HarnessWsMessage("STEP",
-                            Map.of("step", stepReport));
-                    session.sendMessage(new TextMessage(objectMapper.writeValueAsString(stepMsg)));
+                    sendMessage(session, new HarnessWsMessage("STEP", Map.of("step", stepReport)));
                 } catch (Exception e) {
                     log.error("Failed to send STEP message, harnessId={}", harnessId, e);
                 }
-            });
+            }, cancellation);
             reportRepository.save(report);
 
             try {
-                HarnessWsMessage completeMsg = new HarnessWsMessage("COMPLETE",
-                        Map.of("report", report));
-                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(completeMsg)));
-                log.info("Harness WebSocket RUN completed, harnessId={}", harnessId);
+                sendMessage(session, new HarnessWsMessage("COMPLETE", Map.of("report", report)));
+                log.info("Harness WebSocket RUN completed, harnessId={}, status={}", harnessId, report.status());
             } catch (Exception e) {
                 log.error("Failed to send COMPLETE message, harnessId={}", harnessId, e);
             }
-        }).exceptionally(ex -> {
-            try {
-                HarnessWsMessage errorMsg = new HarnessWsMessage("ERROR",
-                        Map.of("message", ex.getMessage()));
-                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(errorMsg)));
-            } catch (Exception e) {
-                log.error("Failed to send ERROR message, harnessId={}", harnessId, e);
+        }).whenComplete((ignored, ex) -> {
+            runFutureBySession.remove(session.getId());
+            cancellationBySession.remove(session.getId());
+            session.getAttributes().remove(ATTR_CANCELLATION);
+            session.getAttributes().remove(ATTR_RUN_FUTURE);
+            if (ex != null && !(ex instanceof java.util.concurrent.CancellationException)) {
+                log.error("Harness WebSocket RUN failed, harnessId={}", harnessId, ex);
+                try {
+                    sendMessage(session, new HarnessWsMessage("ERROR",
+                            Map.of("message", ex.getMessage() == null ? ex.getClass().getSimpleName() : ex.getMessage())));
+                } catch (Exception sendEx) {
+                    log.error("Failed to send ERROR message, harnessId={}", harnessId, sendEx);
+                }
             }
-            log.error("Harness WebSocket RUN failed, harnessId={}", harnessId, ex);
-            return null;
         });
+
+        runFutureBySession.put(session.getId(), runFuture);
+        session.getAttributes().put(ATTR_RUN_FUTURE, runFuture);
     }
 
-    private void handleCancel(WebSocketSession session) {
-        cancelledSessions.put(session.getId(), true);
+    private void handleCancel(WebSocketSession session) throws Exception {
+        HarnessCancellation cancellation = cancellationBySession.get(session.getId());
+        if (cancellation == null) {
+            cancellation = (HarnessCancellation) session.getAttributes().get(ATTR_CANCELLATION);
+        }
+        if (cancellation != null) {
+            cancellation.cancel();
+        }
+
+        sendMessage(session, new HarnessWsMessage("CANCEL",
+                Map.of("message", "已接收取消请求，正在中断后续步骤")));
         log.info("Harness WebSocket CANCEL received, sessionId={}", session.getId());
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        cancelledSessions.remove(session.getId());
+        HarnessCancellation cancellation = cancellationBySession.remove(session.getId());
+        if (cancellation != null) {
+            cancellation.cancel();
+        }
+        runFutureBySession.remove(session.getId());
         log.info("Harness WebSocket closed, sessionId={}, status={}", session.getId(), status);
+    }
+
+    private void sendMessage(WebSocketSession session, HarnessWsMessage message) throws Exception {
+        if (session.isOpen()) {
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
+        }
     }
 }

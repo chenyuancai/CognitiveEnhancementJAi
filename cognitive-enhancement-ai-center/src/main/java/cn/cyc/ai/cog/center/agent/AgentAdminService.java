@@ -1,10 +1,15 @@
 package cn.cyc.ai.cog.center.agent;
 
+import cn.cyc.ai.cog.center.common.CenterPageResult;
 import cn.cyc.ai.cog.center.support.AbstractMetadataAdminService;
 import cn.cyc.ai.cog.core.metadata.agent.AgentDefinition;
 import cn.cyc.ai.cog.core.metadata.agent.AgentDefinitionRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -22,6 +27,21 @@ public class AgentAdminService extends AbstractMetadataAdminService<AgentDefinit
      */
     public AgentAdminService(AgentDefinitionRepository repository) {
         super(repository);
+    }
+
+    /**
+     * 分页查询 Agent 定义。
+     *
+     * @param query 查询参数
+     * @return 分页 Agent 列表
+     */
+    public CenterPageResult<AgentResult> listPage(AgentPageQuery query) {
+        return listPage(
+                query,
+                definition -> matches(query.getModelCode(), definition.modelCode()),
+                AgentDefinition::status,
+                agentSorters()
+        );
     }
 
     /**
@@ -70,5 +90,17 @@ public class AgentAdminService extends AbstractMetadataAdminService<AgentDefinit
                 definition.parameterConstraints(),
                 definition.status()
         );
+    }
+
+    private Map<String, Comparator<AgentDefinition>> agentSorters() {
+        Map<String, Comparator<AgentDefinition>> sorters = new LinkedHashMap<>(commonSorters(AgentDefinition::status));
+        sorters.put("modelCode", Comparator.comparing(AgentDefinition::modelCode));
+        sorters.put("maxSteps", Comparator.comparingInt(AgentDefinition::maxSteps));
+        sorters.put("timeoutMs", Comparator.comparingInt(AgentDefinition::timeoutMs));
+        return sorters;
+    }
+
+    private boolean matches(String expected, String actual) {
+        return !StringUtils.hasText(expected) || expected.equals(actual);
     }
 }

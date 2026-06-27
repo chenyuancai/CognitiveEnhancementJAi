@@ -19,6 +19,7 @@ public record SkillDefinition(
         RiskLevel riskLevel,
         List<String> forbiddenRules,
         List<String> examples,
+        List<String> dependsOnSkillCodes,
         CommonStatus status
 ) implements MetadataDefinition {
 
@@ -31,6 +32,7 @@ public record SkillDefinition(
         riskLevel = Objects.requireNonNull(riskLevel, "riskLevel 不能为空");
         forbiddenRules = List.copyOf(forbiddenRules == null ? List.of() : forbiddenRules);
         examples = List.copyOf(examples == null ? List.of() : examples);
+        dependsOnSkillCodes = List.copyOf(dependsOnSkillCodes == null ? List.of() : dependsOnSkillCodes);
         status = Objects.requireNonNull(status, "status 不能为空");
     }
 

@@ -36,6 +36,7 @@ public class SkillCenterService extends AbstractCenterMetadataService<SkillDefin
                 request.riskLevel(),
                 request.forbiddenRules(),
                 request.examples(),
+                normalizeDependsOn(request.dependsOnSkillCodes()),
                 request.status()
         )));
     }
@@ -51,6 +52,7 @@ public class SkillCenterService extends AbstractCenterMetadataService<SkillDefin
                 request.riskLevel(),
                 request.forbiddenRules(),
                 request.examples(),
+                normalizeDependsOn(request.dependsOnSkillCodes()),
                 request.status()
         )));
     }
@@ -65,7 +67,12 @@ public class SkillCenterService extends AbstractCenterMetadataService<SkillDefin
                 definition.riskLevel(),
                 definition.forbiddenRules(),
                 definition.examples(),
+                definition.dependsOnSkillCodes(),
                 definition.status()
         );
+    }
+
+    private List<String> normalizeDependsOn(List<String> dependsOnSkillCodes) {
+        return dependsOnSkillCodes == null ? List.of() : dependsOnSkillCodes;
     }
 }

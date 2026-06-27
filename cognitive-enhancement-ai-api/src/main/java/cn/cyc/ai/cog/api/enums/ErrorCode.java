@@ -11,6 +11,7 @@ public enum ErrorCode {
     FORBIDDEN("A0403", "无权访问当前资源", 403),
     NOT_FOUND("A0404", "资源不存在", 404),
     CONFLICT("A0409", "资源状态冲突", 409),
+    TOO_MANY_REQUESTS("A0429", "请求过于频繁", 429),
     BUSINESS_ERROR("B0500", "业务处理失败", 400),
     SYSTEM_ERROR("C0500", "系统开小差了，请稍后再试", 500),
     SERVICE_UNAVAILABLE("C0503", "服务暂不可用", 503);

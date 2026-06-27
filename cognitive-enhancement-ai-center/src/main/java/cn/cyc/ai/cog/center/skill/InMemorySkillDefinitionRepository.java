@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
  * @author cyc
  */
 @Repository
-@ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "false", matchIfMissing = true)
+@ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "false")
 public class InMemorySkillDefinitionRepository extends AbstractInMemoryMetadataRepository<SkillDefinition>
         implements SkillDefinitionRepository {
 }

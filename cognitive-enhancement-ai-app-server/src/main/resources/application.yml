@@ -1,0 +1,100 @@
+spring:
+  application:
+    name: cognitive-enhancement-ai-app-server
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      username: root
+      password: 123456
+    url: jdbc:mysql://${cog.mysql.ip}:${cog.mysql.port}/cog?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+  flyway:
+    enabled: ${cog.persistence.enabled:true}
+    baseline-on-migrate: true
+    schemas: cog
+server:
+  port: 8804
+springdoc:
+  api-docs:
+    enabled: ${cog.openapi.enabled:true}
+  swagger-ui:
+    enabled: ${cog.openapi.enabled:true}
+knife4j:
+  enable: false
+  setting:
+    language: zh_cn
+cog:
+  openapi:
+    enabled: true
+    gateway-url: http://localhost:8801
+  platform:
+    cache:
+      redis-enabled: false
+      ttl-minutes: 5
+  persistence:
+    enabled: true
+    dir: data/cognitive-enhancement-ai
+  seed:
+    enabled: true
+  jwt:
+    auth-enabled: true
+    trust-gateway-headers: false
+  app:
+    dev-auth-bypass: true
+    trust-gateway-headers: false
+    oauth2-jwk-set-uri: http://localhost:8802/oauth2/jwks
+  billing:
+    pay-callback:
+      mock-secret: dev-mock-secret
+      verify-signature: true
+  runtime:
+    usage:
+      account:
+        enabled: false
+        backend: admin-quota
+        default-balance-amount: 100.000000
+        preflight-cost-amount: 1.000000
+      cost:
+        tool-call-cost-amount: 1.000000
+        llm-token-cost-amount: 0.000010
+    model:
+      circuit-breaker:
+        enabled: true
+        failure-threshold: 3
+        open-duration-ms: 60000
+    output-governance:
+      max-log-content-length: 2000
+      forbidden-keywords: []
+    trace:
+      otel:
+        enabled: false
+        endpoint: http://127.0.0.1:4318/v1/traces
+        timeout-ms: 3000
+    policy:
+      rbac-enabled: true
+      high-risk-required-role: ADMIN
+      medium-risk-required-role: ""
+      circuit-breaker-preflight-enabled: true
+    planner:
+      enabled: true
+      llm-enabled: true
+    loop-guard:
+      enabled: true
+      max-repeat: 3
+    budget:
+      enabled: true
+    reflection:
+      enabled: true
+      max-retries: 1
+      min-answer-length: 8
+      failure-keywords:
+        - 无法回答
+        - 不知道
+        - I don't know
+        - cannot answer
+  mysql:
+    ip: 127.0.0.1
+    port: 3306
+  base:
+    file:
+      url: http://localhost:8805
+      feign-enabled: true

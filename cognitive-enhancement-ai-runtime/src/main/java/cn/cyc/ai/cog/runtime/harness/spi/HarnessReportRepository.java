@@ -1,6 +1,7 @@
 package cn.cyc.ai.cog.runtime.harness.spi;
 
 import cn.cyc.ai.cog.runtime.harness.domain.HarnessReport;
+import cn.cyc.ai.cog.runtime.harness.dto.HarnessReportQuery;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import java.util.List;
@@ -49,4 +50,13 @@ public interface HarnessReportRepository {
      * @return 分页结果
      */
     Page<HarnessReport> findPage(Page<HarnessReport> page);
+
+    /**
+     * 按条件分页查询报告（按开始时间倒序）。
+     *
+     * @param page  分页参数
+     * @param query 筛选条件
+     * @return 分页结果
+     */
+    Page<HarnessReport> findPage(Page<HarnessReport> page, HarnessReportQuery query);
 }

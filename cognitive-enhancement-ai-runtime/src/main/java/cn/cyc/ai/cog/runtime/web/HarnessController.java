@@ -5,6 +5,7 @@ import cn.cyc.ai.cog.core.trace.TraceContext;
 import cn.cyc.ai.cog.runtime.harness.domain.HarnessReport;
 import cn.cyc.ai.cog.runtime.harness.dto.HarnessContext;
 import cn.cyc.ai.cog.runtime.harness.dto.HarnessReportSummary;
+import cn.cyc.ai.cog.runtime.harness.dto.HarnessReportQuery;
 import cn.cyc.ai.cog.runtime.harness.dto.HarnessRunRequest;
 import cn.cyc.ai.cog.runtime.harness.dto.HarnessRunResponse;
 import cn.cyc.ai.cog.runtime.harness.dto.HarnessScenario;
@@ -16,6 +17,8 @@ import cn.cyc.ai.cog.runtime.support.RuntimeResponses;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -30,6 +33,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author cyc
  */
+@Tag(name = "Admin - Harness", description = "Agent Harness 治理验证：异步演练、报告查询与场景模板")
 @RestController
 @RequestMapping("/api/admin/harness")
 public class HarnessController {
@@ -48,11 +52,15 @@ public class HarnessController {
         this.reportRepository = reportRepository;
     }
 
+    @Operation(summary = "启动 Harness 演练", description = "异步执行预置治理步骤链，立即返回 harnessId。")
     @PostMapping("/run")
     public ApiResponse<HarnessRunResponse> run(@RequestBody HarnessRunRequest request) {
         String harnessId = "HAR-" + LocalDate.now().toString().replace("-", "")
                 + "-" + UUID.randomUUID().toString().substring(0, 6);
         String traceId = TraceContext.getTraceId();
+        if (traceId == null || traceId.isBlank()) {
+            traceId = harnessId;
+        }
 
         HarnessContext context = new HarnessContext(
                 harnessId, traceId, Instant.now(),
@@ -72,6 +80,7 @@ public class HarnessController {
         return RuntimeResponses.success(new HarnessRunResponse(harnessId, "RUNNING", "Harness 执行中"));
     }
 
+    @Operation(summary = "查询 Harness 报告", description = "按 harnessId 查询完整演练报告。")
     @GetMapping("/reports/{harnessId}")
     public ApiResponse<HarnessReport> getReport(@PathVariable("harnessId") String harnessId) {
         return reportRepository.findById(harnessId)
@@ -79,11 +88,16 @@ public class HarnessController {
                 .orElse(RuntimeResponses.success(null));
     }
 
+    @Operation(summary = "分页查询 Harness 报告", description = "支持 status、startFrom、startTo 筛选。")
     @GetMapping("/reports")
     public ApiResponse<Page<HarnessReportSummary>> listReports(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<HarnessReport> reportPage = reportRepository.findPage(new Page<>(page, size));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Instant startFrom,
+            @RequestParam(required = false) Instant startTo) {
+        HarnessReportQuery query = new HarnessReportQuery(status, startFrom, startTo);
+        Page<HarnessReport> reportPage = reportRepository.findPage(new Page<>(page, size), query);
         List<HarnessReportSummary> summaries = reportPage.getRecords().stream()
                 .map(r -> new HarnessReportSummary(
                         r.harnessId(), r.status(), r.startTime(), r.totalDurationMs(),
@@ -95,6 +109,7 @@ public class HarnessController {
         return RuntimeResponses.success(resultPage);
     }
 
+    @Operation(summary = "查询最新 Harness 报告", description = "返回最近一条演练报告。")
     @GetMapping("/reports/latest")
     public ApiResponse<HarnessReport> getLatestReport() {
         return reportRepository.findLatest()
@@ -102,6 +117,7 @@ public class HarnessController {
                 .orElse(RuntimeResponses.success(null));
     }
 
+    @Operation(summary = "查询 Harness 场景模板", description = "返回内置 QA/Chat 等演练场景模板。")
     @GetMapping("/scenario-templates")
     public ApiResponse<List<HarnessScenarioTemplate>> getScenarioTemplates() {
         List<HarnessScenarioTemplate> templates = List.of(

@@ -1,0 +1,65 @@
+server:
+  port: 8801
+
+spring:
+  application:
+    name: cognitive-enhancement-ai-gateway
+  # 限流依赖 Redis（令牌桶）。未部署 Redis 时，勿在路由上启用 RequestRateLimiter。
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  cloud:
+    gateway:
+      server:
+        webflux:
+          default-filters:
+            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
+          routes:
+            # 认证服务：OAuth2 协议端点与登录页
+            - id: auth-service
+              uri: http://localhost:8802
+              predicates:
+                - Path=/oauth2/**,/login/**,/.well-known/**,/connect/**
+            # C 端 App API
+            - id: app-service
+              uri: http://localhost:8804
+              predicates:
+                - Path=/api/app/**
+            # 基础服务 OpenAPI（须在 platform 文档路由之前，避免 /v3/api-docs/base 被 admin 吞掉）
+            - id: base-openapi
+              uri: http://localhost:8805
+              predicates:
+                - Path=/v3/api-docs/base,/v3/api-docs/base/**
+            # 基础服务：字典 / 枚举 / 文件
+            - id: base-service
+              uri: http://localhost:8805
+              predicates:
+                - Path=/api/base/**
+            # Admin / Center / Runtime API 与 OpenAPI 文档
+            - id: platform-service
+              uri: http://localhost:8803
+              predicates:
+                - Path=/api/**,/doc.html,/v3/api-docs,/v3/api-docs/**,/swagger-ui/**,/swagger-ui.html,/webjars/**
+
+cog:
+  jwt:
+    # 与 starter application.yml 中 cog.jwt.secret 保持一致
+    secret: cognitive-enhancement-ai-default-secret-key
+  gateway:
+    # 方案 A：网关仅路由转发（+ 可选限流），鉴权由下游 auth/starter 处理
+    api-auth:
+      enabled: false
+    log:
+      enabled: true
+      log-query: true
+      log-headers: true
+      log-body: true
+      max-body-length: 2048
+      exclude-paths:
+        - /actuator/**
+
+logging:
+  level:
+    org.springframework.cloud.gateway: info
+    org.springframework.security: info

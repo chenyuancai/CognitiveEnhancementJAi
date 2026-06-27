@@ -22,6 +22,7 @@ public final class SkillDtos {
             RiskLevel riskLevel,
             List<String> forbiddenRules,
             List<String> examples,
+            List<String> dependsOnSkillCodes,
             CommonStatus status
     ) {
     }
@@ -34,6 +35,7 @@ public final class SkillDtos {
             RiskLevel riskLevel,
             List<String> forbiddenRules,
             List<String> examples,
+            List<String> dependsOnSkillCodes,
             CommonStatus status
     ) {
     }
@@ -47,6 +49,7 @@ public final class SkillDtos {
             RiskLevel riskLevel,
             List<String> forbiddenRules,
             List<String> examples,
+            List<String> dependsOnSkillCodes,
             CommonStatus status
     ) {
     }

@@ -1,0 +1,35 @@
+server:
+  port: 8802
+
+spring:
+  application:
+    name: cognitive-enhancement-ai-auth
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${cog.mysql.ip:127.0.0.1}:${cog.mysql.port:3306}/cog?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+logging:
+  level:
+    org.springframework.security: info
+
+cog:
+  mysql:
+    ip: 127.0.0.1
+    port: 3306
+  auth:
+    storage:
+      mode: jdbc
+    issuer: http://localhost:8802
+    jwk:
+      key-path: data/cog-auth/rsa-jwk.json

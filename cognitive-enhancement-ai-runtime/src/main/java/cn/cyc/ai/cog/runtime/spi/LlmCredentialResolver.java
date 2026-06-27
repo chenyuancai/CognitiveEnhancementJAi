@@ -2,16 +2,14 @@ package cn.cyc.ai.cog.runtime.spi;
 
 /**
  * LLM 凭证解析器。
- *
- * @author cyc
  */
 public interface LlmCredentialResolver {
 
     /**
-     * 解析模型调用所需凭证。
+     * 校验并返回模型调用所需 API Key。
      *
-     * @param credentialRef 凭证引用
-     * @return 解析后的凭证
+     * @param apiKey 提供商 API Key
+     * @return 校验后的 API Key
      */
-    String resolve(String credentialRef);
+    String resolve(String apiKey);
 }

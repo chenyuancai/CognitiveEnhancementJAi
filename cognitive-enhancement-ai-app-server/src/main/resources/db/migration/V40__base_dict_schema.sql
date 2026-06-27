@@ -1,0 +1,41 @@
+CREATE TABLE IF NOT EXISTS qz_base_dict_type (
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id   BIGINT       NOT NULL DEFAULT 1,
+    biz_code    VARCHAR(64)  NOT NULL,
+    dict_kind   TINYINT      NOT NULL COMMENT '0=枚举 1=字典',
+    share_scope VARCHAR(16)  NOT NULL DEFAULT 'global',
+    code        VARCHAR(64)  NOT NULL,
+    name        VARCHAR(128) NOT NULL,
+    en_name     VARCHAR(128),
+    description VARCHAR(256),
+    remark      VARCHAR(256),
+    status      TINYINT      NOT NULL DEFAULT 1,
+    create_by   BIGINT,
+    update_by   BIGINT,
+    create_time DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    update_time DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+    deleted     TINYINT      NOT NULL DEFAULT 0,
+    version     INT          NOT NULL DEFAULT 0,
+    UNIQUE KEY uk_base_dict_type_scope (biz_code, dict_kind, share_scope, tenant_id, code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='基础字典类型';
+
+CREATE TABLE IF NOT EXISTS qz_base_dict_item (
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id   BIGINT       NOT NULL DEFAULT 1,
+    biz_code    VARCHAR(64)  NOT NULL,
+    type_id     BIGINT       NOT NULL,
+    parent_id   BIGINT       NOT NULL DEFAULT 0,
+    `value`     VARCHAR(64)  NOT NULL,
+    label       VARCHAR(128) NOT NULL,
+    en_label    VARCHAR(128),
+    remark      VARCHAR(256),
+    sort        INT          NOT NULL DEFAULT 0,
+    status      TINYINT      NOT NULL DEFAULT 1,
+    create_by   BIGINT,
+    update_by   BIGINT,
+    create_time DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    update_time DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+    deleted     TINYINT      NOT NULL DEFAULT 0,
+    version     INT          NOT NULL DEFAULT 0,
+    UNIQUE KEY uk_base_dict_item (tenant_id, type_id, `value`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='基础字典项';

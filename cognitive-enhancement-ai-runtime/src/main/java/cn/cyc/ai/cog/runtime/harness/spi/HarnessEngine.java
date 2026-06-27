@@ -47,6 +47,21 @@ public interface HarnessEngine {
      * @param stepCallback 每步完成后的回调，可为 null
      * @return Harness 完整报告
      */
+    default HarnessReport run(List<HarnessStep> steps, HarnessContext context,
+                              Consumer<HarnessReport.HarnessStepReport> stepCallback) {
+        return run(steps, context, stepCallback, HarnessCancellation.none());
+    }
+
+    /**
+     * 执行 Harness 验证，支持每步回调与取消令牌。
+     *
+     * @param steps        验证步骤列表
+     * @param context      执行上下文
+     * @param stepCallback 每步完成后的回调，可为 null
+     * @param cancellation 取消令牌，可为 {@link HarnessCancellation#none()}
+     * @return Harness 完整报告
+     */
     HarnessReport run(List<HarnessStep> steps, HarnessContext context,
-                      Consumer<HarnessReport.HarnessStepReport> stepCallback);
+                      Consumer<HarnessReport.HarnessStepReport> stepCallback,
+                      HarnessCancellation cancellation);
 }

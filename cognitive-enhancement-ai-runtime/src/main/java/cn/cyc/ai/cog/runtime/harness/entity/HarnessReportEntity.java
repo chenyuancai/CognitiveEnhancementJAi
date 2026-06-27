@@ -11,7 +11,7 @@ import java.time.Instant;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName(value = "harness_report", autoResultMap = true)
+@TableName(value = "qz_rt_harness_report", autoResultMap = true)
 public class HarnessReportEntity extends BaseEntity {
     private String harnessId;
     private String traceId;

@@ -11,7 +11,7 @@ import java.util.Map;
  * @param providerCode   模型提供方编码
  * @param modelCode      模型编码
  * @param endpoint       模型调用地址
- * @param credentialRef  凭证引用
+ * @param apiKey         提供商 API Key（来自 Center 元数据）
  * @param timeoutMs      调用超时时间
  * @param promptCode     Prompt 编码
  * @param promptInput    渲染后的提示词输入
@@ -24,7 +24,7 @@ public record LlmInvocationRequest(String traceId,
                                    String providerCode,
                                    String modelCode,
                                    String endpoint,
-                                   String credentialRef,
+                                   String apiKey,
                                    int timeoutMs,
                                    String promptCode,
                                    Object promptInput,

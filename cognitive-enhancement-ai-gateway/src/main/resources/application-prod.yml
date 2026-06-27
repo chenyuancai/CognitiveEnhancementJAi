@@ -1,0 +1,9 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+cog:
+  gateway:
+    api-auth:
+      enabled: true

@@ -1,27 +1,20 @@
 package cn.cyc.ai.cog.core.exception;
 
 /**
- * 平台通用业务异常。
+ * @deprecated 使用 {@link cn.cyc.ai.cog.common.exception.BusinessException}
  */
-public class BusinessException extends RuntimeException {
-
-    private final String code;
+@Deprecated
+public class BusinessException extends cn.cyc.ai.cog.common.exception.BusinessException {
 
     public BusinessException(String message) {
-        this(null, message);
+        super(message);
     }
 
     public BusinessException(String code, String message) {
-        super(message);
-        this.code = code;
+        super(code, message);
     }
 
     public BusinessException(String code, String message, Throwable cause) {
-        super(message, cause);
-        this.code = code;
-    }
-
-    public String getCode() {
-        return code;
+        super(code, message, cause);
     }
 }

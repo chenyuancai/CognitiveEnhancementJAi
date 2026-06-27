@@ -17,7 +17,7 @@ public record ModelDefinition(
         String modelName,
         String modelType,
         String endpoint,
-        String credentialRef,
+        String apiKey,
         int timeoutMs,
         int retryTimes,
         CommonStatus status,

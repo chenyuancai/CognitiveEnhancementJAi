@@ -7,6 +7,7 @@ import cn.cyc.ai.cog.core.metadata.type.ParameterConstraintDefinition;
 import cn.cyc.ai.cog.core.metadata.type.RiskLevel;
 import cn.cyc.ai.cog.core.metadata.type.SchemaDefinition;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 
@@ -26,7 +27,10 @@ public record CapabilityDefinition(
         String boundAgentCode,
         RiskLevel riskLevel,
         boolean needHumanConfirm,
-        CommonStatus status
+        CommonStatus status,
+        String version,
+        Instant publishedAt,
+        CapabilityLifecycleStatus lifecycleStatus
 ) implements MetadataDefinition {
 
     public CapabilityDefinition {
@@ -40,6 +44,31 @@ public record CapabilityDefinition(
         boundAgentCode = Objects.requireNonNull(boundAgentCode, "boundAgentCode 不能为空");
         riskLevel = Objects.requireNonNull(riskLevel, "riskLevel 不能为空");
         status = Objects.requireNonNull(status, "status 不能为空");
+        if (version == null || version.isBlank()) {
+            version = "1.0.0";
+        }
+        if (lifecycleStatus == null) {
+            lifecycleStatus = CapabilityLifecycleStatus.PUBLISHED;
+        }
+    }
+
+    /**
+     * 兼容旧构造：默认版本 1.0.0、已发布。
+     */
+    public CapabilityDefinition(String capabilityCode,
+                                  String capabilityName,
+                                  String capabilityDesc,
+                                  SchemaDefinition inputSchema,
+                                  SchemaDefinition outputSchema,
+                                  Map<String, ParameterConstraintDefinition> parameterConstraints,
+                                  ExecutionMode executeMode,
+                                  String boundAgentCode,
+                                  RiskLevel riskLevel,
+                                  boolean needHumanConfirm,
+                                  CommonStatus status) {
+        this(capabilityCode, capabilityName, capabilityDesc, inputSchema, outputSchema, parameterConstraints,
+                executeMode, boundAgentCode, riskLevel, needHumanConfirm, status,
+                "1.0.0", Instant.now(), CapabilityLifecycleStatus.PUBLISHED);
     }
 
     @Override
@@ -50,5 +79,14 @@ public record CapabilityDefinition(
     @Override
     public String name() {
         return capabilityName;
+    }
+
+    /**
+     * 是否可被运行时直接解析（已发布且启用）。
+     *
+     * @return 是否运行时可见
+     */
+    public boolean runtimeVisible() {
+        return status == CommonStatus.ENABLED && lifecycleStatus == CapabilityLifecycleStatus.PUBLISHED;
     }
 }

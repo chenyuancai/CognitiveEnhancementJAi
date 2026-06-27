@@ -8,7 +8,9 @@ import cn.cyc.ai.cog.core.metadata.model.ModelDefinition;
 import cn.cyc.ai.cog.core.metadata.model.ModelDefinitionRepository;
 import cn.cyc.ai.cog.core.runtime.CapabilityExecuteRequest;
 import cn.cyc.ai.cog.core.runtime.ExecutionContext;
+import cn.cyc.ai.cog.core.runtime.ExecutionResult;
 import cn.cyc.ai.cog.runtime.api.LlmInvocationResult;
+import cn.cyc.ai.cog.runtime.observation.spi.UsageMeter;
 import cn.cyc.ai.cog.runtime.spi.LlmGateway;
 import cn.cyc.ai.cog.runtime.harness.dto.HarnessContext;
 import cn.cyc.ai.cog.runtime.harness.dto.HarnessScenario;
@@ -16,6 +18,8 @@ import cn.cyc.ai.cog.runtime.harness.spi.HarnessStep;
 import cn.cyc.ai.cog.runtime.harness.spi.HarnessStepResult;
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,15 +33,18 @@ import java.util.Map;
 public class LlmInvokeStep implements HarnessStep {
 
     private final LlmGateway llmGateway;
+    private final UsageMeter usageMeter;
     private final ModelDefinitionRepository modelRepository;
     private final CapabilityDefinitionRepository capabilityRepository;
     private final AgentDefinitionRepository agentRepository;
 
     public LlmInvokeStep(LlmGateway llmGateway,
+                         UsageMeter usageMeter,
                          ModelDefinitionRepository modelRepository,
                          CapabilityDefinitionRepository capabilityRepository,
                          AgentDefinitionRepository agentRepository) {
         this.llmGateway = llmGateway;
+        this.usageMeter = usageMeter;
         this.modelRepository = modelRepository;
         this.capabilityRepository = capabilityRepository;
         this.agentRepository = agentRepository;
@@ -96,6 +103,7 @@ public class LlmInvokeStep implements HarnessStep {
                     ? scenario.inputParams()
                     : Map.of("question", "Harness 测试问题");
             LlmInvocationResult result = llmGateway.generate(execContext, model, promptInput);
+            recordUsage(execContext, result);
             long latencyMs = System.currentTimeMillis() - start;
 
             return new HarnessStepResult(
@@ -106,7 +114,10 @@ public class LlmInvokeStep implements HarnessStep {
                             "provider", model.providerCode(),
                             "requestLatencyMs", latencyMs,
                             "responseStatus", "SUCCESS",
-                            "responsePreview", truncate(result.answer(), 200)
+                            "responsePreview", truncate(result.answer(), 200),
+                            "inputTokenCount", result.inputTokenCount(),
+                            "outputTokenCount", result.outputTokenCount(),
+                            "totalTokenCount", result.totalTokenCount()
                     )
             );
         } catch (Exception ex) {
@@ -122,6 +133,23 @@ public class LlmInvokeStep implements HarnessStep {
                     )
             );
         }
+    }
+
+    private void recordUsage(ExecutionContext context, LlmInvocationResult llmResult) {
+        if (context.capability() == null || context.agent() == null) {
+            return;
+        }
+        Map<String, Object> output = new LinkedHashMap<>();
+        output.put("executorType", llmResult.executorType());
+        output.put("llmResult", llmResult);
+        output.put("invocationResult", llmResult);
+        ExecutionResult executionResult = new ExecutionResult(
+                "LLM_GENERATED",
+                "Harness LLM 步骤调用成功",
+                List.of(),
+                output
+        );
+        usageMeter.record(context, executionResult);
     }
 
     private String truncate(String text, int maxLen) {

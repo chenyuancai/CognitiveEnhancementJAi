@@ -12,12 +12,22 @@
     <description>Cognitive Enhancement AI parent project</description>
 
     <modules>
+        <module>cognitive-enhancement-ai-common</module>
         <module>cognitive-enhancement-ai-api</module>
         <module>cognitive-enhancement-ai-sdk</module>
         <module>cognitive-enhancement-ai-core</module>
         <module>cognitive-enhancement-ai-center</module>
         <module>cognitive-enhancement-ai-runtime</module>
-        <module>cognitive-enhancement-ai-starter</module>
+        <module>cognitive-enhancement-ai-platform</module>
+        <module>cognitive-enhancement-ai-admin</module>
+        <module>cognitive-enhancement-ai-app</module>
+        <module>cognitive-enhancement-ai-admin-server</module>
+        <module>cognitive-enhancement-ai-app-server</module>
+        <module>cognitive-enhancement-ai-auth</module>
+        <module>cognitive-enhancement-ai-base-api</module>
+        <module>cognitive-enhancement-ai-file-storage</module>
+        <module>cognitive-enhancement-ai-base-server</module>
+        <module>cognitive-enhancement-ai-gateway</module>
     </modules>
 
     <properties>
@@ -25,10 +35,17 @@
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot.version>3.5.6</spring-boot.version>
+        <spring-cloud.version>2025.0.0</spring-cloud.version>
+        <mybatis-plus.version>3.5.11</mybatis-plus.version>
         <maven.compiler.plugin.version>3.14.0</maven.compiler.plugin.version>
         <maven.resources.plugin.version>3.3.1</maven.resources.plugin.version>
         <maven.jar.plugin.version>3.3.0</maven.jar.plugin.version>
         <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
+        <knife4j.version>4.5.0</knife4j.version>
+        <springdoc.version>2.8.9</springdoc.version>
+        <swagger-annotations.version>2.2.30</swagger-annotations.version>
+        <shedlock.version>6.2.0</shedlock.version>
+        <archunit.version>1.4.0</archunit.version>
     </properties>
 
     <dependencyManagement>
@@ -39,6 +56,68 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>cn.cyc.ai</groupId>
+                <artifactId>cognitive-enhancement-ai-base-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.cyc.ai</groupId>
+                <artifactId>cognitive-enhancement-ai-file-storage</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.cyc.ai</groupId>
+                <artifactId>cognitive-enhancement-ai-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-jsqlparser</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+                <version>${knife4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations-jakarta</artifactId>
+                <version>${swagger-annotations.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-spring</artifactId>
+                <version>${shedlock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-provider-jdbc-template</artifactId>
+                <version>${shedlock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.tngtech.archunit</groupId>
+                <artifactId>archunit-junit5</artifactId>
+                <version>${archunit.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -69,6 +148,9 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven.surefire.plugin.version}</version>
+                    <configuration>
+                        <excludedGroups>smoke</excludedGroups>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
@@ -77,6 +159,29 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+        </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>smoke</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration combine.self="override">
+                            <groups>smoke</groups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

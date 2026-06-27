@@ -6,6 +6,7 @@ import cn.cyc.ai.cog.center.support.AbstractCenterMetadataService;
 import cn.cyc.ai.cog.core.metadata.tool.RetryPolicy;
 import cn.cyc.ai.cog.core.metadata.tool.ToolDefinition;
 import cn.cyc.ai.cog.core.metadata.tool.ToolDefinitionRepository;
+import cn.cyc.ai.cog.core.metadata.type.RiskLevel;
 
 import java.util.List;
 
@@ -36,6 +37,7 @@ public class ToolCenterService extends AbstractCenterMetadataService<ToolDefinit
                 SchemaDtoMapper.toDomain(request.requestSchema()),
                 SchemaDtoMapper.toDomain(request.responseSchema()),
                 request.permissionScope(),
+                defaultRiskLevel(request.riskLevel()),
                 request.timeoutMs(),
                 new RetryPolicy(request.retryMaxAttempts()),
                 request.implRef(),
@@ -52,6 +54,7 @@ public class ToolCenterService extends AbstractCenterMetadataService<ToolDefinit
                 SchemaDtoMapper.toDomain(request.requestSchema()),
                 SchemaDtoMapper.toDomain(request.responseSchema()),
                 request.permissionScope(),
+                defaultRiskLevel(request.riskLevel()),
                 request.timeoutMs(),
                 new RetryPolicy(request.retryMaxAttempts()),
                 request.implRef(),
@@ -67,10 +70,15 @@ public class ToolCenterService extends AbstractCenterMetadataService<ToolDefinit
                 SchemaDtoMapper.toDto(definition.requestSchema()),
                 SchemaDtoMapper.toDto(definition.responseSchema()),
                 definition.permissionScope(),
+                definition.riskLevel(),
                 definition.timeoutMs(),
                 definition.retryPolicy().maxAttempts(),
                 definition.implRef(),
                 definition.status()
         );
+    }
+
+    private RiskLevel defaultRiskLevel(RiskLevel riskLevel) {
+        return riskLevel == null ? RiskLevel.LOW : riskLevel;
     }
 }

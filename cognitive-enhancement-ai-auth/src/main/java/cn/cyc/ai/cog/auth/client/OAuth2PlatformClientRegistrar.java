@@ -1,0 +1,34 @@
+package cn.cyc.ai.cog.auth.client;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
+import org.springframework.stereotype.Component;
+
+/**
+ * JDBC 模式下幂等写入 cms-client 注册信息。
+ */
+@Component
+@ConditionalOnProperty(name = "cog.auth.storage.mode", havingValue = "jdbc", matchIfMissing = true)
+public class OAuth2PlatformClientRegistrar implements ApplicationRunner {
+
+    private static final Logger log = LoggerFactory.getLogger(OAuth2PlatformClientRegistrar.class);
+
+    private final RegisteredClientRepository registeredClientRepository;
+
+    public OAuth2PlatformClientRegistrar(RegisteredClientRepository registeredClientRepository) {
+        this.registeredClientRepository = registeredClientRepository;
+    }
+
+    @Override
+    public void run(ApplicationArguments args) {
+        if (registeredClientRepository.findByClientId(OAuth2PlatformClientFactory.CMS_CLIENT_ID) != null) {
+            return;
+        }
+        registeredClientRepository.save(OAuth2PlatformClientFactory.buildCmsClient());
+        log.info("Seeded OAuth2 registered client: {}", OAuth2PlatformClientFactory.CMS_CLIENT_ID);
+    }
+}

@@ -1,6 +1,7 @@
 package cn.cyc.ai.cog.runtime.harness.repository;
 
 import cn.cyc.ai.cog.runtime.harness.domain.HarnessReport;
+import cn.cyc.ai.cog.runtime.harness.dto.HarnessReportQuery;
 import cn.cyc.ai.cog.runtime.harness.entity.HarnessReportEntity;
 import cn.cyc.ai.cog.runtime.harness.entity.HarnessStepReportEntity;
 import cn.cyc.ai.cog.runtime.harness.service.IHarnessReportService;
@@ -8,6 +9,7 @@ import cn.cyc.ai.cog.runtime.harness.service.IHarnessStepReportService;
 import cn.cyc.ai.cog.runtime.harness.spi.HarnessReportRepository;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +17,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -76,7 +79,18 @@ public class PersistentHarnessReportRepository implements HarnessReportRepositor
 
     @Override
     public Page<HarnessReport> findPage(Page<HarnessReport> page) {
+        return findPage(page, new HarnessReportQuery(null, null, null));
+    }
+
+    @Override
+    public Page<HarnessReport> findPage(Page<HarnessReport> page, HarnessReportQuery query) {
         Page<HarnessReportEntity> entityPage = reportService.lambdaQuery()
+                .eq(query != null && query.status() != null && !query.status().isBlank(),
+                        HarnessReportEntity::getStatus, query == null ? null : query.status())
+                .ge(query != null && query.startFrom() != null,
+                        HarnessReportEntity::getStartTime, query == null ? null : query.startFrom())
+                .le(query != null && query.startTo() != null,
+                        HarnessReportEntity::getStartTime, query == null ? null : query.startTo())
                 .orderByDesc(HarnessReportEntity::getStartTime)
                 .page(new Page<>(page.getCurrent(), page.getSize()));
 
@@ -124,6 +138,9 @@ public class PersistentHarnessReportRepository implements HarnessReportRepositor
     }
 
     private HarnessReport toDomain(HarnessReportEntity entity) {
+        HarnessReport.HarnessScenarioSummary scenario = parseScenario(entity.getScenarioJson());
+        HarnessReport.HarnessSummary summary = parseSummary(entity.getSummaryJson());
+        List<HarnessReport.HarnessStepReport> steps = loadSteps(entity.getHarnessId());
         return new HarnessReport(
                 entity.getHarnessId(),
                 entity.getTraceId(),
@@ -131,9 +148,69 @@ public class PersistentHarnessReportRepository implements HarnessReportRepositor
                 entity.getStartTime(),
                 entity.getEndTime(),
                 entity.getTotalDurationMs() != null ? entity.getTotalDurationMs() : 0,
-                null,
-                List.of(),
-                null
+                scenario,
+                steps,
+                summary
         );
+    }
+
+    private List<HarnessReport.HarnessStepReport> loadSteps(String harnessId) {
+        return stepReportService.lambdaQuery()
+                .eq(HarnessStepReportEntity::getHarnessId, harnessId)
+                .orderByAsc(HarnessStepReportEntity::getSequence)
+                .list()
+                .stream()
+                .map(this::toStepDomain)
+                .toList();
+    }
+
+    private HarnessReport.HarnessStepReport toStepDomain(HarnessStepReportEntity entity) {
+        return new HarnessReport.HarnessStepReport(
+                entity.getSequence() != null ? entity.getSequence() : 0,
+                entity.getStepCode(),
+                entity.getStepName(),
+                null,
+                entity.getStatus(),
+                entity.getDurationMs() != null ? entity.getDurationMs() : 0,
+                entity.getMessage(),
+                parseDetails(entity.getDetailsJson())
+        );
+    }
+
+    private HarnessReport.HarnessScenarioSummary parseScenario(String scenarioJson) {
+        if (scenarioJson == null || scenarioJson.isBlank()) {
+            return null;
+        }
+        try {
+            return objectMapper.readValue(scenarioJson, HarnessReport.HarnessScenarioSummary.class);
+        } catch (JsonProcessingException e) {
+            log.warn("Failed to parse harness scenario JSON", e);
+            return null;
+        }
+    }
+
+    private HarnessReport.HarnessSummary parseSummary(String summaryJson) {
+        if (summaryJson == null || summaryJson.isBlank()) {
+            return null;
+        }
+        try {
+            return objectMapper.readValue(summaryJson, HarnessReport.HarnessSummary.class);
+        } catch (JsonProcessingException e) {
+            log.warn("Failed to parse harness summary JSON", e);
+            return null;
+        }
+    }
+
+    private Map<String, Object> parseDetails(String detailsJson) {
+        if (detailsJson == null || detailsJson.isBlank()) {
+            return Map.of();
+        }
+        try {
+            return objectMapper.readValue(detailsJson, new TypeReference<>() {
+            });
+        } catch (JsonProcessingException e) {
+            log.warn("Failed to parse harness step details JSON", e);
+            return Map.of();
+        }
     }
 }

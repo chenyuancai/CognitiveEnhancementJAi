@@ -9,7 +9,7 @@ import cn.cyc.ai.cog.core.metadata.tool.ToolDefinitionRepository;
 import cn.cyc.ai.cog.core.runtime.CapabilityExecuteRequest;
 import cn.cyc.ai.cog.core.runtime.ExecutionContext;
 import cn.cyc.ai.cog.runtime.api.ToolInvocationResult;
-import cn.cyc.ai.cog.runtime.spi.ToolRuntime;
+import cn.cyc.ai.cog.runtime.tool.spi.ToolRuntime;
 import cn.cyc.ai.cog.runtime.harness.dto.HarnessContext;
 import cn.cyc.ai.cog.runtime.harness.dto.HarnessScenario;
 import cn.cyc.ai.cog.runtime.harness.spi.HarnessStep;

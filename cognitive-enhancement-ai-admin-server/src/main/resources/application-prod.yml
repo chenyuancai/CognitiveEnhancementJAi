@@ -1,0 +1,22 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+cog:
+  admin:
+    dev-auth-bypass: false
+    trust-gateway-headers: true
+    oauth2-jwk-set-uri: http://localhost:8802/oauth2/jwks
+  runtime:
+    usage:
+      account:
+        enabled: true
+        backend: admin-quota
+  jwt:
+    auth-enabled: true
+    trust-gateway-headers: ${cog.admin.trust-gateway-headers:false}
+  seed:
+    enabled: false
+  persistence:
+    enabled: true

@@ -6,6 +6,8 @@ import cn.cyc.ai.cog.center.capability.CapabilityAdminService;
 import cn.cyc.ai.cog.center.capability.CapabilityUpsertRequest;
 import cn.cyc.ai.cog.center.model.ModelAdminService;
 import cn.cyc.ai.cog.center.model.ModelUpsertRequest;
+import cn.cyc.ai.cog.center.model.provider.ModelProviderAdminService;
+import cn.cyc.ai.cog.center.model.provider.ModelProviderUpsertRequest;
 import cn.cyc.ai.cog.center.prompt.PromptAdminService;
 import cn.cyc.ai.cog.center.prompt.PromptUpsertRequest;
 import cn.cyc.ai.cog.center.skill.SkillAdminService;
@@ -18,11 +20,10 @@ import cn.cyc.ai.cog.core.metadata.type.ExecutionMode;
 import cn.cyc.ai.cog.core.metadata.type.ParameterConstraintDefinition;
 import cn.cyc.ai.cog.core.metadata.type.RiskLevel;
 import cn.cyc.ai.cog.core.metadata.type.SchemaDefinition;
-import cn.cyc.ai.cog.runtime.config.DashscopeProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -32,15 +33,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 管理中心演示数据初始化配置，在应用启动时补齐主链路演示元数据。
+ * 管理中心演示数据初始化配置，在内存模式下补齐主链路演示元数据。
+ *
+ * <p>持久化模式下演示元数据由 Flyway {@code V3__center_metadata.sql} 负责，本配置不加载。
  *
  * @author cyc
  */
 @Configuration
+@ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "false", matchIfMissing = true)
+@ConditionalOnProperty(name = "cog.seed.enabled", havingValue = "true", matchIfMissing = true)
 public class CenterDemoDataInitializer {
 
-    @Autowired
-    private DashscopeProperties dashscopeProperties;
     /**
      * 初始化日志。
      */
@@ -59,6 +62,7 @@ public class CenterDemoDataInitializer {
      */
     @Bean
     ApplicationRunner centerSeedRunner(
+            ModelProviderAdminService modelProviderAdminService,
             ModelAdminService modelAdminService,
             PromptAdminService promptAdminService,
             CapabilityAdminService capabilityAdminService,
@@ -68,6 +72,28 @@ public class CenterDemoDataInitializer {
     ) {
         return arguments -> {
             log.info("开始初始化 Center 演示数据");
+            if (modelProviderAdminService.isEmpty()) {
+                log.info("初始化模型提供商演示数据");
+                modelProviderAdminService.seed(new ModelProviderUpsertRequest(
+                        "openai",
+                        "OpenAI",
+                        "OPENAI_COMPATIBLE",
+                        "https://api.openai.com/v1/chat/completions",
+                        "",
+                        "OpenAI Chat Completions API",
+                        CommonStatus.ENABLED
+                ));
+                modelProviderAdminService.seed(new ModelProviderUpsertRequest(
+                        "bailian",
+                        "阿里云百炼",
+                        "DASHSCOPE",
+                        "https://dashscope.aliyuncs.com/compatible-mode/v1",
+                        "",
+                        "DashScope 兼容 OpenAI 协议",
+                        CommonStatus.ENABLED
+                ));
+                log.info("演示提供商已写入，请在 CMS 提供商管理中配置 apiKey 后启用真实调用");
+            }
             if (modelAdminService.isEmpty()) {
                 log.info("初始化模型演示数据");
                 modelAdminService.seed(new ModelUpsertRequest(
@@ -77,11 +103,12 @@ public class CenterDemoDataInitializer {
                         "GPT-4o Mini",
                         "CHAT",
                         "https://api.openai.com/v1/chat/completions",
-                        "credential/openai/default",
+                        "",
                         30_000,
                         2,
                         CommonStatus.ENABLED,
                         10,
+                        null,
                         null
                 ));
                 modelAdminService.seed(new ModelUpsertRequest(
@@ -91,12 +118,13 @@ public class CenterDemoDataInitializer {
                         "Qwen Plus",
                         "CHAT",
                         "https://dashscope.aliyuncs.com/compatible-mode/v1",
-                        dashscopeProperties.getApiKey(),
+                        "",
                         30_000,
                         2,
                         CommonStatus.ENABLED,
                         20,
-                        "gpt-4o-mini"
+                        "gpt-4o-mini",
+                        null
                 ));
             }
             if (promptAdminService.isEmpty()) {
@@ -133,9 +161,23 @@ public class CenterDemoDataInitializer {
                         inputSchema(),
                         outputSchema(),
                         "search:query",
+                        RiskLevel.LOW,
                         5_000,
                         1,
                         "demoSearchTool",
+                        CommonStatus.ENABLED
+                ));
+                toolAdminService.seed(new ToolUpsertRequest(
+                        "tool.echo",
+                        "Echo 工具",
+                        ToolProtocolType.JAVA_LOCAL,
+                        inputSchema(),
+                        outputSchema(),
+                        "echo:input",
+                        RiskLevel.LOW,
+                        3_000,
+                        1,
+                        "demoEchoTool",
                         CommonStatus.ENABLED
                 ));
             }
@@ -146,10 +188,11 @@ public class CenterDemoDataInitializer {
                         "问答技能",
                         "DOMAIN",
                         "优先基于事实回答，不确定时明确说明。",
-                        List.of("tool.search"),
+                        List.of("tool.search", "tool.echo"),
                         RiskLevel.LOW,
                         List.of("不得编造来源"),
                         List.of("用户询问事实类问题时可先搜索"),
+                        List.of(),
                         CommonStatus.ENABLED
                 ));
                 skillAdminService.seed(new SkillUpsertRequest(
@@ -161,6 +204,7 @@ public class CenterDemoDataInitializer {
                         RiskLevel.LOW,
                         List.of("不得输出攻击性内容"),
                         List.of("适合纯对话与常规生成场景"),
+                        List.of(),
                         CommonStatus.ENABLED
                 ));
             }

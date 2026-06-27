@@ -1,5 +1,6 @@
 package cn.cyc.ai.cog.center.prompt;
 
+import cn.cyc.ai.cog.core.metadata.prompt.PromptLifecycleStatus;
 import cn.cyc.ai.cog.core.metadata.type.CommonStatus;
 import cn.cyc.ai.cog.core.metadata.type.SchemaDefinition;
 
@@ -15,8 +16,9 @@ import java.time.Instant;
  * @param templateContent 模板内容
  * @param variableSchema  变量结构定义
  * @param outputSchema    输出结构定义
- * @param status          启用状态
- * @param publishedAt     发布时间
+ * @param status           启用状态
+ * @param lifecycleStatus  生命周期状态
+ * @param publishedAt      发布时间
  * @author cyc
  */
 public record PromptResult(
@@ -28,6 +30,7 @@ public record PromptResult(
         SchemaDefinition variableSchema,
         SchemaDefinition outputSchema,
         CommonStatus status,
+        PromptLifecycleStatus lifecycleStatus,
         Instant publishedAt
 ) {
 }
