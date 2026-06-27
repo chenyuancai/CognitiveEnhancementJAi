@@ -56,7 +56,7 @@ class MetadataValidationTest {
 
         assertThrows(IllegalArgumentException.class, () -> new ToolDefinition(
                 "tool.search", "搜索工具", ToolProtocolType.HTTP, inputSchema, outputSchema,
-                "search:query", 0, new RetryPolicy(1), "searchToolAdapter", CommonStatus.ENABLED
+                "search:query", RiskLevel.LOW, 0, new RetryPolicy(1), "searchToolAdapter", CommonStatus.ENABLED
         ));
     }
 
@@ -69,7 +69,7 @@ class MetadataValidationTest {
         );
         new SkillDefinition(
                 "skill.qa", "问答技能", "DOMAIN", "优先基于事实回答。",
-                List.of("tool.search"), RiskLevel.LOW, List.of("不得编造来源"), List.of("示例"), CommonStatus.ENABLED
+                List.of("tool.search"), RiskLevel.LOW, List.of("不得编造来源"), List.of("示例"), List.of(), CommonStatus.ENABLED
         );
     }
 

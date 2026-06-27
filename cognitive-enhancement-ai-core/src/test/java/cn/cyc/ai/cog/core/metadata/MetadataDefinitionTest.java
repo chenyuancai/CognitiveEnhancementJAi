@@ -110,6 +110,7 @@ class MetadataDefinitionTest {
                 RiskLevel.LOW,
                 List.of("不得编造来源"),
                 List.of("用户问天气时先调用搜索工具"),
+                List.of(),
                 CommonStatus.ENABLED
         );
         ToolDefinition tool = new ToolDefinition(
@@ -119,6 +120,7 @@ class MetadataDefinitionTest {
                 inputSchema,
                 outputSchema,
                 "search:query",
+                RiskLevel.LOW,
                 5_000,
                 new RetryPolicy(2),
                 "searchToolAdapter",
@@ -133,6 +135,7 @@ class MetadataDefinitionTest {
         assertEquals(List.of("skill.qa"), agent.allowedSkillCodes());
         assertEquals(List.of("tool.search"), skill.boundToolCodes());
         assertEquals(ToolProtocolType.HTTP, tool.protocolType());
+        assertEquals(RiskLevel.LOW, tool.riskLevel());
         assertEquals(2, tool.retryPolicy().maxAttempts());
     }
 
