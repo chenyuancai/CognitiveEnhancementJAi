@@ -119,10 +119,11 @@ public class ReActAgentExecutor {
                     throw ex;
                 }
                 traceSpanRecorder.succeed(iterationSpan, Map.of(
-                        "toolCallCount", lastResult.toolCalls().size(),
+                        "toolCallCount", toolCallCount(lastResult),
                         "finishReason", lastResult.finishReason()));
 
                 if (!lastResult.hasToolCalls()) {
+                    validateFinalAnswer(lastResult);
                     return buildSuccessResult(context, lastResult, steps, modelResolution);
                 }
 
@@ -166,6 +167,16 @@ public class ReActAgentExecutor {
             if (!allowed.contains(toolCall.name())) {
                 throw new BusinessException("CONFLICT", "ReAct 调用了未授权 Tool: " + toolCall.name());
             }
+        }
+    }
+
+    private int toolCallCount(LlmConversationResult result) {
+        return result.toolCalls() == null ? 0 : result.toolCalls().size();
+    }
+
+    private void validateFinalAnswer(LlmConversationResult result) {
+        if (!StringUtils.hasText(result.content())) {
+            throw new BusinessException("CONFLICT", "ReAct LLM 未返回最终回答");
         }
     }
 

@@ -254,6 +254,48 @@ class ReActAgentExecutorTest {
         verify(llmGateway, times(1)).chat(any(), any(), any());
     }
 
+    @Test
+    void shouldTreatNullToolCallsAsFinalAnswer() {
+        when(llmGateway.chat(any(), any(), any()))
+                .thenReturn(new LlmConversationResult(
+                        "无需工具直接回答。",
+                        null,
+                        "stop",
+                        10, 4, 14, 50, false));
+
+        ExecutionResult result = executor.execute(
+                sampleContext(Map.of()),
+                sampleResolution(),
+                "question",
+                List.of("tool.search"),
+                ConversationContext.disabled());
+
+        assertEquals("SUCCESS", result.status());
+        assertEquals("无需工具直接回答。", result.message());
+        verifyNoInteractions(toolRuntime);
+    }
+
+    @Test
+    void shouldRejectEmptyFinalAnswerContent() {
+        when(llmGateway.chat(any(), any(), any()))
+                .thenReturn(new LlmConversationResult(
+                        null,
+                        List.of(),
+                        "stop",
+                        10, 0, 10, 50, false));
+
+        BusinessException exception = assertThrows(BusinessException.class, () -> executor.execute(
+                sampleContext(Map.of()),
+                sampleResolution(),
+                "question",
+                List.of("tool.search"),
+                ConversationContext.disabled()));
+
+        assertEquals("CONFLICT", exception.getSemanticCode());
+        assertTrue(exception.getMessage().contains("未返回最终回答"));
+        verifyNoInteractions(toolRuntime);
+    }
+
     private LlmConversationResult toolCallResult() {
         return new LlmConversationResult(
                 null,
