@@ -7,10 +7,8 @@ import cn.cyc.ai.cog.runtime.api.LlmConversationResult;
 import cn.cyc.ai.cog.runtime.api.LlmInvocationRequest;
 import cn.cyc.ai.cog.runtime.api.LlmInvocationResult;
 import cn.cyc.ai.cog.core.runtime.ExecutionContext;
-import cn.cyc.ai.cog.runtime.spi.LlmCredentialResolver;
 import cn.cyc.ai.cog.runtime.spi.LlmGateway;
 import cn.cyc.ai.cog.runtime.spi.LlmProviderHandler;
-import cn.cyc.ai.cog.runtime.support.OpenAiCompatibleChatClient;
 import cn.cyc.ai.cog.runtime.trace.domain.TraceSpanType;
 import cn.cyc.ai.cog.runtime.trace.span.TraceSpanRecorder;
 import org.slf4j.Logger;
@@ -38,17 +36,11 @@ public class DefaultLlmGateway implements LlmGateway {
      */
     private final List<LlmProviderHandler> llmProviderHandlers;
     private final TraceSpanRecorder traceSpanRecorder;
-    private final OpenAiCompatibleChatClient openAiCompatibleChatClient;
-    private final LlmCredentialResolver llmCredentialResolver;
 
     public DefaultLlmGateway(List<LlmProviderHandler> llmProviderHandlers,
-                             TraceSpanRecorder traceSpanRecorder,
-                             OpenAiCompatibleChatClient openAiCompatibleChatClient,
-                             LlmCredentialResolver llmCredentialResolver) {
+                             TraceSpanRecorder traceSpanRecorder) {
         this.llmProviderHandlers = llmProviderHandlers;
         this.traceSpanRecorder = traceSpanRecorder;
-        this.openAiCompatibleChatClient = openAiCompatibleChatClient;
-        this.llmCredentialResolver = llmCredentialResolver;
     }
 
     /**
@@ -97,20 +89,14 @@ public class DefaultLlmGateway implements LlmGateway {
 
     @Override
     public LlmConversationResult chat(ExecutionContext context, ModelDefinition model, LlmConversationRequest request) {
-        resolveHandler(model);
-        String apiKey = llmCredentialResolver.resolve(model.apiKey());
+        LlmProviderHandler handler = resolveHandler(model);
         TraceSpanRecorder.SpanScope llmSpan = traceSpanRecorder.open(
                 context.traceId(),
                 TraceSpanType.LLM,
                 model.modelCode() + "-react",
                 Map.of("providerCode", model.providerCode(), "messageCount", request.messages().size()));
         try {
-            LlmConversationResult result = openAiCompatibleChatClient.completeConversation(
-                    model.modelCode(),
-                    model.endpoint(),
-                    apiKey,
-                    request,
-                    "/chat/completions");
+            LlmConversationResult result = handler.chat(model, request);
             traceSpanRecorder.succeed(llmSpan, Map.of(
                     "toolCallCount", result.toolCalls().size(),
                     "totalTokenCount", result.totalTokenCount()));

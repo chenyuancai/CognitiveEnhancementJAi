@@ -3,6 +3,9 @@ package cn.cyc.ai.cog.runtime.service;
 import cn.cyc.ai.cog.core.metadata.model.ModelDefinition;
 import cn.cyc.ai.cog.core.metadata.type.CommonStatus;
 import cn.cyc.ai.cog.core.exception.BusinessException;
+import cn.cyc.ai.cog.runtime.api.ChatMessage;
+import cn.cyc.ai.cog.runtime.api.LlmConversationRequest;
+import cn.cyc.ai.cog.runtime.api.LlmConversationResult;
 import cn.cyc.ai.cog.runtime.api.LlmHttpRequest;
 import cn.cyc.ai.cog.runtime.api.LlmHttpResponse;
 import cn.cyc.ai.cog.runtime.api.LlmInvocationRequest;
@@ -13,6 +16,7 @@ import cn.cyc.ai.cog.runtime.support.OpenAiCompatibleChatClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -77,6 +81,44 @@ class OpenAiCompatibleLlmProviderHandlerTest {
 
         assertFalse(result.mock());
         assertEquals("真实模型回答", result.answer());
+        verify(httpExecutor).execute(any(LlmHttpRequest.class));
+    }
+
+    @Test
+    void chat_shouldUseOpenAiCompatibleConversationEndpoint() {
+        LlmHttpExecutor httpExecutor = mock(LlmHttpExecutor.class);
+        when(httpExecutor.execute(any(LlmHttpRequest.class))).thenReturn(new LlmHttpResponse(200, """
+                {
+                  "choices": [
+                    {
+                      "finish_reason": "stop",
+                      "message": {
+                        "content": "ReAct 最终回答"
+                      }
+                    }
+                  ],
+                  "usage": {
+                    "prompt_tokens": 7,
+                    "completion_tokens": 5,
+                    "total_tokens": 12
+                  }
+                }
+                """));
+        OpenAiCompatibleLlmProviderHandler handler = new OpenAiCompatibleLlmProviderHandler(
+                apiKey -> "resolved-" + apiKey,
+                new OpenAiCompatibleChatClient(new ObjectMapper(), httpExecutor));
+
+        LlmConversationResult result = handler.chat(
+                model("bailian", "DASHSCOPE"),
+                new LlmConversationRequest(
+                        List.of(ChatMessage.user("你好")),
+                        List.of(),
+                        Map.of("temperature", 0.2),
+                        30_000));
+
+        assertFalse(result.mock());
+        assertEquals("ReAct 最终回答", result.content());
+        assertEquals(12, result.totalTokenCount());
         verify(httpExecutor).execute(any(LlmHttpRequest.class));
     }
 

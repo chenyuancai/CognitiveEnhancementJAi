@@ -1,6 +1,8 @@
 package cn.cyc.ai.cog.runtime.service;
 
 import cn.cyc.ai.cog.core.metadata.model.ModelDefinition;
+import cn.cyc.ai.cog.runtime.api.LlmConversationRequest;
+import cn.cyc.ai.cog.runtime.api.LlmConversationResult;
 import cn.cyc.ai.cog.runtime.api.LlmInvocationRequest;
 import cn.cyc.ai.cog.runtime.api.LlmInvocationResult;
 import cn.cyc.ai.cog.runtime.spi.LlmCredentialResolver;
@@ -67,5 +69,19 @@ public class OpenAiCompatibleLlmProviderHandler implements LlmProviderHandler {
                 chatCompletion.latencyMs(),
                 false
         );
+    }
+
+    @Override
+    public LlmConversationResult chat(ModelDefinition model, LlmConversationRequest request) {
+        String apiKey = llmCredentialResolver.resolve(model.apiKey());
+        LlmConversationResult result = openAiCompatibleChatClient.completeConversation(
+                model.modelCode(),
+                model.endpoint(),
+                apiKey,
+                request,
+                CHAT_COMPLETIONS_PATH);
+        log.info("执行 OpenAI-compatible ReAct Chat 调用完成, providerCode={}, modelCode={}, latencyMs={}, totalTokens={}",
+                model.providerCode(), model.modelCode(), result.latencyMs(), result.totalTokenCount());
+        return result;
     }
 }
