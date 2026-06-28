@@ -1,4 +1,7 @@
 cog:
+  admin:
+    scheduling:
+      enabled: false
   persistence:
     enabled: false
   seed:
