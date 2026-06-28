@@ -21,7 +21,9 @@ import cn.cyc.ai.cog.runtime.api.LlmConversationResult;
 import cn.cyc.ai.cog.runtime.api.LlmToolCall;
 import cn.cyc.ai.cog.runtime.api.ModelGovernanceResolution;
 import cn.cyc.ai.cog.runtime.api.ToolInvocationResult;
+import cn.cyc.ai.cog.runtime.budget.TaskBudgetController;
 import cn.cyc.ai.cog.runtime.config.ReActProperties;
+import cn.cyc.ai.cog.runtime.model.governance.DefaultModelGovernance;
 import cn.cyc.ai.cog.runtime.model.governance.ModelCircuitBreakerState;
 import cn.cyc.ai.cog.runtime.session.service.ConversationContext;
 import cn.cyc.ai.cog.runtime.session.service.RuntimeConversationContextManager;
@@ -56,6 +58,8 @@ class ReActAgentExecutorTest {
     private ToolRuntime toolRuntime;
     private ToolDefinitionRepository toolDefinitionRepository;
     private RuntimeConversationContextManager conversationContextManager;
+    private TaskBudgetController taskBudgetController;
+    private DefaultModelGovernance modelGovernance;
     private ReActAgentExecutor executor;
 
     @BeforeEach
@@ -64,6 +68,8 @@ class ReActAgentExecutorTest {
         toolRuntime = mock(ToolRuntime.class);
         toolDefinitionRepository = mock(ToolDefinitionRepository.class);
         conversationContextManager = mock(RuntimeConversationContextManager.class);
+        taskBudgetController = mock(TaskBudgetController.class);
+        modelGovernance = mock(DefaultModelGovernance.class);
 
         ReActProperties properties = new ReActProperties();
         properties.setMaxIterations(3);
@@ -74,7 +80,9 @@ class ReActAgentExecutorTest {
                 properties,
                 new TraceSpanRecorder(new InMemoryTraceSpanRepository(), List.of()),
                 new ObjectMapper(),
-                conversationContextManager
+                conversationContextManager,
+                taskBudgetController,
+                modelGovernance
         );
 
         when(toolDefinitionRepository.findByCode("tool.search")).thenReturn(Optional.of(sampleTool()));
@@ -104,6 +112,43 @@ class ReActAgentExecutorTest {
         Map<String, Object> output = (Map<String, Object>) result.output();
         assertEquals("REACT", output.get("executionMode"));
         verify(llmGateway, times(2)).chat(any(), any(), any());
+    }
+
+    @Test
+    void shouldChargeBudgetAndRecordModelSuccessForReactIterationsAndTools() {
+        when(llmGateway.chat(any(), any(), any()))
+                .thenReturn(toolCallResult())
+                .thenReturn(finalAnswerResult());
+        when(toolRuntime.invoke(any(), eq("tool.search"), any()))
+                .thenReturn(new ToolInvocationResult(
+                        "TOOL", "tool.search", "HTTP", "public", "LOW",
+                        Map.of("query", "weather"), Map.of(), Map.of("result", "sunny"), false));
+
+        executor.execute(
+                sampleContext(Map.of()),
+                sampleResolution(),
+                "question",
+                List.of("tool.search"),
+                ConversationContext.disabled());
+
+        verify(taskBudgetController, times(2)).chargeLlm(any());
+        verify(taskBudgetController).chargeTool();
+        verify(modelGovernance, times(2)).recordSuccess("qwen-plus");
+    }
+
+    @Test
+    void shouldRecordModelFailureWhenReactLlmCallFails() {
+        when(llmGateway.chat(any(), any(), any()))
+                .thenThrow(new BusinessException("CONFLICT", "模型调用失败"));
+
+        assertThrows(BusinessException.class, () -> executor.execute(
+                sampleContext(Map.of()),
+                sampleResolution(),
+                "question",
+                List.of("tool.search"),
+                ConversationContext.disabled()));
+
+        verify(modelGovernance).recordFailure("qwen-plus");
     }
 
     @Test

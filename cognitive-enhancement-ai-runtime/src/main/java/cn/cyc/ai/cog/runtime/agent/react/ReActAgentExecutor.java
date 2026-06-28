@@ -9,10 +9,13 @@ import cn.cyc.ai.cog.core.runtime.ExecutionResult;
 import cn.cyc.ai.cog.runtime.api.ChatMessage;
 import cn.cyc.ai.cog.runtime.api.LlmConversationRequest;
 import cn.cyc.ai.cog.runtime.api.LlmConversationResult;
+import cn.cyc.ai.cog.runtime.api.LlmInvocationResult;
 import cn.cyc.ai.cog.runtime.api.LlmToolCall;
 import cn.cyc.ai.cog.runtime.api.ModelGovernanceResolution;
 import cn.cyc.ai.cog.runtime.api.ToolInvocationResult;
+import cn.cyc.ai.cog.runtime.budget.TaskBudgetController;
 import cn.cyc.ai.cog.runtime.config.ReActProperties;
+import cn.cyc.ai.cog.runtime.model.governance.DefaultModelGovernance;
 import cn.cyc.ai.cog.runtime.session.service.ConversationContext;
 import cn.cyc.ai.cog.runtime.session.service.RuntimeConversationContextManager;
 import cn.cyc.ai.cog.runtime.spi.LlmGateway;
@@ -52,6 +55,8 @@ public class ReActAgentExecutor {
     private final TraceSpanRecorder traceSpanRecorder;
     private final ObjectMapper objectMapper;
     private final RuntimeConversationContextManager conversationContextManager;
+    private final TaskBudgetController taskBudgetController;
+    private final DefaultModelGovernance modelGovernance;
 
     public ReActAgentExecutor(LlmGateway llmGateway,
                               ToolRuntime toolRuntime,
@@ -59,7 +64,9 @@ public class ReActAgentExecutor {
                               ReActProperties reActProperties,
                               TraceSpanRecorder traceSpanRecorder,
                               ObjectMapper objectMapper,
-                              RuntimeConversationContextManager conversationContextManager) {
+                              RuntimeConversationContextManager conversationContextManager,
+                              TaskBudgetController taskBudgetController,
+                              DefaultModelGovernance modelGovernance) {
         this.llmGateway = llmGateway;
         this.toolRuntime = toolRuntime;
         this.toolDefinitionRepository = toolDefinitionRepository;
@@ -67,6 +74,8 @@ public class ReActAgentExecutor {
         this.traceSpanRecorder = traceSpanRecorder;
         this.objectMapper = objectMapper;
         this.conversationContextManager = conversationContextManager;
+        this.taskBudgetController = taskBudgetController;
+        this.modelGovernance = modelGovernance;
     }
 
     public ExecutionResult execute(ExecutionContext context,
@@ -101,7 +110,14 @@ public class ReActAgentExecutor {
                         context.request().parameters(),
                         model.timeoutMs()
                 );
-                lastResult = llmGateway.chat(context, model, request);
+                try {
+                    lastResult = llmGateway.chat(context, model, request);
+                    taskBudgetController.chargeLlm(toInvocationResult(context, model, lastResult));
+                    modelGovernance.recordSuccess(model.modelCode());
+                } catch (RuntimeException ex) {
+                    modelGovernance.recordFailure(model.modelCode());
+                    throw ex;
+                }
                 traceSpanRecorder.succeed(iterationSpan, Map.of(
                         "toolCallCount", lastResult.toolCalls().size(),
                         "finishReason", lastResult.finishReason()));
@@ -160,6 +176,7 @@ public class ReActAgentExecutor {
             ToolInvocationResult result;
             try {
                 result = toolRuntime.invoke(context, toolCall.name(), input);
+                taskBudgetController.chargeTool();
             } catch (RuntimeException ex) {
                 observations.add(Map.of(
                         "toolCode", toolCall.name(),
@@ -176,6 +193,25 @@ public class ReActAgentExecutor {
             ));
         }
         return observations;
+    }
+
+    private LlmInvocationResult toInvocationResult(ExecutionContext context,
+                                                   ModelDefinition model,
+                                                   LlmConversationResult result) {
+        return new LlmInvocationResult(
+                "REACT",
+                model.providerCode(),
+                model.modelCode(),
+                context.prompt() == null ? null : context.prompt().promptCode(),
+                null,
+                result.content(),
+                context.request().parameters(),
+                result.inputTokenCount(),
+                result.outputTokenCount(),
+                result.totalTokenCount(),
+                result.latencyMs(),
+                result.mock()
+        );
     }
 
     private Object parseToolArguments(String argumentsJson) {
