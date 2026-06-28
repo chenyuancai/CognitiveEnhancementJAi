@@ -18,6 +18,11 @@
     <dependencies>
         <dependency>
             <groupId>cn.cyc.ai</groupId>
+            <artifactId>cognitive-enhancement-ai-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.cyc.ai</groupId>
             <artifactId>cognitive-enhancement-ai-common</artifactId>
             <version>${project.version}</version>
         </dependency>
