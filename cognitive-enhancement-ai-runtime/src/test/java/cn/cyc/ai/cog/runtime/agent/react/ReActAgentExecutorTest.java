@@ -47,6 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -294,6 +295,26 @@ class ReActAgentExecutorTest {
         assertEquals("CONFLICT", exception.getSemanticCode());
         assertTrue(exception.getMessage().contains("未返回最终回答"));
         verifyNoInteractions(toolRuntime);
+    }
+
+    @Test
+    void shouldRecordModelFailureWhenFinalAnswerContentIsEmpty() {
+        when(llmGateway.chat(any(), any(), any()))
+                .thenReturn(new LlmConversationResult(
+                        null,
+                        List.of(),
+                        "stop",
+                        10, 0, 10, 50, false));
+
+        assertThrows(BusinessException.class, () -> executor.execute(
+                sampleContext(Map.of()),
+                sampleResolution(),
+                "question",
+                List.of("tool.search"),
+                ConversationContext.disabled()));
+
+        verify(modelGovernance).recordFailure("qwen-plus");
+        verify(modelGovernance, never()).recordSuccess("qwen-plus");
     }
 
     private LlmConversationResult toolCallResult() {

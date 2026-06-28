@@ -98,6 +98,7 @@ public class ReActAgentExecutor {
 
         for (int iteration = 1; iteration <= maxIterations; iteration++) {
             int currentIteration = iteration;
+            boolean llmResponseReceived = false;
             TraceSpanRecorder.SpanScope iterationSpan = traceSpanRecorder.open(
                     context.traceId(),
                     TraceSpanType.LLM,
@@ -113,22 +114,26 @@ public class ReActAgentExecutor {
                 try {
                     lastResult = llmGateway.chat(context, model, request);
                     taskBudgetController.chargeLlm(toInvocationResult(context, model, lastResult));
-                    modelGovernance.recordSuccess(model.modelCode());
+                    llmResponseReceived = true;
                 } catch (RuntimeException ex) {
                     modelGovernance.recordFailure(model.modelCode());
                     throw ex;
                 }
-                traceSpanRecorder.succeed(iterationSpan, Map.of(
+                Map<String, Object> spanAttributes = Map.of(
                         "toolCallCount", toolCallCount(lastResult),
-                        "finishReason", lastResult.finishReason()));
+                        "finishReason", lastResult.finishReason());
 
                 if (!lastResult.hasToolCalls()) {
                     validateFinalAnswer(lastResult);
+                    modelGovernance.recordSuccess(model.modelCode());
+                    traceSpanRecorder.succeed(iterationSpan, spanAttributes);
                     return buildSuccessResult(context, lastResult, steps, modelResolution);
                 }
 
                 authorizeToolCalls(lastResult.toolCalls(), allowed);
                 List<Map<String, Object>> observations = executeToolCalls(context, lastResult.toolCalls());
+                modelGovernance.recordSuccess(model.modelCode());
+                traceSpanRecorder.succeed(iterationSpan, spanAttributes);
                 steps.add(Map.of(
                         "iteration", currentIteration,
                         "toolCalls", lastResult.toolCalls(),
@@ -137,6 +142,9 @@ public class ReActAgentExecutor {
                 messages.add(ChatMessage.assistant(lastResult.content(), lastResult.toolCalls()));
                 appendToolMessages(messages, lastResult.toolCalls(), observations);
             } catch (RuntimeException ex) {
+                if (llmResponseReceived) {
+                    modelGovernance.recordFailure(model.modelCode());
+                }
                 traceSpanRecorder.fail(iterationSpan, ex, null);
                 throw ex;
             }
