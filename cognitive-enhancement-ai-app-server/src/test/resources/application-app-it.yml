@@ -1,0 +1,19 @@
+spring:
+  config:
+    activate:
+      on-profile: app-it
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/app-it-schema.sql
+      data-locations: classpath:db/app-it-data.sql
+
+cog:
+  app:
+    dev-auth-bypass: true
+  admin:
+    dev-auth-bypass: true
+  billing:
+    pay-callback:
+      mock-secret: dev-mock-secret
+      verify-signature: true

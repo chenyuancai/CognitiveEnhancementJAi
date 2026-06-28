@@ -1,0 +1,20 @@
+spring:
+  config:
+    activate:
+      on-profile: admin-it
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/admin-it-schema.sql
+      data-locations: classpath:db/admin-it-data.sql
+
+cog:
+  admin:
+    dev-auth-bypass: true
+  base:
+    file:
+      feign-enabled: false
+  billing:
+    pay-callback:
+      mock-secret: dev-mock-secret
+      verify-signature: true

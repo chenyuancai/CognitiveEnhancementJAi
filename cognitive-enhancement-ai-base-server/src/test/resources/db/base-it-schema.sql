@@ -1,0 +1,60 @@
+CREATE TABLE IF NOT EXISTS qz_base_dict_type (
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id   BIGINT       NOT NULL DEFAULT 1,
+    biz_code    VARCHAR(64)  NOT NULL,
+    dict_kind   TINYINT      NOT NULL,
+    share_scope VARCHAR(16)  NOT NULL DEFAULT 'global',
+    code        VARCHAR(64)  NOT NULL,
+    name        VARCHAR(128) NOT NULL,
+    en_name     VARCHAR(128),
+    description VARCHAR(256),
+    remark      VARCHAR(256),
+    status      TINYINT      NOT NULL DEFAULT 1,
+    create_by   BIGINT,
+    update_by   BIGINT,
+    create_time TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted     TINYINT      NOT NULL DEFAULT 0,
+    version     INT          NOT NULL DEFAULT 0,
+    UNIQUE (biz_code, dict_kind, share_scope, tenant_id, code)
+);
+
+CREATE TABLE IF NOT EXISTS qz_base_dict_item (
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id   BIGINT       NOT NULL DEFAULT 1,
+    biz_code    VARCHAR(64)  NOT NULL,
+    type_id     BIGINT       NOT NULL,
+    parent_id   BIGINT       NOT NULL DEFAULT 0,
+    "value"     VARCHAR(64)  NOT NULL,
+    label       VARCHAR(128) NOT NULL,
+    en_label    VARCHAR(128),
+    remark      VARCHAR(256),
+    sort        INT          NOT NULL DEFAULT 0,
+    status      TINYINT      NOT NULL DEFAULT 1,
+    create_by   BIGINT,
+    update_by   BIGINT,
+    create_time TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted     TINYINT      NOT NULL DEFAULT 0,
+    version     INT          NOT NULL DEFAULT 0,
+    UNIQUE (tenant_id, type_id, "value")
+);
+
+CREATE TABLE IF NOT EXISTS qz_base_file (
+    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id     BIGINT       NOT NULL DEFAULT 1,
+    biz_code      VARCHAR(64)  NOT NULL DEFAULT 'cog',
+    original_name VARCHAR(512) NOT NULL,
+    storage_name  VARCHAR(512) NOT NULL,
+    storage_path  VARCHAR(1024) NOT NULL,
+    content_type  VARCHAR(128),
+    size_bytes    BIGINT       NOT NULL DEFAULT 0,
+    md5           VARCHAR(64),
+    status        TINYINT      NOT NULL DEFAULT 1,
+    create_by     BIGINT,
+    update_by     BIGINT,
+    create_time   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted       TINYINT      NOT NULL DEFAULT 0,
+    version       INT          NOT NULL DEFAULT 0
+);

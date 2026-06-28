@@ -1,0 +1,71 @@
+package cn.cyc.ai.cog.runtime.service;
+
+import cn.cyc.ai.cog.core.exception.BusinessException;
+import cn.cyc.ai.cog.core.metadata.model.ModelDefinition;
+import cn.cyc.ai.cog.core.metadata.type.CommonStatus;
+import cn.cyc.ai.cog.runtime.api.ChatMessage;
+import cn.cyc.ai.cog.runtime.api.LlmConversationRequest;
+import cn.cyc.ai.cog.runtime.spi.LlmCredentialResolver;
+import cn.cyc.ai.cog.runtime.spi.LlmProviderHandler;
+import cn.cyc.ai.cog.runtime.support.OpenAiCompatibleChatClient;
+import cn.cyc.ai.cog.runtime.trace.repository.InMemoryTraceSpanRepository;
+import cn.cyc.ai.cog.runtime.trace.span.TraceSpanRecorder;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
+/**
+ * 默认 LLM Gateway 测试。
+ *
+ * @author cyc
+ */
+class DefaultLlmGatewayTest {
+
+    @Test
+    void shouldRejectUnsupportedProviderForReactChat() {
+        LlmProviderHandler providerHandler = mock(LlmProviderHandler.class);
+        ModelDefinition model = new ModelDefinition(
+                "custom-provider",
+                "Custom Provider",
+                "CUSTOM_RPC",
+                "custom-model",
+                "Custom Model",
+                "CHAT",
+                "https://custom.local/llm",
+                "sk-test",
+                30_000,
+                1,
+                CommonStatus.ENABLED,
+                1,
+                null
+        );
+        when(providerHandler.supports(model)).thenReturn(false);
+        OpenAiCompatibleChatClient chatClient = mock(OpenAiCompatibleChatClient.class);
+        LlmCredentialResolver credentialResolver = apiKey -> apiKey;
+        DefaultLlmGateway gateway = new DefaultLlmGateway(
+                List.of(providerHandler),
+                new TraceSpanRecorder(new InMemoryTraceSpanRepository(), List.of()),
+                chatClient,
+                credentialResolver
+        );
+        LlmConversationRequest request = new LlmConversationRequest(
+                List.of(ChatMessage.user("hello")),
+                List.of(),
+                Map.of(),
+                30_000
+        );
+
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> gateway.chat(null, model, request));
+
+        assertEquals("未找到可用的 LLM Provider 处理器: custom-provider", exception.getMessage());
+        verifyNoInteractions(chatClient);
+    }
+}

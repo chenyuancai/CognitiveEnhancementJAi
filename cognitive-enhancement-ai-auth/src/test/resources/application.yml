@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:auth-oauth2;MODE=MySQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:oauth2-jdbc-schema.sql
+
+cog:
+  auth:
+    storage:
+      mode: jdbc
+    jwk:
+      key-path: target/test-rsa-jwk.json
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true

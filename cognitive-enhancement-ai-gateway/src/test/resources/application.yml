@@ -1,0 +1,31 @@
+spring:
+  main:
+    web-application-type: reactive
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://127.0.0.1:9/oauth2/jwks
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: platform-service
+              uri: ${test.downstream.uri:http://127.0.0.1:18080}
+              predicates:
+                - Path=/api/**
+
+cog:
+  jwt:
+    secret: cognitive-enhancement-ai-default-secret-key
+  gateway:
+    api-auth:
+      enabled: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: warn
