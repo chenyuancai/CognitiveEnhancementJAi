@@ -187,6 +187,9 @@ public class OpenAiCompatibleChatClient {
         try {
             JsonNode rootNode = objectMapper.readTree(responseBody);
             JsonNode messageNode = rootNode.path("choices").path(0).path("message");
+            if (messageNode.isMissingNode()) {
+                throw new BusinessException("CONFLICT", "OpenAI-compatible 响应中缺少 choices[0].message");
+            }
             String content = messageNode.path("content").isNull() || !messageNode.path("content").isTextual()
                     ? ""
                     : messageNode.path("content").asText();
@@ -194,12 +197,12 @@ public class OpenAiCompatibleChatClient {
             JsonNode toolCallsNode = messageNode.path("tool_calls");
             if (toolCallsNode.isArray()) {
                 for (JsonNode toolCallNode : toolCallsNode) {
-                    toolCalls.add(new LlmToolCall(
-                            toolCallNode.path("id").asText(),
-                            toolCallNode.path("function").path("name").asText(),
-                            toolCallNode.path("function").path("arguments").asText("{}")
-                    ));
+                    toolCalls.add(parseToolCall(toolCallNode));
                 }
+            }
+            if (!StringUtils.hasText(content) && toolCalls.isEmpty()) {
+                throw new BusinessException("CONFLICT",
+                        "OpenAI-compatible 响应中缺少 message.content 或 tool_calls");
             }
             LlmTokenUsage tokenUsage = OpenAiCompatibleUsageParser.parseUsage(rootNode);
             String finishReason = rootNode.path("choices").path(0).path("finish_reason").asText("");
@@ -217,6 +220,22 @@ public class OpenAiCompatibleChatClient {
             throw new BusinessException("CONFLICT",
                     "OpenAI-compatible 响应解析失败: " + exception.getMessage(), exception);
         }
+    }
+
+    private LlmToolCall parseToolCall(JsonNode toolCallNode) {
+        String id = toolCallNode.path("id").asText("");
+        String name = toolCallNode.path("function").path("name").asText("");
+        if (!StringUtils.hasText(id)) {
+            throw new BusinessException("CONFLICT", "OpenAI-compatible 响应中缺少 tool_calls.id");
+        }
+        if (!StringUtils.hasText(name)) {
+            throw new BusinessException("CONFLICT", "OpenAI-compatible 响应中缺少 tool_calls.function.name");
+        }
+        return new LlmToolCall(
+                id,
+                name,
+                toolCallNode.path("function").path("arguments").asText("{}")
+        );
     }
 
     private ChatCompletionResult parseResponse(String responseBody, long latencyMs) {
