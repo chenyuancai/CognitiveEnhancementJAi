@@ -11,6 +11,7 @@ import cn.cyc.ai.cog.core.metadata.type.SchemaDefinition;
 import cn.cyc.ai.cog.core.runtime.CapabilityExecuteRequest;
 import cn.cyc.ai.cog.core.runtime.ExecutionContext;
 import cn.cyc.ai.cog.runtime.api.ChatMessage;
+import cn.cyc.ai.cog.runtime.security.TenantContext;
 import cn.cyc.ai.cog.runtime.session.domain.ConversationMessage;
 import cn.cyc.ai.cog.runtime.session.domain.ConversationSession;
 import cn.cyc.ai.cog.runtime.session.domain.MessageRole;
@@ -63,6 +64,7 @@ class RuntimeConversationContextManagerTest {
     @AfterEach
     void tearDown() {
         UserContext.clear();
+        TenantContext.clear();
     }
 
     @Test
@@ -102,6 +104,17 @@ class RuntimeConversationContextManagerTest {
     void shouldRejectSessionOwnedByDifferentUserWhenUserContextExists() {
         UserContext.set(new AuthUser(2L, "other", "default", List.of(), List.of()));
         sessionRepository.session = activeSession("capability.qa");
+
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> manager.load(sampleContext(Map.of("sessionId", "s-1"))));
+
+        assertEquals("FORBIDDEN", exception.getSemanticCode());
+    }
+
+    @Test
+    void shouldRejectSessionOwnedByDifferentTenant() {
+        TenantContext.setTenantCode("tenant-a");
+        sessionRepository.session = activeSession("tenant-b", "capability.qa", "1");
 
         BusinessException exception = assertThrows(BusinessException.class,
                 () -> manager.load(sampleContext(Map.of("sessionId", "s-1"))));
@@ -202,8 +215,12 @@ class RuntimeConversationContextManagerTest {
     }
 
     private ConversationSession activeSession(String capabilityCode, String userId) {
+        return activeSession("default", capabilityCode, userId);
+    }
+
+    private ConversationSession activeSession(String tenantCode, String capabilityCode, String userId) {
         Instant now = Instant.now();
-        return new ConversationSession("default", "s-1", userId, capabilityCode, "标题",
+        return new ConversationSession(tenantCode, "s-1", userId, capabilityCode, "标题",
                 SessionStatus.ACTIVE, now, now);
     }
 

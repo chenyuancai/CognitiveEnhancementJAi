@@ -4,6 +4,7 @@ import cn.cyc.ai.cog.common.context.UserContext;
 import cn.cyc.ai.cog.core.exception.BusinessException;
 import cn.cyc.ai.cog.core.runtime.ExecutionContext;
 import cn.cyc.ai.cog.runtime.api.ChatMessage;
+import cn.cyc.ai.cog.runtime.security.TenantContext;
 import cn.cyc.ai.cog.runtime.session.domain.ConversationMessage;
 import cn.cyc.ai.cog.runtime.session.domain.ConversationSession;
 import cn.cyc.ai.cog.runtime.session.domain.MessageRole;
@@ -125,6 +126,9 @@ public class RuntimeConversationContextManager {
     private void validateSession(ExecutionContext context, ConversationSession session) {
         if (session.status() != SessionStatus.ACTIVE) {
             throw new BusinessException("CONFLICT", "会话未激活: " + session.sessionId());
+        }
+        if (!TenantContext.currentTenantCode().equals(TenantContext.normalize(session.tenantCode()))) {
+            throw new BusinessException("FORBIDDEN", "会话不属于当前租户: " + session.sessionId());
         }
         if (!context.capability().capabilityCode().equals(session.capabilityCode())) {
             throw new BusinessException("CONFLICT", "会话绑定能力与当前请求不一致: " + session.sessionId());
