@@ -2,6 +2,9 @@ package cn.cyc.ai.cog.runtime.spi;
 
 /**
  * LLM 凭证解析器。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface LlmCredentialResolver {
 

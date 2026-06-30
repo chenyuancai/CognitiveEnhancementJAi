@@ -11,14 +11,8 @@ import java.util.Map;
 /**
  * Runtime 主链路上下文。
  *
- * @param traceId    当前链路标识
- * @param request    原始执行请求
- * @param capability 已路由能力
- * @param agent      已装载 Agent
- * @param prompt     已解析 Prompt 模板
- * @param skills     已装载技能
- * @param attributes 扩展属性
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ExecutionContext(
         String traceId,

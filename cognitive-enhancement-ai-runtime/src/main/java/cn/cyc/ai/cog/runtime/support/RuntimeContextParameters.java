@@ -12,9 +12,13 @@ import java.util.Optional;
  * Runtime 治理参数读取工具。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class RuntimeContextParameters {
 
+    /**
+     * 创建RuntimeContextParameters。
+     */
     private RuntimeContextParameters() {
     }
 

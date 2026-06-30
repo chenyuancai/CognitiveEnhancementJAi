@@ -11,6 +11,7 @@ import java.util.Map;
  * TraceHarness 默认实现，委托现有 TraceContext/TraceIdGenerator。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class DefaultTraceHarness implements TraceHarness {

@@ -4,10 +4,13 @@ package cn.cyc.ai.cog.runtime.coordinator;
  * 多 Agent 执行策略。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public enum ExecutionStrategy {
 
+    /** costfirst。 */
     COST_FIRST,
+    /** qualityfirst。 */
     QUALITY_FIRST,
     BALANCED;
 

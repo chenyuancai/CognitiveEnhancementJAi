@@ -24,18 +24,30 @@ import java.util.function.Consumer;
  * Harness 默认执行引擎。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class DefaultHarnessEngine implements HarnessEngine {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(DefaultHarnessEngine.class);
 
+    /** 链路SpanRecorder。 */
     private final TraceSpanRecorder traceSpanRecorder;
 
+    /**
+     * 创建DefaultHarnessEngine。
+     *
+     * @param traceSpanRecorder 链路SpanRecorder
+     */
     public DefaultHarnessEngine(TraceSpanRecorder traceSpanRecorder) {
         this.traceSpanRecorder = traceSpanRecorder;
     }
 
+    /**
+     * 执行操作。
+     * @return 执行结果
+     */
     @Override
     public HarnessReport run(List<HarnessStep> steps, HarnessContext context,
                              Consumer<HarnessReport.HarnessStepReport> stepCallback,
@@ -50,6 +62,10 @@ public class DefaultHarnessEngine implements HarnessEngine {
         }
     }
 
+    /**
+     * 执行runInternal。
+     * @return 执行结果
+     */
     private HarnessReport runInternal(List<HarnessStep> steps, HarnessContext context,
                                         Consumer<HarnessReport.HarnessStepReport> stepCallback,
                                         HarnessCancellation cancellation) {
@@ -144,6 +160,12 @@ public class DefaultHarnessEngine implements HarnessEngine {
         );
     }
 
+    /**
+     * 执行resolve链路ID。
+     *
+     * @param context 上下文
+     * @return 执行结果
+     */
     private static String resolveTraceId(HarnessContext context) {
         if (context.traceId() != null && !context.traceId().isBlank()) {
             return context.traceId();
@@ -151,6 +173,9 @@ public class DefaultHarnessEngine implements HarnessEngine {
         return context.harnessId();
     }
 
+    /**
+     * 执行skipRemainingSteps。
+     */
     private void skipRemainingSteps(int fromIndex,
                                       List<HarnessStep> steps,
                                       List<HarnessReport.HarnessStepReport> stepReports,
@@ -161,6 +186,9 @@ public class DefaultHarnessEngine implements HarnessEngine {
         }
     }
 
+    /**
+     * 执行appendSkippedStep。
+     */
     private void appendSkippedStep(int index,
                                    HarnessStep step,
                                    List<HarnessReport.HarnessStepReport> stepReports,
@@ -176,6 +204,12 @@ public class DefaultHarnessEngine implements HarnessEngine {
         }
     }
 
+    /**
+     * 构建Scenario摘要。
+     *
+     * @param context 上下文
+     * @return 构建结果
+     */
     private HarnessReport.HarnessScenarioSummary buildScenarioSummary(HarnessContext context) {
         return new HarnessReport.HarnessScenarioSummary(
                 context.scenario() != null ? context.scenario().capabilityCode() : null,

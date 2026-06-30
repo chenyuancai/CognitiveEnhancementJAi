@@ -13,6 +13,7 @@ import java.util.Map;
  * Tool Adapter 注册表，按协议类型路由到对应 Adapter。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class ToolAdapterRegistry {

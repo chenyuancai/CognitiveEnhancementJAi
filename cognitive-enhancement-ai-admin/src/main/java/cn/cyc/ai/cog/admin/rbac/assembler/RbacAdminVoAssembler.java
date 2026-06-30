@@ -6,6 +6,9 @@ import org.springframework.stereotype.Component;
 
 /**
  * 管理端 RBAC 域 Entity → VO 转换器。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class RbacAdminVoAssembler {

@@ -10,19 +10,40 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+/**
+ * AuditLog服务
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 @Service
 public class AuditLogService {
 
+    /** auditLog仓储。 */
     private final AuditLogRepository auditLogRepository;
 
+    /**
+     * 创建AuditLog服务。
+     *
+     * @param auditLogRepository auditLog仓储
+     */
     public AuditLogService(AuditLogRepository auditLogRepository) {
         this.auditLogRepository = auditLogRepository;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     public PageResult<AuditLog> page(AuditLogPageQuery query) {
         return auditLogRepository.page(query);
     }
 
+    /**
+     * 执行record。
+     */
     public void record(String action, String resourceType, String resourceId,
                        String beforeJson, String afterJson, String message) {
         AuditLog log = new AuditLog(

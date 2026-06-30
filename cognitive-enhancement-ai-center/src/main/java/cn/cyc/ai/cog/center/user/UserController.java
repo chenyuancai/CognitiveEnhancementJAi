@@ -21,16 +21,27 @@ import java.util.Map;
  * 用户管理 REST 接口。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "用户管理", description = "用户注册、登录与用户列表查询（含 ADMIN 权限校验）")
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
+    /** 用户服务。 */
     private final UserService userService;
+    /** jwtUtil。 */
     private final JwtUtil jwtUtil;
+    /** 认证支持。 */
     private final AuthSupport authSupport;
 
+    /**
+     * 创建用户接口。
+     *
+     * @param userService 用户服务
+     * @param jwtUtil jwtUtil
+     * @param authSupport 认证支持
+     */
     public UserController(UserService userService, JwtUtil jwtUtil, AuthSupport authSupport) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;

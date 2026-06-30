@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 
 /**
  * 资金流水查询服务。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class FinancialRecordService {

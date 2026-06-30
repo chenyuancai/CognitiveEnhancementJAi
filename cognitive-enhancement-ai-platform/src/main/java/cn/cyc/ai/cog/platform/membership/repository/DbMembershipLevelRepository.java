@@ -19,6 +19,9 @@ import java.util.List;
 
 /**
  * 会员等级仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbMembershipLevelRepository implements MembershipLevelRepository {
@@ -33,6 +36,12 @@ public class DbMembershipLevelRepository implements MembershipLevelRepository {
         this.levelMapper = levelMapper;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Override
     public PageResult<MembershipLevel> page(MembershipLevelPageQuery query) {
         LambdaQueryWrapper<MembershipLevelEntity> wrapper = new LambdaQueryWrapper<>();
@@ -48,6 +57,12 @@ public class DbMembershipLevelRepository implements MembershipLevelRepository {
                 page.getTotal(), page.getCurrent(), page.getSize());
     }
 
+    /**
+     * 查询是否启用列表。
+     *
+     * @param segment segment
+     * @return 结果列表
+     */
     @Override
     public List<MembershipLevel> listEnabled(String segment) {
         LambdaQueryWrapper<MembershipLevelEntity> wrapper = new LambdaQueryWrapper<MembershipLevelEntity>()
@@ -59,6 +74,12 @@ public class DbMembershipLevelRepository implements MembershipLevelRepository {
         return levelMapper.selectList(wrapper).stream().map(this::toDomain).toList();
     }
 
+    /**
+     * 查找人ID。
+     *
+     * @param id 主键 ID
+     * @return 查找结果
+     */
     @Override
     public MembershipLevel findById(Long id) {
         MembershipLevelEntity entity = levelMapper.selectById(id);
@@ -68,6 +89,12 @@ public class DbMembershipLevelRepository implements MembershipLevelRepository {
         return toDomain(entity);
     }
 
+    /**
+     * 查找人编码。
+     *
+     * @param levelCode 等级编码
+     * @return 查找结果
+     */
     @Override
     public MembershipLevel findByCode(String levelCode) {
         MembershipLevel level = findByCodeIfPresent(levelCode);
@@ -77,6 +104,12 @@ public class DbMembershipLevelRepository implements MembershipLevelRepository {
         return level;
     }
 
+    /**
+     * 查找人编码IfPresent。
+     *
+     * @param levelCode 等级编码
+     * @return 查找结果
+     */
     @Override
     public MembershipLevel findByCodeIfPresent(String levelCode) {
         MembershipLevelEntity entity = levelMapper.selectOne(new LambdaQueryWrapper<MembershipLevelEntity>()
@@ -85,6 +118,12 @@ public class DbMembershipLevelRepository implements MembershipLevelRepository {
         return entity == null ? null : toDomain(entity);
     }
 
+    /**
+     * 执行require默认ForSegment。
+     *
+     * @param segment segment
+     * @return 执行结果
+     */
     @Override
     public MembershipLevel requireDefaultForSegment(String segment) {
         MembershipLevelEntity level = levelMapper.selectOne(new LambdaQueryWrapper<MembershipLevelEntity>()
@@ -104,6 +143,12 @@ public class DbMembershipLevelRepository implements MembershipLevelRepository {
         return toDomain(level);
     }
 
+    /**
+     * 创建Item。
+     *
+     * @param request 请求
+     * @return 创建结果
+     */
     @Override
     public MembershipLevel create(MembershipLevelSaveRequest request) {
         checkCodeUnique(request.getLevelCode(), null);
@@ -112,6 +157,13 @@ public class DbMembershipLevelRepository implements MembershipLevelRepository {
         return toDomain(entity);
     }
 
+    /**
+     * 更新Item。
+     *
+     * @param id 主键 ID
+     * @param request 请求
+     * @return 更新结果
+     */
     @Override
     public MembershipLevel update(Long id, MembershipLevelSaveRequest request) {
         MembershipLevelEntity entity = levelMapper.selectById(id);
@@ -124,6 +176,12 @@ public class DbMembershipLevelRepository implements MembershipLevelRepository {
         return toDomain(entity);
     }
 
+    /**
+     * 执行check编码Unique。
+     *
+     * @param code 编码
+     * @param excludeId excludeID
+     */
     private void checkCodeUnique(String code, Long excludeId) {
         LambdaQueryWrapper<MembershipLevelEntity> wrapper = new LambdaQueryWrapper<MembershipLevelEntity>()
                 .eq(MembershipLevelEntity::getLevelCode, code);
@@ -135,6 +193,13 @@ public class DbMembershipLevelRepository implements MembershipLevelRepository {
         }
     }
 
+    /**
+     * 转换为实体。
+     *
+     * @param request 请求
+     * @param entity 实体
+     * @return 转换结果
+     */
     private MembershipLevelEntity toEntity(MembershipLevelSaveRequest request, MembershipLevelEntity entity) {
         entity.setLevelCode(request.getLevelCode());
         entity.setLevelName(request.getLevelName());
@@ -146,6 +211,12 @@ public class DbMembershipLevelRepository implements MembershipLevelRepository {
         return entity;
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private MembershipLevel toDomain(MembershipLevelEntity entity) {
         return new MembershipLevel(
                 entity.getId(),

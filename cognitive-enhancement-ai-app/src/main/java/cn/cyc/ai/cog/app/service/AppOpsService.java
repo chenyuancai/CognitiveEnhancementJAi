@@ -2,6 +2,7 @@ package cn.cyc.ai.cog.app.service;
 
 import cn.cyc.ai.cog.app.dto.AppAnnouncementVO;
 import cn.cyc.ai.cog.app.dto.AppBannerVO;
+import cn.cyc.ai.cog.app.support.AppOpsLabelSupport;
 import cn.cyc.ai.cog.common.context.UserContext;
 import cn.cyc.ai.cog.platform.account.dto.UserMeContext;
 import cn.cyc.ai.cog.platform.account.service.UserMeContextService;
@@ -18,15 +19,25 @@ import java.util.List;
 
 /**
  * C 端运营投放只读服务。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class AppOpsService {
 
+    /** banner仓储。 */
     private final BannerRepository bannerRepository;
+    /** announcement仓储。 */
     private final AnnouncementRepository announcementRepository;
+    /** announcementAudience支持。 */
     private final AnnouncementAudienceSupport announcementAudienceSupport;
+    /** 用户Me上下文服务。 */
     private final UserMeContextService userMeContextService;
 
+    /**
+     * 创建C端Ops服务。
+     */
     public AppOpsService(BannerRepository bannerRepository,
                          AnnouncementRepository announcementRepository,
                          AnnouncementAudienceSupport announcementAudienceSupport,
@@ -37,6 +48,12 @@ public class AppOpsService {
         this.userMeContextService = userMeContextService;
     }
 
+    /**
+     * 查询ActiveBanners列表。
+     *
+     * @param position position
+     * @return 结果列表
+     */
     public List<AppBannerVO> listActiveBanners(String position) {
         String effectivePosition = StringUtils.hasText(position) ? position.trim() : "HOME_TOP";
         return bannerRepository.listActiveByPosition(effectivePosition, LocalDateTime.now()).stream()
@@ -44,6 +61,10 @@ public class AppOpsService {
                 .toList();
     }
 
+    /**
+     * 查询PublishedAnnouncements列表。
+     * @return 结果列表
+     */
     public List<AppAnnouncementVO> listPublishedAnnouncements() {
         AudienceContext audience = resolveAudience();
         return announcementRepository.listPublished().stream()
@@ -52,6 +73,10 @@ public class AppOpsService {
                 .toList();
     }
 
+    /**
+     * 执行resolveAudience。
+     * @return 执行结果
+     */
     private AudienceContext resolveAudience() {
         Long userId = UserContext.currentUserId();
         if (userId == null) {
@@ -69,6 +94,12 @@ public class AppOpsService {
         }
     }
 
+    /**
+     * 转换为BannerVo。
+     *
+     * @param banner banner
+     * @return 转换结果
+     */
     private AppBannerVO toBannerVo(Banner banner) {
         AppBannerVO vo = new AppBannerVO();
         vo.setId(banner.id());
@@ -79,18 +110,33 @@ public class AppOpsService {
         vo.setSortNo(banner.sortNo());
         vo.setStartTime(banner.startTime());
         vo.setEndTime(banner.endTime());
+        vo.setActionType(AppOpsLabelSupport.bannerActionType(banner.linkUrl()));
+        vo.setActionUrl(AppOpsLabelSupport.bannerActionUrl(banner.linkUrl()));
         return vo;
     }
 
+    /**
+     * 转换为AnnouncementVo。
+     *
+     * @param announcement announcement
+     * @return 转换结果
+     */
     private AppAnnouncementVO toAnnouncementVo(Announcement announcement) {
         AppAnnouncementVO vo = new AppAnnouncementVO();
         vo.setId(announcement.id());
         vo.setTitle(announcement.title());
         vo.setBody(announcement.body());
         vo.setPublishAt(announcement.publishAt());
+        vo.setPriority(AppOpsLabelSupport.announcementPriority(announcement.publishAt()));
         return vo;
     }
 
+    /**
+     * AudienceContext 记录
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     private record AudienceContext(Long userId, String levelCode) {
     }
 }

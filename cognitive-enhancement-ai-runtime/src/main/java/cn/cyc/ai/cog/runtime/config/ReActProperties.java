@@ -4,6 +4,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * ReAct Agent 执行配置。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @ConfigurationProperties(prefix = "cog.runtime.react")
 public class ReActProperties {
@@ -18,18 +21,36 @@ public class ReActProperties {
      */
     private int maxIterations = 5;
 
+    /**
+     * 判断是否为是否启用。
+     * @return 是否满足条件
+     */
     public boolean isEnabled() {
         return enabled;
     }
 
+    /**
+     * 设置是否启用。
+     *
+     * @param enabled 是否启用
+     */
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 
+    /**
+     * 获取MaxIterations。
+     * @return MaxIterations
+     */
     public int getMaxIterations() {
         return maxIterations;
     }
 
+    /**
+     * 设置MaxIterations。
+     *
+     * @param maxIterations maxIterations
+     */
     public void setMaxIterations(int maxIterations) {
         this.maxIterations = maxIterations;
     }

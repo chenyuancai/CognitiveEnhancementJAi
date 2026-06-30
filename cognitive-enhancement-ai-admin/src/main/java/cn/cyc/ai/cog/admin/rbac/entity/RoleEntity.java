@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
  * 角色实体（映射 qz_iam_role）。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

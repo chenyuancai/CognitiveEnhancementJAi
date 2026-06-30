@@ -17,6 +17,9 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 
 /**
  * 平台缓存 Redis L2 与失效广播（仅 Redis 启用且 classpath 可用时加载）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(PlatformCacheProperties.class)

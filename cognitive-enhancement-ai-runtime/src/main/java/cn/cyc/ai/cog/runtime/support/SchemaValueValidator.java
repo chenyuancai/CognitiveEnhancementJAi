@@ -13,13 +13,18 @@ import java.util.Map;
  * Schema 值递归校验器，供能力输入/输出与 Tool 入参复用。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class SchemaValueValidator {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(SchemaValueValidator.class);
 
+    /** root路径。 */
     private final String rootPath;
+    /** parameterLabel。 */
     private final String parameterLabel;
+    /** enforceRequiredFields。 */
     private final boolean enforceRequiredFields;
 
     /**
@@ -84,6 +89,13 @@ public final class SchemaValueValidator {
         }
     }
 
+    /**
+     * 校验参数。
+     *
+     * @param path 路径
+     * @param value 值
+     * @param schema Schema
+     */
     private void validateObject(String path, Object value, SchemaDefinition schema) {
         if (!(value instanceof Map<?, ?> valueMap)) {
             throw invalidType(path, "object");
@@ -103,6 +115,13 @@ public final class SchemaValueValidator {
         }
     }
 
+    /**
+     * 校验参数。
+     *
+     * @param path 路径
+     * @param value 值
+     * @param schema Schema
+     */
     private void validateArray(String path, Object value, SchemaDefinition schema) {
         if (!(value instanceof List<?> values)) {
             throw invalidType(path, "array");
@@ -115,6 +134,13 @@ public final class SchemaValueValidator {
         }
     }
 
+    /**
+     * 校验参数。
+     *
+     * @param path 路径
+     * @param value 值
+     * @param schema Schema
+     */
     private void validateString(String path, Object value, SchemaDefinition schema) {
         if (!(value instanceof String stringValue)) {
             throw invalidType(path, "string");
@@ -126,24 +152,48 @@ public final class SchemaValueValidator {
         }
     }
 
+    /**
+     * 校验参数。
+     *
+     * @param path 路径
+     * @param value 值
+     */
     private void validateInteger(String path, Object value) {
         if (!(value instanceof Number numberValue) || !isIntegerNumber(numberValue)) {
             throw invalidType(path, "integer");
         }
     }
 
+    /**
+     * 校验参数。
+     *
+     * @param path 路径
+     * @param value 值
+     */
     private void validateNumber(String path, Object value) {
         if (!(value instanceof Number)) {
             throw invalidType(path, "number");
         }
     }
 
+    /**
+     * 校验参数。
+     *
+     * @param path 路径
+     * @param value 值
+     */
     private void validateBoolean(String path, Object value) {
         if (!(value instanceof Boolean)) {
             throw invalidType(path, "boolean");
         }
     }
 
+    /**
+     * 判断是否为IntegerNumber。
+     *
+     * @param value 值
+     * @return 是否满足条件
+     */
     private boolean isIntegerNumber(Number value) {
         if (value instanceof Byte || value instanceof Short || value instanceof Integer || value instanceof Long) {
             return true;
@@ -155,6 +205,13 @@ public final class SchemaValueValidator {
         return !Double.isNaN(doubleValue) && !Double.isInfinite(doubleValue) && Math.rint(doubleValue) == doubleValue;
     }
 
+    /**
+     * 执行resolveChild路径。
+     *
+     * @param parentPath parent路径
+     * @param propertyName property名称
+     * @return 执行结果
+     */
     private String resolveChildPath(String parentPath, String propertyName) {
         if (rootPath.equals(parentPath)) {
             return propertyName;
@@ -162,11 +219,24 @@ public final class SchemaValueValidator {
         return parentPath + "." + propertyName;
     }
 
+    /**
+     * 执行invalid类型。
+     *
+     * @param path 路径
+     * @param expectedType expected类型
+     * @return 执行结果
+     */
     private BusinessException invalidType(String path, String expectedType) {
         return new BusinessException("INVALID_ARGUMENT",
                 parameterLabel + " " + normalizePath(path) + " 必须是 " + expectedType);
     }
 
+    /**
+     * 执行normalize路径。
+     *
+     * @param path 路径
+     * @return 执行结果
+     */
     private String normalizePath(String path) {
         return rootPath.equals(path) ? rootPath : path;
     }

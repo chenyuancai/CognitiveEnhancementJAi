@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Center 模块面向主链路元数据的通用服务基类，封装查询校验与持久化入口。
  *
- * @param <T> 元数据类型
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public abstract class AbstractCenterMetadataService<T extends MetadataDefinition> {
 

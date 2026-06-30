@@ -23,15 +23,22 @@ import java.util.function.Function;
  * 观测统计聚合器，按能力 / 模型 / Tool 维度汇总执行与用量数据。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class ObservationStatsAggregator {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(ObservationStatsAggregator.class);
 
+    /** executionRecord仓储。 */
     private final ExecutionRecordRepository executionRecordRepository;
+    /** usageRecord仓储。 */
     private final UsageRecordRepository usageRecordRepository;
 
+    /**
+     * 创建ObservationStats聚合器。
+     */
     public ObservationStatsAggregator(ExecutionRecordRepository executionRecordRepository,
                                       UsageRecordRepository usageRecordRepository) {
         this.executionRecordRepository = executionRecordRepository;
@@ -65,6 +72,13 @@ public class ObservationStatsAggregator {
         return new ObservationStatsResult(startTime, endTime, summary, byCapability, byModel, byTool);
     }
 
+    /**
+     * 构建摘要。
+     *
+     * @param executions executions
+     * @param usages usages
+     * @return 构建结果
+     */
     private ObservationStatsSummary buildSummary(List<ExecutionRecord> executions, List<UsageRecord> usages) {
         int successCount = (int) executions.stream().filter(ExecutionRecord::success).count();
         int failedCount = executions.size() - successCount;
@@ -78,6 +92,10 @@ public class ObservationStatsAggregator {
         );
     }
 
+    /**
+     * 执行aggregate人能力。
+     * @return 执行结果
+     */
     private List<ObservationDimensionStats> aggregateByCapability(List<ExecutionRecord> executions,
                                                                 List<UsageRecord> usages) {
         Map<String, MutableDimensionStats> statsMap = new HashMap<>();
@@ -113,6 +131,10 @@ public class ObservationStatsAggregator {
                 .toList();
     }
 
+    /**
+     * 执行aggregateUsage人键。
+     * @return 执行结果
+     */
     private List<ObservationDimensionStats> aggregateUsageByKey(List<UsageRecord> usages,
                                                               Function<UsageRecord, String> keyExtractor) {
         Map<String, MutableDimensionStats> statsMap = new HashMap<>();
@@ -138,10 +160,23 @@ public class ObservationStatsAggregator {
                 .toList();
     }
 
+    /**
+     * 执行normalize键。
+     *
+     * @param key 键
+     * @return 执行结果
+     */
     private String normalizeKey(String key) {
         return key == null || key.isBlank() ? "UNKNOWN" : key;
     }
 
+    /**
+     * 执行能力Dimension键。
+     *
+     * @param capabilityCode 能力编码
+     * @param capabilityVersion 能力版本号
+     * @return 执行结果
+     */
     private String capabilityDimensionKey(String capabilityCode, String capabilityVersion) {
         String code = normalizeKey(capabilityCode);
         if (capabilityVersion == null || capabilityVersion.isBlank()) {
@@ -150,6 +185,14 @@ public class ObservationStatsAggregator {
         return code + "@" + capabilityVersion;
     }
 
+    /**
+     * 执行matches时间Range。
+     *
+     * @param recordedAt recordedAt
+     * @param startTime start时间
+     * @param endTime end时间
+     * @return 执行结果
+     */
     private boolean matchesTimeRange(Instant recordedAt, Instant startTime, Instant endTime) {
         if (startTime == null && endTime == null) {
             return true;
@@ -166,14 +209,32 @@ public class ObservationStatsAggregator {
         return true;
     }
 
+    /**
+     * MutableDimensionStats
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     private static final class MutableDimensionStats {
+        /** invocation数量。 */
         private int invocationCount;
+        /** 成功数量。 */
         private int successCount;
+        /** failed数量。 */
         private int failedCount;
+        /** 总数Tokens。 */
         private long totalTokens;
+        /** 总数Cost。 */
         private BigDecimal totalCost = BigDecimal.ZERO;
+        /** lastRecordedAt。 */
         private Instant lastRecordedAt;
 
+        /**
+         * 转换为uch。
+         *
+         * @param recordedAt recordedAt
+         * @return 转换结果
+         */
         private void touch(Instant recordedAt) {
             if (recordedAt == null) {
                 return;
@@ -183,6 +244,12 @@ public class ObservationStatsAggregator {
             }
         }
 
+        /**
+         * 转换为Stats。
+         *
+         * @param dimensionKey dimension键
+         * @return 转换结果
+         */
         private ObservationDimensionStats toStats(String dimensionKey) {
             return new ObservationDimensionStats(
                     dimensionKey,

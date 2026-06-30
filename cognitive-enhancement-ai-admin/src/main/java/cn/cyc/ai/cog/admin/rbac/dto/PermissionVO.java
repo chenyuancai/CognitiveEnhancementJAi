@@ -6,6 +6,9 @@ import java.time.LocalDateTime;
 
 /**
  * 权限点展示 VO（对齐前端权限管理列表）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 public class PermissionVO {

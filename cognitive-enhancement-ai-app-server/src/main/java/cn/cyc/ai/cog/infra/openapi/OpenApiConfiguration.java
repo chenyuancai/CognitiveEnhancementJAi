@@ -18,10 +18,12 @@ import java.util.List;
  * OpenAPI / Knife4j 文档配置。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Configuration
 public class OpenApiConfiguration {
 
+    /** 网关地址。 */
     @Value("${cog.openapi.gateway-url:http://localhost:8801}")
     private String gatewayUrl;
 

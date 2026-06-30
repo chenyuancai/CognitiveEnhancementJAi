@@ -21,16 +21,25 @@ import java.time.Instant;
 
 /**
  * 将 Runtime 用量扣减桥接到 Admin {@link QuotaService}（Token 池）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 @Primary
 @ConditionalOnProperty(name = "cog.runtime.usage.account.backend", havingValue = "admin-quota")
 public class AdminQuotaRuntimeUsageAccountService implements RuntimeUsageAccountService {
 
+    /** 额度服务。 */
     private final QuotaService quotaService;
+    /** 账户上下文Resolver。 */
     private final AccountContextResolver accountContextResolver;
+    /** properties。 */
     private final RuntimeUsageProperties properties;
 
+    /**
+     * 创建管理后台额度运行时Usage账户服务。
+     */
     public AdminQuotaRuntimeUsageAccountService(QuotaService quotaService,
                                                 AccountContextResolver accountContextResolver,
                                                 RuntimeUsageProperties properties) {
@@ -39,6 +48,11 @@ public class AdminQuotaRuntimeUsageAccountService implements RuntimeUsageAccount
         this.properties = properties;
     }
 
+    /**
+     * 执行checkBeforeExecution。
+     *
+     * @param capabilityCode 能力编码
+     */
     @Override
     public void checkBeforeExecution(String capabilityCode) {
         if (!properties.getAccount().isEnabled()) {
@@ -54,6 +68,12 @@ public class AdminQuotaRuntimeUsageAccountService implements RuntimeUsageAccount
         }
     }
 
+    /**
+     * 执行recordUsage。
+     *
+     * @param usageRecord usageRecord
+     * @return 执行结果
+     */
     @Override
     public UsageAccount recordUsage(UsageRecord usageRecord) {
         if (!properties.getAccount().isEnabled()) {
@@ -80,16 +100,30 @@ public class AdminQuotaRuntimeUsageAccountService implements RuntimeUsageAccount
         }
     }
 
+    /**
+     * 执行current账户。
+     * @return 执行结果
+     */
     @Override
     public UsageAccount currentAccount() {
         QuotaAccount quota = quotaService.getByAccountId(resolveAccountId());
         return toUsageAccount(quota);
     }
 
+    /**
+     * 执行resolve账户ID。
+     * @return 执行结果
+     */
     private Long resolveAccountId() {
         return accountContextResolver.resolveCurrentAccountId();
     }
 
+    /**
+     * 执行resolve令牌Amount。
+     *
+     * @param usageRecord usageRecord
+     * @return 执行结果
+     */
     private long resolveTokenAmount(UsageRecord usageRecord) {
         if (usageRecord.totalTokenCount() > 0) {
             return usageRecord.totalTokenCount();
@@ -101,6 +135,12 @@ public class AdminQuotaRuntimeUsageAccountService implements RuntimeUsageAccount
         return 1L;
     }
 
+    /**
+     * 转换为Tokens。
+     *
+     * @param costAmount costAmount
+     * @return 转换结果
+     */
     private long toTokens(BigDecimal costAmount) {
         BigDecimal unit = properties.getCost().getLlmTokenCostAmount();
         if (unit == null || unit.compareTo(BigDecimal.ZERO) <= 0) {
@@ -109,6 +149,12 @@ public class AdminQuotaRuntimeUsageAccountService implements RuntimeUsageAccount
         return costAmount.divide(unit, 0, RoundingMode.CEILING).longValue();
     }
 
+    /**
+     * 转换为Usage账户。
+     *
+     * @param quota 额度
+     * @return 转换结果
+     */
     private UsageAccount toUsageAccount(QuotaAccount quota) {
         BigDecimal remaining = BigDecimal.valueOf(totalRemaining(quota));
         BigDecimal used = BigDecimal.valueOf(safe(quota.cycleTotal()) + safe(quota.giftTotal())
@@ -121,10 +167,22 @@ public class AdminQuotaRuntimeUsageAccountService implements RuntimeUsageAccount
                 Instant.now());
     }
 
+    /**
+     * 转换为talRemaining。
+     *
+     * @param quota 额度
+     * @return 转换结果
+     */
     private long totalRemaining(QuotaAccount quota) {
         return safe(quota.cycleRemaining()) + safe(quota.giftRemaining()) + safe(quota.topupRemaining());
     }
 
+    /**
+     * 执行safe。
+     *
+     * @param value 值
+     * @return 执行结果
+     */
     private long safe(Long value) {
         return value == null ? 0L : value;
     }

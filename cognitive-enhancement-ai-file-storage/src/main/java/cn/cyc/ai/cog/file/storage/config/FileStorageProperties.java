@@ -5,6 +5,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * 文件对象存储配置（对齐 ztx3 {@code ztx.oss.name} 模式，通过 {@code cog.file.storage-type} 切换策略）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 @ConfigurationProperties(prefix = "cog.file")
@@ -16,8 +19,15 @@ public class FileStorageProperties {
     /** 单文件最大字节数，默认 100MB */
     private long maxFileSize = 104_857_600L;
 
+    /** disk。 */
     private Disk disk = new Disk();
 
+    /**
+     * Disk
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     @Data
     public static class Disk {
 
@@ -28,6 +38,10 @@ public class FileStorageProperties {
         private Long maxFileSize;
     }
 
+    /**
+     * 执行resolveMax文件大小。
+     * @return 执行结果
+     */
     public long resolveMaxFileSize() {
         if (disk != null && disk.getMaxFileSize() != null && disk.getMaxFileSize() > 0) {
             return disk.getMaxFileSize();
@@ -35,6 +49,10 @@ public class FileStorageProperties {
         return maxFileSize > 0 ? maxFileSize : 104_857_600L;
     }
 
+    /**
+     * 执行resolveDiskRoot路径。
+     * @return 执行结果
+     */
     public String resolveDiskRootPath() {
         return disk != null && disk.getRootPath() != null && !disk.getRootPath().isBlank()
                 ? disk.getRootPath()

@@ -4,9 +4,13 @@ package cn.cyc.ai.cog.runtime.support;
  * 基于文本长度的 token 数粗估，用于 mock 降级场景。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class TokenCountEstimator {
 
+    /**
+     * 创建TokenCountEstimator。
+     */
     private TokenCountEstimator() {
     }
 

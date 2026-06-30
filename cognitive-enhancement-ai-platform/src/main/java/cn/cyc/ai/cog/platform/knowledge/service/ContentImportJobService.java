@@ -20,17 +20,32 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * 内容ImportJob服务
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 @Service
 public class ContentImportJobService {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(ContentImportJobService.class);
+    /** IMPORTBIZ编码。 */
     private static final String IMPORT_BIZ_CODE = "content-import";
+    /** CSV内容类型。 */
     private static final String CSV_CONTENT_TYPE = "text/csv";
 
+    /** 内容ImportJob仓储。 */
     private final ContentImportJobRepository contentImportJobRepository;
+    /** 内容仓储。 */
     private final ContentRepository contentRepository;
+    /** 平台文件客户端。 */
     private final PlatformFileClient platformFileClient;
 
+    /**
+     * 创建内容ImportJob服务。
+     */
     public ContentImportJobService(ContentImportJobRepository contentImportJobRepository,
                                    ContentRepository contentRepository,
                                    PlatformFileClient platformFileClient) {
@@ -39,14 +54,32 @@ public class ContentImportJobService {
         this.platformFileClient = platformFileClient;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     public PageResult<ContentImportJob> page(ContentImportJobPageQuery query) {
         return contentImportJobRepository.page(query);
     }
 
+    /**
+     * 执行detail。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     public ContentImportJob detail(Long id) {
         return contentImportJobRepository.findById(id);
     }
 
+    /**
+     * 创建Item。
+     *
+     * @param request 请求
+     * @return 创建结果
+     */
     public ContentImportJob create(ContentImportJobCreateRequest request) {
         Long tenantId = TenantContext.currentTenantId();
         resolveFileReference(request, tenantId);
@@ -58,6 +91,14 @@ public class ContentImportJobService {
         return job;
     }
 
+    /**
+     * 执行数量人租户And时间Range。
+     *
+     * @param tenantId 租户 ID
+     * @param start start
+     * @param end end
+     * @return 执行结果
+     */
     public long countByTenantAndTimeRange(Long tenantId, LocalDateTime start, LocalDateTime end) {
         return contentImportJobRepository.countByTenantAndTimeRange(tenantId, start, end);
     }
@@ -79,6 +120,12 @@ public class ContentImportJobService {
         }
     }
 
+    /**
+     * 执行resolve文件引用。
+     *
+     * @param request 请求
+     * @param tenantId 租户 ID
+     */
     private void resolveFileReference(ContentImportJobCreateRequest request, Long tenantId) {
         if (request.getFileId() != null) {
             platformFileClient.getById(request.getFileId());
@@ -102,6 +149,11 @@ public class ContentImportJobService {
         }
     }
 
+    /**
+     * 处理业务。
+     *
+     * @param job job
+     */
     private void processJob(ContentImportJob job) {
         if (!StringUtils.hasText(job.fileName())) {
             throw Errors.of(PlatformErrorCode.CONTENT_IMPORT_FILENAME_EMPTY);
@@ -126,6 +178,12 @@ public class ContentImportJobService {
                 job.id(), parsed.successCount(), parsed.failCount());
     }
 
+    /**
+     * 执行resolveCsv内容。
+     *
+     * @param job job
+     * @return 执行结果
+     */
     private String resolveCsvContent(ContentImportJob job) {
         if (StringUtils.hasText(job.sourceContent())) {
             return job.sourceContent();

@@ -15,6 +15,9 @@ import java.time.LocalDateTime;
 
 /**
  * 会员变更日志仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbMembershipChangeLogRepository implements MembershipChangeLogRepository {
@@ -29,6 +32,14 @@ public class DbMembershipChangeLogRepository implements MembershipChangeLogRepos
         this.changeLogMapper = changeLogMapper;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param current current
+     * @param size 大小
+     * @param accountId 账户ID
+     * @return 执行结果
+     */
     @Override
     public PageResult<MembershipChangeLog> page(long current, long size, Long accountId) {
         LambdaQueryWrapper<MembershipChangeLogEntity> wrapper = new LambdaQueryWrapper<>();
@@ -41,6 +52,15 @@ public class DbMembershipChangeLogRepository implements MembershipChangeLogRepos
                 page.getTotal(), page.getCurrent(), page.getSize());
     }
 
+    /**
+     * 执行insert。
+     *
+     * @param accountId 账户ID
+     * @param fromLevel from等级
+     * @param toLevel to等级
+     * @param changeType change类型
+     * @param remark remark
+     */
     @Override
     public void insert(Long accountId, String fromLevel, String toLevel, String changeType, String remark) {
         MembershipChangeLogEntity log = new MembershipChangeLogEntity();
@@ -57,6 +77,12 @@ public class DbMembershipChangeLogRepository implements MembershipChangeLogRepos
         changeLogMapper.insert(log);
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private MembershipChangeLog toDomain(MembershipChangeLogEntity entity) {
         return new MembershipChangeLog(
                 entity.getId(),

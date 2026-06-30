@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
  * 内存场景知识绑定仓储。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "false", matchIfMissing = true)
@@ -25,11 +26,22 @@ public class InMemoryScenarioKnowledgeBindingRepository implements ScenarioKnowl
      */
     private final CopyOnWriteArrayList<ScenarioKnowledgeBinding> bindings = new CopyOnWriteArrayList<>();
 
+    /**
+     * 执行save。
+     *
+     * @param binding binding
+     */
     @Override
     public void save(ScenarioKnowledgeBinding binding) {
         bindings.add(binding);
     }
 
+    /**
+     * 查找人Scenario编码。
+     *
+     * @param scenarioCode scenario编码
+     * @return 查找结果
+     */
     @Override
     public List<ScenarioKnowledgeBinding> findByScenarioCode(String scenarioCode) {
         String tenantCode = TenantContext.currentTenantCode();

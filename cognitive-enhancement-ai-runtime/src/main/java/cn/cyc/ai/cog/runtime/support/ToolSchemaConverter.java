@@ -9,9 +9,15 @@ import java.util.Map;
 
 /**
  * 将 ToolDefinition / SchemaDefinition 转为 OpenAI function tools 数组项。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class ToolSchemaConverter {
 
+    /**
+     * 创建ToolSchemaConverter。
+     */
     private ToolSchemaConverter() {
     }
 

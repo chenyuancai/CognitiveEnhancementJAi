@@ -12,14 +12,15 @@ import java.time.LocalDateTime;
 
 /**
  * 管理后台实体基类（借鉴 zcloud BaseEntity），含审计字段与逻辑删除。
- *
  * <p>新建的管理后台领域实体统一继承本类；历史 runtime/center 实体保持原基类不变。</p>
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 public class BaseEntity {
 
+    /** 主键 ID */
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
@@ -27,15 +28,19 @@ public class BaseEntity {
     @TableField(value = "tenant_id", fill = FieldFill.INSERT)
     private Long tenantId;
 
+    /** 创建人 ID */
     @TableField(value = "create_by", fill = FieldFill.INSERT)
     private Long createBy;
 
+    /** 创建时间 */
     @TableField(value = "create_time", fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
+    /** 更新人 ID */
     @TableField(value = "update_by", fill = FieldFill.INSERT_UPDATE)
     private Long updateBy;
 
+    /** 更新时间 */
     @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 

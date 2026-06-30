@@ -20,14 +20,23 @@ import java.util.Optional;
 
 /**
  * 字典项 MyBatis 仓储实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbDictItemRepository implements DictItemRepository {
 
+    /** dictItemMapper。 */
     private final DictItemMapper dictItemMapper;
+    /** dict类型Mapper。 */
     private final DictTypeMapper dictTypeMapper;
+    /** base服务Properties。 */
     private final BaseServiceProperties baseServiceProperties;
 
+    /**
+     * 创建DbDictItem仓储。
+     */
     public DbDictItemRepository(DictItemMapper dictItemMapper,
                                 DictTypeMapper dictTypeMapper,
                                 BaseServiceProperties baseServiceProperties) {
@@ -36,6 +45,12 @@ public class DbDictItemRepository implements DictItemRepository {
         this.baseServiceProperties = baseServiceProperties;
     }
 
+    /**
+     * 执行save。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Override
     public DictItem save(DictItemSaveRequest request) {
         DictTypeEntity typeEntity = requireType(request.getTypeId());
@@ -64,23 +79,45 @@ public class DbDictItemRepository implements DictItemRepository {
         return DictConverter.toItem(entity);
     }
 
+    /**
+     * 删除人ID。
+     *
+     * @param id 主键 ID
+     */
     @Override
     public void deleteById(Long id) {
         requireEntity(id);
         dictItemMapper.deleteById(id);
     }
 
+    /**
+     * 删除人类型ID。
+     *
+     * @param typeId 类型ID
+     */
     @Override
     public void deleteByTypeId(Long typeId) {
         dictItemMapper.delete(new LambdaQueryWrapper<DictItemEntity>().eq(DictItemEntity::getTypeId, typeId));
     }
 
+    /**
+     * 查找人ID。
+     *
+     * @param id 主键 ID
+     * @return 查找结果
+     */
     @Override
     public Optional<DictItem> findById(Long id) {
         DictItemEntity entity = dictItemMapper.selectById(id);
         return Optional.ofNullable(entity).map(DictConverter::toItem);
     }
 
+    /**
+     * 查询人类型ID列表。
+     *
+     * @param typeId 类型ID
+     * @return 结果列表
+     */
     @Override
     public List<DictItem> listByTypeId(Long typeId) {
         return dictItemMapper.selectList(new LambdaQueryWrapper<DictItemEntity>()
@@ -90,6 +127,12 @@ public class DbDictItemRepository implements DictItemRepository {
                 .stream().map(DictConverter::toItem).toList();
     }
 
+    /**
+     * 查询是否启用人类型编码列表。
+     *
+     * @param code 编码
+     * @return 结果列表
+     */
     @Override
     public List<DictItem> listEnabledByTypeCode(String code) {
         DictTypeEntity type = dictTypeMapper.selectOne(new LambdaQueryWrapper<DictTypeEntity>()
@@ -107,6 +150,14 @@ public class DbDictItemRepository implements DictItemRepository {
                 .stream().map(DictConverter::toItem).toList();
     }
 
+    /**
+     * 执行assert值Unique。
+     *
+     * @param tenantId 租户 ID
+     * @param typeId 类型ID
+     * @param value 值
+     * @param excludeId excludeID
+     */
     private void assertValueUnique(Long tenantId, Long typeId, String value, Long excludeId) {
         LambdaQueryWrapper<DictItemEntity> wrapper = new LambdaQueryWrapper<DictItemEntity>()
                 .eq(DictItemEntity::getTenantId, tenantId)
@@ -118,6 +169,12 @@ public class DbDictItemRepository implements DictItemRepository {
         Errors.throwIf(dictItemMapper.selectCount(wrapper) > 0, PlatformErrorCode.DICT_ITEM_VALUE_DUPLICATE);
     }
 
+    /**
+     * 执行require实体。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     private DictItemEntity requireEntity(Long id) {
         DictItemEntity entity = dictItemMapper.selectById(id);
         if (entity == null) {
@@ -126,6 +183,12 @@ public class DbDictItemRepository implements DictItemRepository {
         return entity;
     }
 
+    /**
+     * 执行require类型。
+     *
+     * @param typeId 类型ID
+     * @return 执行结果
+     */
     private DictTypeEntity requireType(Long typeId) {
         DictTypeEntity entity = dictTypeMapper.selectById(typeId);
         if (entity == null) {

@@ -5,11 +5,8 @@ import java.util.Map;
 /**
  * Tool 调试调用请求。
  *
- * @param input          Tool 输入
- * @param parameters     执行参数
- * @param traceId        调试链路 ID
- * @param debugConfirmed HIGH 风险调试确认标识
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ToolDebugInvokeRequest(
         String toolCode,

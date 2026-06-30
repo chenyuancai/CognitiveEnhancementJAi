@@ -21,6 +21,7 @@ import java.util.Optional;
  * 基于 MyBatis Plus 的执行记录仓储。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true")
@@ -81,6 +82,12 @@ public class PersistentExecutionRecordRepository implements ExecutionRecordRepos
                 .toList();
     }
 
+    /**
+     * 查找人链路ID。
+     *
+     * @param traceId 链路 Trace ID
+     * @return 查找结果
+     */
     @Override
     public Optional<ExecutionRecord> findByTraceId(String traceId) {
         LambdaQueryWrapper<ExecutionRecordEntity> queryWrapper = new LambdaQueryWrapper<ExecutionRecordEntity>()
@@ -139,6 +146,12 @@ public class PersistentExecutionRecordRepository implements ExecutionRecordRepos
         );
     }
 
+    /**
+     * 转换为JSON。
+     *
+     * @param value 值
+     * @return 转换结果
+     */
     private String toJson(Object value) {
         if (value == null) {
             return null;
@@ -151,6 +164,13 @@ public class PersistentExecutionRecordRepository implements ExecutionRecordRepos
         }
     }
 
+    /**
+     * 执行parseJSON。
+     *
+     * @param json JSON
+     * @param type 类型
+     * @return 执行结果
+     */
     private <T> T parseJson(String json, Class<T> type) {
         if (json == null || json.isBlank()) {
             return null;

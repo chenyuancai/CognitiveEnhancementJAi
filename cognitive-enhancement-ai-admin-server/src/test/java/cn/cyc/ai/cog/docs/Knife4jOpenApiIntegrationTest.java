@@ -41,6 +41,8 @@ class Knife4jOpenApiIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("/v3/api-docs/runtime")))
                 .andExpect(content().string(containsString("/v3/api-docs/center")))
-                .andExpect(content().string(containsString("/v3/api-docs/admin")));
+                .andExpect(content().string(containsString("/v3/api-docs/admin")))
+                .andExpect(content().string(containsString("/v3/api-docs/base")))
+                .andExpect(content().string(containsString("/v3/api-docs/sse")));
     }
 }

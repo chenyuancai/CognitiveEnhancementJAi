@@ -8,6 +8,7 @@ import java.util.List;
  * TraceSpan 仓储。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface TraceSpanRepository {
 

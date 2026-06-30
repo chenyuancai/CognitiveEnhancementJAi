@@ -13,9 +13,15 @@ import java.util.Optional;
 
 /**
  * 将模型主数据 + 提供商绑定展开为运行时路由定义。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class ModelRouteResolver {
 
+    /**
+     * 创建ModelRouteResolver。
+     */
     private ModelRouteResolver() {
     }
 
@@ -60,6 +66,10 @@ public final class ModelRouteResolver {
                 .max(Comparator.comparingInt(ModelDefinition::routePriority));
     }
 
+    /**
+     * 转换为Route。
+     * @return 转换结果
+     */
     private static ModelDefinition toRoute(ModelMasterDefinition model,
                                            ModelProviderDefinition provider,
                                            ModelBindingDefinition binding) {
@@ -86,6 +96,10 @@ public final class ModelRouteResolver {
         );
     }
 
+    /**
+     * 执行resolve提供者。
+     * @return 执行结果
+     */
     private static Optional<ModelProviderDefinition> resolveProvider(List<ModelProviderDefinition> providers,
                                                                        String providerCode) {
         return providers.stream()
@@ -93,6 +107,12 @@ public final class ModelRouteResolver {
                 .findFirst();
     }
 
+    /**
+     * 执行默认String。
+     *
+     * @param value 值
+     * @return 执行结果
+     */
     private static String defaultString(String value) {
         return value == null ? "" : value;
     }

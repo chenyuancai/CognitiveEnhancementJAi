@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * C 端额度摘要接口。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "App-额度", description = "当前账户额度摘要")
 @RestController

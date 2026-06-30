@@ -22,6 +22,7 @@ import java.util.Map;
  * 基于日志的默认用量记录器。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class LoggingUsageMeter implements UsageMeter {
@@ -100,6 +101,14 @@ public class LoggingUsageMeter implements UsageMeter {
         return record;
     }
 
+    /**
+     * 执行calculateEstimatedCost。
+     *
+     * @param executorType executor类型
+     * @param output 输出
+     * @param llmInvocationResult llmInvocation结果
+     * @return 执行结果
+     */
     private BigDecimal calculateEstimatedCost(String executorType, Object output, LlmInvocationResult llmInvocationResult) {
         if (llmInvocationResult != null) {
             return usageProperties.getCost().getLlmTokenCostAmount()

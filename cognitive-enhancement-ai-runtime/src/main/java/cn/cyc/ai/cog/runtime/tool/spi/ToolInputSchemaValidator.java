@@ -6,6 +6,7 @@ import cn.cyc.ai.cog.core.metadata.tool.ToolDefinition;
  * Tool 入参 Schema 校验器。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface ToolInputSchemaValidator {
 

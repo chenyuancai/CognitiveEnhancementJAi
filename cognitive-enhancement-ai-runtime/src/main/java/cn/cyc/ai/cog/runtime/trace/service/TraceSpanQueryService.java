@@ -11,12 +11,19 @@ import java.util.List;
  * TraceSpan 查询服务。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class TraceSpanQueryService {
 
+    /** 链路Span仓储。 */
     private final TraceSpanRepository traceSpanRepository;
 
+    /**
+     * 创建链路Span查询服务。
+     *
+     * @param traceSpanRepository 链路Span仓储
+     */
     public TraceSpanQueryService(TraceSpanRepository traceSpanRepository) {
         this.traceSpanRepository = traceSpanRepository;
     }

@@ -11,10 +11,14 @@ import java.time.format.DateTimeFormatter;
  * <p>
  * RBAC 角色、权限与菜单由 {@link cn.cyc.ai.cog.admin.auth.service.AuthMeService} 另行填充。
  * </p>
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class AuthMeVoAssembler {
 
+    /** ISO。 */
     private static final DateTimeFormatter ISO = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     /**
@@ -34,6 +38,12 @@ public class AuthMeVoAssembler {
         return response;
     }
 
+    /**
+     * 转换为用户。
+     *
+     * @param user 用户
+     * @return 转换结果
+     */
     private AuthMeResponse.AuthMeUser toUser(UserMeContext.UserSnapshot user) {
         if (user == null) {
             return null;
@@ -47,6 +57,12 @@ public class AuthMeVoAssembler {
         return dto;
     }
 
+    /**
+     * 转换为账户。
+     *
+     * @param account 账户
+     * @return 转换结果
+     */
     private AuthMeResponse.AuthMeAccount toAccount(UserMeContext.AccountSnapshot account) {
         if (account == null) {
             return null;
@@ -59,6 +75,12 @@ public class AuthMeVoAssembler {
         return dto;
     }
 
+    /**
+     * 转换为Organization。
+     *
+     * @param organization organization
+     * @return 转换结果
+     */
     private AuthMeResponse.AuthMeOrganization toOrganization(UserMeContext.OrganizationSnapshot organization) {
         if (organization == null) {
             return null;
@@ -70,6 +92,12 @@ public class AuthMeVoAssembler {
         return dto;
     }
 
+    /**
+     * 转换为会员。
+     *
+     * @param membership 会员
+     * @return 转换结果
+     */
     private AuthMeResponse.AuthMeMembership toMembership(UserMeContext.MembershipSnapshot membership) {
         if (membership == null) {
             return null;
@@ -83,6 +111,12 @@ public class AuthMeVoAssembler {
         return dto;
     }
 
+    /**
+     * 转换为额度。
+     *
+     * @param quota 额度
+     * @return 转换结果
+     */
     private AuthMeResponse.AuthMeQuota toQuota(UserMeContext.QuotaSnapshot quota) {
         if (quota == null) {
             return null;

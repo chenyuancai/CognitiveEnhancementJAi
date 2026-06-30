@@ -11,18 +11,8 @@ import java.util.Map;
 /**
  * 能力定义写入请求。
  *
- * @param capabilityCode   能力编码
- * @param capabilityName   能力名称
- * @param capabilityDesc   能力描述
- * @param inputSchema      输入结构定义
- * @param outputSchema     输出结构定义
- * @param parameterConstraints 参数约束定义
- * @param executeMode      执行模式
- * @param boundAgentCode   绑定 Agent 编码
- * @param riskLevel        风险等级
- * @param needHumanConfirm 是否需要人工确认
- * @param status           启用状态
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record CapabilityUpsertRequest(
         String capabilityCode,

@@ -7,13 +7,8 @@ import java.time.Instant;
 /**
  * 平台统一响应对象。
  *
- * @param success 是否成功
- * @param code    统一响应码
- * @param message 响应说明
- * @param data    业务数据
- * @param traceId 链路标识
- * @param timestamp 响应时间戳（毫秒）
- * @param <T>     数据类型
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ApiResponse<T>(
         boolean success,
@@ -24,6 +19,13 @@ public record ApiResponse<T>(
         long timestamp
 ) {
 
+    /**
+     * 构建成功响应。
+     *
+     * @param data 数据
+     * @param traceId 链路 Trace ID
+     * @return 统一响应对象
+     */
     public static <T> ApiResponse<T> success(T data, String traceId) {
         return new ApiResponse<>(
                 true,
@@ -35,14 +37,35 @@ public record ApiResponse<T>(
         );
     }
 
+    /**
+     * 构建成功响应。
+     *
+     * @param data 数据
+     * @return 统一响应对象
+     */
     public static <T> ApiResponse<T> success(T data) {
         return success(data, null);
     }
 
+    /**
+     * 构建失败响应。
+     *
+     * @param errorCode 错误编码
+     * @param traceId 链路 Trace ID
+     * @return 统一响应对象
+     */
     public static ApiResponse<Void> failure(ErrorCode errorCode, String traceId) {
         return failure(errorCode, errorCode.getMessage(), traceId);
     }
 
+    /**
+     * 构建失败响应。
+     *
+     * @param errorCode 错误编码
+     * @param message 消息
+     * @param traceId 链路 Trace ID
+     * @return 统一响应对象
+     */
     public static ApiResponse<Void> failure(ErrorCode errorCode, String message, String traceId) {
         return new ApiResponse<>(
                 false,

@@ -18,6 +18,7 @@ import java.util.List;
  * 持久化场景知识绑定仓储。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true")
@@ -42,12 +43,23 @@ public class PersistentScenarioKnowledgeBindingRepository implements ScenarioKno
         this.scenarioKnowledgeBindingMapper = scenarioKnowledgeBindingMapper;
     }
 
+    /**
+     * 执行save。
+     *
+     * @param binding binding
+     */
     @Override
     public void save(ScenarioKnowledgeBinding binding) {
         scenarioKnowledgeBindingMapper.insert(toEntity(binding));
         log.debug("持久化场景知识绑定, bindingId={}, scenarioCode={}", binding.bindingId(), binding.scenarioCode());
     }
 
+    /**
+     * 查找人Scenario编码。
+     *
+     * @param scenarioCode scenario编码
+     * @return 查找结果
+     */
     @Override
     public List<ScenarioKnowledgeBinding> findByScenarioCode(String scenarioCode) {
         LambdaQueryWrapper<ScenarioKnowledgeBindingEntity> queryWrapper = new LambdaQueryWrapper<ScenarioKnowledgeBindingEntity>()
@@ -61,6 +73,12 @@ public class PersistentScenarioKnowledgeBindingRepository implements ScenarioKno
                 .toList();
     }
 
+    /**
+     * 转换为实体。
+     *
+     * @param binding binding
+     * @return 转换结果
+     */
     private ScenarioKnowledgeBindingEntity toEntity(ScenarioKnowledgeBinding binding) {
         ScenarioKnowledgeBindingEntity entity = new ScenarioKnowledgeBindingEntity();
         entity.setTenantId(TenantIds.resolveId(binding.tenantCode()));
@@ -73,6 +91,12 @@ public class PersistentScenarioKnowledgeBindingRepository implements ScenarioKno
         return entity;
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private ScenarioKnowledgeBinding toDomain(ScenarioKnowledgeBindingEntity entity) {
         return new ScenarioKnowledgeBinding(
                 TenantIds.toCode(entity.getTenantId()),

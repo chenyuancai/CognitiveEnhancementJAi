@@ -42,11 +42,11 @@ import org.springframework.http.MediaType;
 
 /**
  * OAuth2 授权服务核心配置：协议端点、客户端、JWK、JWT 声明定制与令牌生成器。
- *
  * <p>支持 authorization_code / refresh_token / client_credentials / password 四种授权类型，
  * 其中 password 通过自定义 Converter + Provider 实现。</p>
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Configuration
 @EnableConfigurationProperties(AuthJwkProperties.class)
@@ -99,6 +99,12 @@ public class AuthorizationServerConfig {
                 jwtGenerator, new OAuth2AccessTokenGenerator(), new OAuth2RefreshTokenGenerator());
     }
 
+    /**
+     * 执行jwtEncoder。
+     *
+     * @param jwkSource jwk来源
+     * @return 执行结果
+     */
     @Bean
     public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
         return new NimbusJwtEncoder(jwkSource);
@@ -128,11 +134,21 @@ public class AuthorizationServerConfig {
         return jwkSupport.loadOrCreate(jwkProperties);
     }
 
+    /**
+     * 执行jwtDecoder。
+     *
+     * @param jwkSource jwk来源
+     * @return 执行结果
+     */
     @Bean
     public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
         return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
     }
 
+    /**
+     * 执行authorizationServerSettings。
+     * @return 执行结果
+     */
     @Bean
     public AuthorizationServerSettings authorizationServerSettings(
             @org.springframework.beans.factory.annotation.Value("${cog.auth.issuer:http://localhost:8802}") String issuer) {

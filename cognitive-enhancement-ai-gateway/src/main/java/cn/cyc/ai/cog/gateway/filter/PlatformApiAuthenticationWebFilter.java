@@ -22,18 +22,29 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * /api/** 强制 Bearer 验签（方案 B）。方案 A 纯转发时通过 {@code cog.gateway.api-auth.enabled=false} 关闭。
- */
+ /**
+  * 平台ApiAuthenticationWeb过滤器
+  *
+  * @author cyc
+  * @date 2026/6/15 14:18
+  */
 @Component
 @ConditionalOnProperty(name = "cog.gateway.api-auth.enabled", havingValue = "true")
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
 public class PlatformApiAuthenticationWebFilter implements WebFilter {
 
+    /** properties。 */
     private final GatewayApiAuthProperties properties;
+    /** compositeBearerIdentityParser。 */
     private final GatewayCompositeBearerIdentityParser compositeBearerIdentityParser;
+    /** JSON 序列化器 */
     private final ObjectMapper objectMapper;
+    /** 路径Matcher。 */
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
+    /**
+     * 创建平台ApiAuthenticationWeb过滤器。
+     */
     public PlatformApiAuthenticationWebFilter(GatewayApiAuthProperties properties,
                                             GatewayCompositeBearerIdentityParser compositeBearerIdentityParser,
                                             ObjectMapper objectMapper) {
@@ -42,6 +53,13 @@ public class PlatformApiAuthenticationWebFilter implements WebFilter {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * 执行过滤器。
+     *
+     * @param exchange exchange
+     * @param chain chain
+     * @return 执行结果
+     */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         if (!properties.isEnabled()) {
@@ -60,10 +78,22 @@ public class PlatformApiAuthenticationWebFilter implements WebFilter {
         return chain.filter(exchange);
     }
 
+    /**
+     * 判断是否为PermitAll。
+     *
+     * @param path 路径
+     * @return 是否满足条件
+     */
     private boolean isPermitAll(String path) {
         return properties.getPermitAll().stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
     }
 
+    /**
+     * 执行unauthorized。
+     *
+     * @param exchange exchange
+     * @return 执行结果
+     */
     private Mono<Void> unauthorized(ServerWebExchange exchange) {
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
         exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);

@@ -38,26 +38,42 @@ import java.util.stream.Collectors;
 
 /**
  * ReAct 多轮 Tool 循环执行器（对齐 zcloud ReActAgentExecutionStrategy）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class ReActAgentExecutor {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(ReActAgentExecutor.class);
     private static final String REACT_SYSTEM_PROMPT = """
             你是任务型 Agent。可用 tools 时按 ReAct 模式：分析需求 → 调用 tool → 根据 observation 继续推理，直到能给出最终答案。
             不需要 tool 时直接回答。仅调用已授权 tools，arguments 须为合法 JSON。
             """;
 
+    /** llm网关。 */
     private final LlmGateway llmGateway;
+    /** 工具运行时。 */
     private final ToolRuntime toolRuntime;
+    /** 工具Definition仓储。 */
     private final ToolDefinitionRepository toolDefinitionRepository;
+    /** reActProperties。 */
     private final ReActProperties reActProperties;
+    /** 链路SpanRecorder。 */
     private final TraceSpanRecorder traceSpanRecorder;
+    /** JSON 序列化器 */
     private final ObjectMapper objectMapper;
+    /** conversation上下文Manager。 */
     private final RuntimeConversationContextManager conversationContextManager;
+    /** taskBudget控制器。 */
     private final TaskBudgetController taskBudgetController;
+    /** 模型Governance。 */
     private final DefaultModelGovernance modelGovernance;
 
+    /**
+     * 创建ReActAgentExecutor。
+     */
     public ReActAgentExecutor(LlmGateway llmGateway,
                               ToolRuntime toolRuntime,
                               ToolDefinitionRepository toolDefinitionRepository,
@@ -78,6 +94,10 @@ public class ReActAgentExecutor {
         this.modelGovernance = modelGovernance;
     }
 
+    /**
+     * 执行操作。
+     * @return 执行结果
+     */
     public ExecutionResult execute(ExecutionContext context,
                                    ModelGovernanceResolution modelResolution,
                                    Object promptInput,
@@ -153,6 +173,12 @@ public class ReActAgentExecutor {
                 "ReAct 超过最大迭代次数: " + maxIterations);
     }
 
+    /**
+     * 执行resolveMaxIterations。
+     *
+     * @param context 上下文
+     * @return 执行结果
+     */
     private int resolveMaxIterations(ExecutionContext context) {
         Object fromRequest = context.request().parameters().get("reactMaxIterations");
         if (fromRequest instanceof Number number) {
@@ -161,6 +187,12 @@ public class ReActAgentExecutor {
         return Math.max(1, reActProperties.getMaxIterations());
     }
 
+    /**
+     * 执行loadTools。
+     *
+     * @param toolCodes 工具Codes
+     * @return 执行结果
+     */
     private List<ToolDefinition> loadTools(List<String> toolCodes) {
         List<ToolDefinition> tools = new ArrayList<>();
         for (String toolCode : toolCodes) {
@@ -170,6 +202,12 @@ public class ReActAgentExecutor {
         return tools;
     }
 
+    /**
+     * 执行authorize工具Calls。
+     *
+     * @param toolCalls 工具Calls
+     * @param allowed allowed
+     */
     private void authorizeToolCalls(List<LlmToolCall> toolCalls, Set<String> allowed) {
         for (LlmToolCall toolCall : toolCalls) {
             if (!allowed.contains(toolCall.name())) {
@@ -178,10 +216,21 @@ public class ReActAgentExecutor {
         }
     }
 
+    /**
+     * 转换为olCall数量。
+     *
+     * @param result 结果
+     * @return 转换结果
+     */
     private int toolCallCount(LlmConversationResult result) {
         return result.toolCalls() == null ? 0 : result.toolCalls().size();
     }
 
+    /**
+     * 校验参数。
+     *
+     * @param result 结果
+     */
     private void validateFinalAnswer(LlmConversationResult result) {
         if (!StringUtils.hasText(result.content())) {
             throw new BusinessException("CONFLICT", "ReAct LLM 未返回最终回答");
@@ -214,6 +263,10 @@ public class ReActAgentExecutor {
         return observations;
     }
 
+    /**
+     * 转换为Invocation结果。
+     * @return 转换结果
+     */
     private LlmInvocationResult toInvocationResult(ExecutionContext context,
                                                    ModelDefinition model,
                                                    LlmConversationResult result) {
@@ -233,6 +286,12 @@ public class ReActAgentExecutor {
         );
     }
 
+    /**
+     * 执行parse工具Arguments。
+     *
+     * @param argumentsJson argumentsJSON
+     * @return 执行结果
+     */
     private Object parseToolArguments(String argumentsJson) {
         if (!StringUtils.hasText(argumentsJson)) {
             return Map.of();
@@ -245,6 +304,9 @@ public class ReActAgentExecutor {
         }
     }
 
+    /**
+     * 执行append工具Messages。
+     */
     private void appendToolMessages(List<ChatMessage> messages,
                                     List<LlmToolCall> toolCalls,
                                     List<Map<String, Object>> observations) {
@@ -261,6 +323,10 @@ public class ReActAgentExecutor {
         }
     }
 
+    /**
+     * 构建成功结果。
+     * @return 构建结果
+     */
     private ExecutionResult buildSuccessResult(ExecutionContext context,
                                                LlmConversationResult result,
                                                List<Map<String, Object>> steps,

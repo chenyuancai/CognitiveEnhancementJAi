@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 
 /**
  * 解析当前请求绑定的商业账户 ID。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class AccountContextResolver {

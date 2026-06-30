@@ -7,12 +7,24 @@ import java.util.List;
 
 /**
  * Skill DTO 定义。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class SkillDtos {
 
+    /**
+     * 创建SkillDtos。
+     */
     private SkillDtos() {
     }
 
+    /**
+     * 创建请求
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     public record CreateRequest(
             String skillCode,
             String skillName,
@@ -27,6 +39,12 @@ public final class SkillDtos {
     ) {
     }
 
+    /**
+     * 更新请求
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     public record UpdateRequest(
             String skillName,
             String skillType,
@@ -40,6 +58,12 @@ public final class SkillDtos {
     ) {
     }
 
+    /**
+     * Result 记录
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     public record Result(
             String skillCode,
             String skillName,

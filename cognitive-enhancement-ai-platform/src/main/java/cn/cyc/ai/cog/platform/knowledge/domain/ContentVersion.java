@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 
 /**
  * 内容发布版本快照。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ContentVersion(
         Long id,

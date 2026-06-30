@@ -18,6 +18,9 @@ import java.util.List;
 
 /**
  * 角色仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbRoleRepository implements RoleRepository {
@@ -37,6 +40,12 @@ public class DbRoleRepository implements RoleRepository {
         this.rolePermissionMapper = rolePermissionMapper;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Override
     public PageResult<RoleEntity> page(RolePageQuery query) {
         LambdaQueryWrapper<RoleEntity> wrapper = new LambdaQueryWrapper<>();
@@ -52,11 +61,21 @@ public class DbRoleRepository implements RoleRepository {
         return PageResult.of(page.getRecords(), page.getTotal(), page.getCurrent(), page.getSize());
     }
 
+    /**
+     * 查询All列表。
+     * @return 结果列表
+     */
     @Override
     public List<RoleEntity> listAll() {
         return roleMapper.selectList(new LambdaQueryWrapper<RoleEntity>().orderByDesc(RoleEntity::getId));
     }
 
+    /**
+     * 执行require人ID。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     @Override
     public RoleEntity requireById(Long id) {
         RoleEntity entity = roleMapper.selectById(id);
@@ -66,6 +85,13 @@ public class DbRoleRepository implements RoleRepository {
         return entity;
     }
 
+    /**
+     * 判断是否为编码Available。
+     *
+     * @param roleCode 角色编码
+     * @param excludeId excludeID
+     * @return 是否满足条件
+     */
     @Override
     public boolean isCodeAvailable(String roleCode, Long excludeId) {
         LambdaQueryWrapper<RoleEntity> wrapper = new LambdaQueryWrapper<RoleEntity>()
@@ -76,18 +102,35 @@ public class DbRoleRepository implements RoleRepository {
         return roleMapper.selectCount(wrapper) == 0;
     }
 
+    /**
+     * 执行insert。
+     *
+     * @param entity 实体
+     * @return 执行结果
+     */
     @Override
     public RoleEntity insert(RoleEntity entity) {
         roleMapper.insert(entity);
         return entity;
     }
 
+    /**
+     * 更新Item。
+     *
+     * @param entity 实体
+     * @return 更新结果
+     */
     @Override
     public RoleEntity update(RoleEntity entity) {
         roleMapper.updateById(entity);
         return entity;
     }
 
+    /**
+     * 删除人ID。
+     *
+     * @param id 主键 ID
+     */
     @Override
     public void deleteById(Long id) {
         rolePermissionMapper.delete(new LambdaQueryWrapper<RolePermissionEntity>()
@@ -95,11 +138,23 @@ public class DbRoleRepository implements RoleRepository {
         roleMapper.deleteById(id);
     }
 
+    /**
+     * 执行数量Members。
+     *
+     * @param roleId 角色ID
+     * @return 执行结果
+     */
     @Override
     public long countMembers(Long roleId) {
         return roleMapper.countMembers(roleId);
     }
 
+    /**
+     * 执行replacePermissions。
+     *
+     * @param roleId 角色ID
+     * @param permissionIds 权限Ids
+     */
     @Override
     public void replacePermissions(Long roleId, List<Long> permissionIds) {
         rolePermissionMapper.delete(new LambdaQueryWrapper<RolePermissionEntity>()

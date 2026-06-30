@@ -28,28 +28,55 @@ import java.util.Objects;
 
 /**
  * 模型后台管理服务：模型主数据 + 多提供商绑定。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class ModelAdminService {
 
+    /** catalog仓储。 */
     private final ModelCatalogRepository catalogRepository;
+    /** auditRecorder。 */
     private AuditRecorder auditRecorder;
+    /** 模型运行时Refresh服务。 */
     private ModelRuntimeRefreshService modelRuntimeRefreshService;
 
+    /**
+     * 创建模型管理后台服务。
+     *
+     * @param catalogRepository catalog仓储
+     */
     public ModelAdminService(ModelCatalogRepository catalogRepository) {
         this.catalogRepository = catalogRepository;
     }
 
+    /**
+     * 设置AuditRecorder。
+     *
+     * @param auditRecorder auditRecorder
+     */
     @Autowired(required = false)
     public void setAuditRecorder(AuditRecorder auditRecorder) {
         this.auditRecorder = auditRecorder;
     }
 
+    /**
+     * 设置模型运行时Refresh服务。
+     *
+     * @param modelRuntimeRefreshService 模型运行时Refresh服务
+     */
     @Autowired(required = false)
     public void setModelRuntimeRefreshService(ModelRuntimeRefreshService modelRuntimeRefreshService) {
         this.modelRuntimeRefreshService = modelRuntimeRefreshService;
     }
 
+    /**
+     * 查询分页列表。
+     *
+     * @param query 查询
+     * @return 结果列表
+     */
     public CenterPageResult<ModelResult> listPage(ModelPageQuery query) {
         CenterPageQuery normalized = normalizeQuery(query);
         Comparator<ModelMasterDefinition> comparator = resolveComparator(normalized, modelSorters());
@@ -77,12 +104,24 @@ public class ModelAdminService {
         );
     }
 
+    /**
+     * 获取人编码。
+     *
+     * @param modelCode 模型编码
+     * @return 人编码
+     */
     public ModelResult getByCode(String modelCode) {
         ModelMasterDefinition model = catalogRepository.findModelByCode(modelCode)
                 .orElseThrow(() -> Errors.of(PlatformErrorCode.METADATA_NOT_FOUND, "未找到元数据定义: " + modelCode));
         return toResult(model);
     }
 
+    /**
+     * 创建Item。
+     *
+     * @param request 请求
+     * @return 创建结果
+     */
     public ModelResult create(ModelUpsertRequest request) {
         ModelMasterDefinition model = toMasterDefinition(request, null);
         validateProvidersExist(model.providerBindings());
@@ -92,6 +131,12 @@ public class ModelAdminService {
         return toResult(model);
     }
 
+    /**
+     * 更新Item。
+     *
+     * @param request 请求
+     * @return 更新结果
+     */
     public ModelResult update(ModelUpsertRequest request) {
         String modelCode = Objects.requireNonNull(request.modelCode(), "modelCode 不能为空");
         catalogRepository.findModelByCode(modelCode)
@@ -104,6 +149,11 @@ public class ModelAdminService {
         return toResult(model);
     }
 
+    /**
+     * 执行seed。
+     *
+     * @param request 请求
+     */
     public void seed(ModelUpsertRequest request) {
         ModelMasterDefinition model = toMasterDefinition(request, null);
         validateProvidersExist(model.providerBindings());
@@ -112,10 +162,21 @@ public class ModelAdminService {
         refreshRuntimeRoutes();
     }
 
+    /**
+     * 判断是否为Empty。
+     * @return 是否满足条件
+     */
     public boolean isEmpty() {
         return catalogRepository.modelsEmpty();
     }
 
+    /**
+     * 转换为MasterDefinition。
+     *
+     * @param request 请求
+     * @param overrideCode override编码
+     * @return 转换结果
+     */
     private ModelMasterDefinition toMasterDefinition(ModelUpsertRequest request, String overrideCode) {
         String modelCode = overrideCode != null ? overrideCode : Objects.requireNonNull(request.modelCode(), "modelCode 不能为空");
         List<ModelBindingDefinition> bindings = normalizeBindings(request);
@@ -131,6 +192,12 @@ public class ModelAdminService {
         );
     }
 
+    /**
+     * 执行normalizeBindings。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     private List<ModelBindingDefinition> normalizeBindings(ModelUpsertRequest request) {
         if (!CollectionUtils.isEmpty(request.providerBindings())) {
             return request.providerBindings().stream()
@@ -157,6 +224,11 @@ public class ModelAdminService {
         ));
     }
 
+    /**
+     * 校验参数。
+     *
+     * @param bindings bindings
+     */
     private void validateProvidersExist(List<ModelBindingDefinition> bindings) {
         for (ModelBindingDefinition binding : bindings) {
             catalogRepository.findProviderByCode(binding.providerCode())
@@ -165,6 +237,12 @@ public class ModelAdminService {
         }
     }
 
+    /**
+     * 转换为结果。
+     *
+     * @param model 模型
+     * @return 转换结果
+     */
     private ModelResult toResult(ModelMasterDefinition model) {
         List<ModelProviderDefinition> providers = catalogRepository.listProviders();
         List<ModelProviderBindingResult> bindingResults = model.providerBindings().stream()
@@ -190,6 +268,10 @@ public class ModelAdminService {
         );
     }
 
+    /**
+     * 转换为Binding结果。
+     * @return 转换结果
+     */
     private ModelProviderBindingResult toBindingResult(ModelBindingDefinition binding,
                                                        List<ModelProviderDefinition> providers) {
         ModelProviderDefinition provider = providers.stream()
@@ -211,6 +293,12 @@ public class ModelAdminService {
         );
     }
 
+    /**
+     * 执行normalize查询。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     private CenterPageQuery normalizeQuery(CenterPageQuery query) {
         CenterPageQuery normalized = query == null ? new CenterPageQuery() : query;
         if (normalized.getPage() < 1) {
@@ -222,6 +310,10 @@ public class ModelAdminService {
         return normalized;
     }
 
+    /**
+     * 执行resolveComparator。
+     * @return 执行结果
+     */
     private Comparator<ModelMasterDefinition> resolveComparator(CenterPageQuery query,
                                                                 Map<String, Comparator<ModelMasterDefinition>> sorters) {
         String sortExpression = StringUtils.hasText(query.getSort()) ? query.getSort() : "code,asc";
@@ -247,6 +339,13 @@ public class ModelAdminService {
         return sorters;
     }
 
+    /**
+     * 执行matches关键词。
+     *
+     * @param model 模型
+     * @param keyword 关键词
+     * @return 执行结果
+     */
     private boolean matchesKeyword(ModelMasterDefinition model, String keyword) {
         if (!StringUtils.hasText(keyword)) {
             return true;
@@ -256,10 +355,24 @@ public class ModelAdminService {
                 || model.modelName().toLowerCase(Locale.ROOT).contains(normalized);
     }
 
+    /**
+     * 执行matches状态。
+     *
+     * @param model 模型
+     * @param status 状态
+     * @return 执行结果
+     */
     private boolean matchesStatus(ModelMasterDefinition model, CommonStatus status) {
         return status == null || model.status() == status;
     }
 
+    /**
+     * 执行matches提供者编码。
+     *
+     * @param model 模型
+     * @param providerCode 提供者编码
+     * @return 执行结果
+     */
     private boolean matchesProviderCode(ModelMasterDefinition model, String providerCode) {
         if (!StringUtils.hasText(providerCode)) {
             return true;
@@ -268,10 +381,23 @@ public class ModelAdminService {
                 .anyMatch(binding -> providerCode.equals(binding.providerCode()));
     }
 
+    /**
+     * 执行matches。
+     *
+     * @param expected expected
+     * @param actual actual
+     * @return 执行结果
+     */
     private boolean matches(String expected, String actual) {
         return !StringUtils.hasText(expected) || expected.equals(actual);
     }
 
+    /**
+     * 执行recordAudit。
+     *
+     * @param action action
+     * @param model 模型
+     */
     private void recordAudit(String action, ModelMasterDefinition model) {
         if (auditRecorder == null) {
             return;
@@ -282,6 +408,9 @@ public class ModelAdminService {
         }
     }
 
+    /**
+     * 执行refresh运行时Routes。
+     */
     private void refreshRuntimeRoutes() {
         if (modelRuntimeRefreshService != null) {
             modelRuntimeRefreshService.refresh();

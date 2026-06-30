@@ -4,6 +4,9 @@ import cn.cyc.ai.cog.core.metadata.type.CommonStatus;
 
 /**
  * 核心元数据对象统一抽象。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface MetadataDefinition {
 

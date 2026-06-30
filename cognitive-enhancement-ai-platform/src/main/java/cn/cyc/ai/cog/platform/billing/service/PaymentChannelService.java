@@ -14,16 +14,32 @@ import java.util.List;
 
 /**
  * 支付通道编排：按渠道选择 Gateway 创建预支付单。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class PaymentChannelService {
 
+    /** gateways。 */
     private final List<PaymentChannelGateway> gateways;
 
+    /**
+     * 创建支付Channel服务。
+     *
+     * @param gateways gateways
+     */
     public PaymentChannelService(List<PaymentChannelGateway> gateways) {
         this.gateways = gateways;
     }
 
+    /**
+     * 创建Prepay。
+     *
+     * @param order 订单
+     * @param request 请求
+     * @return 创建结果
+     */
     public PaymentPrepayResult createPrepay(Order order, AppPayOrderRequest request) {
         String channel = normalizeChannel(request == null ? null : request.getPayChannel());
         return gateways.stream()
@@ -33,6 +49,12 @@ public class PaymentChannelService {
                 .orElseThrow(() -> Errors.of(PlatformErrorCode.PAYMENT_CHANNEL_UNSUPPORTED, "不支持的支付通道：" + channel));
     }
 
+    /**
+     * 执行normalizeChannel。
+     *
+     * @param channel channel
+     * @return 执行结果
+     */
     private String normalizeChannel(String channel) {
         if (!StringUtils.hasText(channel)) {
             return "MOCK";

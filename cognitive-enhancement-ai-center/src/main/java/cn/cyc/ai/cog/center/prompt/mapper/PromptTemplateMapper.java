@@ -6,6 +6,9 @@ import org.apache.ibatis.annotations.Mapper;
 
 /**
  * 提示词模板 Mapper。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Mapper
 public interface PromptTemplateMapper extends BaseMapper<PromptTemplateEntity> {

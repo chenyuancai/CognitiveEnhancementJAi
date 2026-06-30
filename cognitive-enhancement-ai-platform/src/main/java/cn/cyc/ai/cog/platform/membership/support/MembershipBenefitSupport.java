@@ -8,15 +8,26 @@ import java.util.regex.Pattern;
 
 /**
  * 会员权益解析辅助（优先读 level_benefit 表，回退 benefits_json）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class MembershipBenefitSupport {
 
+    /** 权益MONTHLY令牌。 */
     public static final String BENEFIT_MONTHLY_TOKEN = "usage.monthly_token";
+    /** 默认MONTHLY令牌额度。 */
     public static final long DEFAULT_MONTHLY_TOKEN_QUOTA = 100_000L;
 
+    /** 等级权益仓储。 */
     private final LevelBenefitRepository levelBenefitRepository;
 
+    /**
+     * 创建会员权益支持工具。
+     *
+     * @param levelBenefitRepository 等级权益仓储
+     */
     public MembershipBenefitSupport(LevelBenefitRepository levelBenefitRepository) {
         this.levelBenefitRepository = levelBenefitRepository;
     }
@@ -63,12 +74,25 @@ public class MembershipBenefitSupport {
         return hasBenefitFromJson(benefitsJson, benefitCode);
     }
 
+    /**
+     * 执行resolveCatalogBoolean。
+     *
+     * @param levelId 等级ID
+     * @param benefitCode 权益编码
+     * @return 执行结果
+     */
     private Boolean resolveCatalogBoolean(Long levelId, String benefitCode) {
         return levelBenefitRepository.findBenefitValue(levelId, benefitCode)
                 .map(this::parseBooleanValue)
                 .orElse(null);
     }
 
+    /**
+     * 执行parseBoolean值。
+     *
+     * @param value 值
+     * @return 执行结果
+     */
     private boolean parseBooleanValue(String value) {
         if (!StringUtils.hasText(value)) {
             return false;
@@ -87,6 +111,13 @@ public class MembershipBenefitSupport {
         }
     }
 
+    /**
+     * 判断是否包含权益FromJSON。
+     *
+     * @param benefitsJson benefitsJSON
+     * @param benefitCode 权益编码
+     * @return 是否包含
+     */
     private boolean hasBenefitFromJson(String benefitsJson, String benefitCode) {
         if (!StringUtils.hasText(benefitsJson)) {
             return false;
@@ -97,6 +128,12 @@ public class MembershipBenefitSupport {
         return pattern.matcher(benefitsJson).find();
     }
 
+    /**
+     * 执行resolveMonthly令牌FromJSON。
+     *
+     * @param benefitsJson benefitsJSON
+     * @return 执行结果
+     */
     private Long resolveMonthlyTokenFromJson(String benefitsJson) {
         if (!StringUtils.hasText(benefitsJson)) {
             return null;
@@ -118,6 +155,12 @@ public class MembershipBenefitSupport {
         return null;
     }
 
+    /**
+     * 执行parseLong值。
+     *
+     * @param value 值
+     * @return 执行结果
+     */
     private Long parseLongValue(String value) {
         if (!StringUtils.hasText(value)) {
             return null;

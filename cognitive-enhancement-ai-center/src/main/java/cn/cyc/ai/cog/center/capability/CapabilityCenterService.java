@@ -12,22 +12,44 @@ import java.util.List;
  * Capability 管理服务。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public class CapabilityCenterService extends AbstractCenterMetadataService<CapabilityDefinition> {
 
+    /**
+     * 创建能力Center服务。
+     *
+     * @param repository 仓储
+     */
     public CapabilityCenterService(CapabilityDefinitionRepository repository) {
         super(repository, "能力");
     }
 
+    /**
+     * 查询Item列表。
+     * @return 结果列表
+     */
     public ListResponse<CapabilityDtos.Result> list() {
         List<CapabilityDtos.Result> items = repository().listAll().stream().map(this::toResult).toList();
         return new ListResponse<>(items, items.size());
     }
 
+    /**
+     * 执行get。
+     *
+     * @param capabilityCode 能力编码
+     * @return 执行结果
+     */
     public CapabilityDtos.Result get(String capabilityCode) {
         return toResult(getRequired(capabilityCode));
     }
 
+    /**
+     * 创建Item。
+     *
+     * @param request 请求
+     * @return 创建结果
+     */
     public CapabilityDtos.Result create(CapabilityDtos.CreateRequest request) {
         ensureAbsent(request.capabilityCode());
         return toResult(save(new CapabilityDefinition(
@@ -45,6 +67,13 @@ public class CapabilityCenterService extends AbstractCenterMetadataService<Capab
         )));
     }
 
+    /**
+     * 更新Item。
+     *
+     * @param capabilityCode 能力编码
+     * @param request 请求
+     * @return 更新结果
+     */
     public CapabilityDtos.Result update(String capabilityCode, CapabilityDtos.UpdateRequest request) {
         getRequired(capabilityCode);
         return toResult(save(new CapabilityDefinition(
@@ -62,6 +91,12 @@ public class CapabilityCenterService extends AbstractCenterMetadataService<Capab
         )));
     }
 
+    /**
+     * 转换为结果。
+     *
+     * @param definition definition
+     * @return 转换结果
+     */
     private CapabilityDtos.Result toResult(CapabilityDefinition definition) {
         return new CapabilityDtos.Result(
                 definition.capabilityCode(),

@@ -8,6 +8,7 @@ import cn.cyc.ai.cog.core.runtime.CapabilityExecuteRequest;
  * 执行参数校验器，负责在运行时入口对通用执行参数做收口校验。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface ExecutionParameterValidator {
 

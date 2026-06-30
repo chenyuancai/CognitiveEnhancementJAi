@@ -13,16 +13,31 @@ import java.util.Map;
 
 /**
  * 支付回调验签：MOCK 明文、微信 V3 风格 RSA、支付宝 RSA2 排序串。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class PaymentChannelSignatureVerifier {
 
+    /** properties。 */
     private final PaymentCallbackProperties properties;
 
+    /**
+     * 创建PaymentChannelSignatureVerifier。
+     *
+     * @param properties properties
+     */
     public PaymentChannelSignatureVerifier(PaymentCallbackProperties properties) {
         this.properties = properties;
     }
 
+    /**
+     * 执行verify。
+     *
+     * @param channel channel
+     * @param request 请求
+     */
     public void verify(String channel, PaymentCallbackRequest request) {
         if (!properties.isVerifySignature()) {
             return;
@@ -42,6 +57,11 @@ public class PaymentChannelSignatureVerifier {
         throw Errors.of(PlatformErrorCode.PAYMENT_CHANNEL_UNSUPPORTED, "不支持的支付通道：" + channel);
     }
 
+    /**
+     * 执行verifyMock。
+     *
+     * @param request 请求
+     */
     private void verifyMock(PaymentCallbackRequest request) {
         String secret = properties.getMockSecret();
         if (!StringUtils.hasText(secret)) {
@@ -52,6 +72,11 @@ public class PaymentChannelSignatureVerifier {
         }
     }
 
+    /**
+     * 执行verifyWechat。
+     *
+     * @param request 请求
+     */
     private void verifyWechat(PaymentCallbackRequest request) {
         String publicKeyPem = properties.getWechatPlatformPublicKeyPem();
         if (!StringUtils.hasText(publicKeyPem)) {
@@ -70,6 +95,11 @@ public class PaymentChannelSignatureVerifier {
         PaymentSignatureSupport.rsaVerifySha256(message, request.getSignature(), publicKeyPem);
     }
 
+    /**
+     * 执行verifyAlipay。
+     *
+     * @param request 请求
+     */
     private void verifyAlipay(PaymentCallbackRequest request) {
         String publicKeyPem = properties.getAlipayPublicKeyPem();
         if (!StringUtils.hasText(publicKeyPem)) {

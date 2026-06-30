@@ -13,17 +13,28 @@ import java.util.List;
  * 请求级鉴权辅助，配合 JWT Filter 使用。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class AuthSupport {
 
+    /** ATTR用户ID */
     public static final String ATTR_USER_ID = "userId";
+    /** ATTRUSERNAME。 */
     public static final String ATTR_USERNAME = "username";
+    /** ATTR租户编码。 */
     public static final String ATTR_TENANT_CODE = "tenantCode";
+    /** ATTRROLES。 */
     public static final String ATTR_ROLES = "roles";
 
+    /** jwtProperties。 */
     private final JwtProperties jwtProperties;
 
+    /**
+     * 创建认证支持工具。
+     *
+     * @param jwtProperties jwtProperties
+     */
     public AuthSupport(JwtProperties jwtProperties) {
         this.jwtProperties = jwtProperties;
     }
@@ -54,6 +65,12 @@ public class AuthSupport {
         }
     }
 
+    /**
+     * 执行extractRoles。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @SuppressWarnings("unchecked")
     private List<String> extractRoles(HttpServletRequest request) {
         Object roles = request.getAttribute(ATTR_ROLES);

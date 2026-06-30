@@ -38,7 +38,17 @@
         </dependency>
         <dependency>
             <groupId>cn.cyc.ai</groupId>
+            <artifactId>cognitive-enhancement-ai-sse-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.cyc.ai</groupId>
             <artifactId>cognitive-enhancement-ai-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.cyc.ai</groupId>
+            <artifactId>cognitive-enhancement-ai-runtime</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

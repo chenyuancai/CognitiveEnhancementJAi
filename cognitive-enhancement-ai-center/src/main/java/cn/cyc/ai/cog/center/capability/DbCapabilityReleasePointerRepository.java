@@ -16,17 +16,32 @@ import java.util.Optional;
 
 /**
  * Capability 发布指针数据库仓储。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true", matchIfMissing = true)
 public class DbCapabilityReleasePointerRepository implements CapabilityReleasePointerRepository {
 
+    /** Mapper。 */
     private final CapabilityReleasePointerMapper mapper;
 
+    /**
+     * 创建Db能力ReleasePointer仓储。
+     *
+     * @param mapper Mapper
+     */
     public DbCapabilityReleasePointerRepository(CapabilityReleasePointerMapper mapper) {
         this.mapper = mapper;
     }
 
+    /**
+     * 查找人能力编码。
+     *
+     * @param capabilityCode 能力编码
+     * @return 查找结果
+     */
     @Override
     public Optional<CapabilityReleasePointer> findByCapabilityCode(String capabilityCode) {
         QueryWrapper<CapabilityReleasePointerEntity> wrapper = new QueryWrapper<>();
@@ -35,6 +50,12 @@ public class DbCapabilityReleasePointerRepository implements CapabilityReleasePo
         return Optional.ofNullable(mapper.selectOne(wrapper)).map(this::toDomain);
     }
 
+    /**
+     * 执行save。
+     *
+     * @param pointer pointer
+     * @return 执行结果
+     */
     @Override
     public CapabilityReleasePointer save(CapabilityReleasePointer pointer) {
         QueryWrapper<CapabilityReleasePointerEntity> wrapper = new QueryWrapper<>();
@@ -52,6 +73,12 @@ public class DbCapabilityReleasePointerRepository implements CapabilityReleasePo
         return pointer;
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private CapabilityReleasePointer toDomain(CapabilityReleasePointerEntity entity) {
         PromptGrayRule grayRule = entity.getGrayRuleJson() == null
                 ? null
@@ -65,6 +92,12 @@ public class DbCapabilityReleasePointerRepository implements CapabilityReleasePo
         );
     }
 
+    /**
+     * 转换为实体。
+     *
+     * @param pointer pointer
+     * @return 转换结果
+     */
     private CapabilityReleasePointerEntity toEntity(CapabilityReleasePointer pointer) {
         CapabilityReleasePointerEntity entity = new CapabilityReleasePointerEntity();
         entity.setTenantId(TenantIds.resolveId(pointer.tenantCode()));

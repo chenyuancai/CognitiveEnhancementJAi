@@ -7,15 +7,8 @@ import java.time.Instant;
 /**
  * 会话记录。
  *
- * @param tenantCode      租户编码
- * @param sessionId       会话 ID
- * @param userId          用户 ID
- * @param capabilityCode  能力编码
- * @param title           会话标题
- * @param status          会话状态
- * @param createdAt       创建时间
- * @param updatedAt       更新时间
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ConversationSession(
         String tenantCode,

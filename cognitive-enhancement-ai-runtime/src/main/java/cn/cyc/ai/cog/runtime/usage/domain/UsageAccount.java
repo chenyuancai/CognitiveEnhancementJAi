@@ -8,12 +8,8 @@ import java.time.Instant;
 /**
  * 租户用量额度账户。
  *
- * @param tenantCode    租户编码
- * @param balanceAmount 剩余额度
- * @param usedAmount    已用额度
- * @param enabled       是否启用额度拦截
- * @param updatedAt     更新时间
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record UsageAccount(
         String tenantCode,
@@ -57,6 +53,12 @@ public record UsageAccount(
         return balanceAmount.compareTo(normalizeAmount(costAmount)) >= 0;
     }
 
+    /**
+     * 执行normalizeAmount。
+     *
+     * @param amount amount
+     * @return 执行结果
+     */
     private static BigDecimal normalizeAmount(BigDecimal amount) {
         return amount == null ? BigDecimal.ZERO : amount;
     }

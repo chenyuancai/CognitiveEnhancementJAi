@@ -7,6 +7,9 @@ import java.util.Optional;
 
 /**
  * 模型目录仓储：模型主数据 + 提供商绑定 + 提供商主数据。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface ModelCatalogRepository {
 

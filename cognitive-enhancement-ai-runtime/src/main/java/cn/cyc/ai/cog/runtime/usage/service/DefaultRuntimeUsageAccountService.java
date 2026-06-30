@@ -16,6 +16,7 @@ import java.time.Instant;
  * 默认运行时用量额度账户服务。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 @ConditionalOnProperty(name = "cog.runtime.usage.account.backend", havingValue = "legacy", matchIfMissing = true)
@@ -43,6 +44,11 @@ public class DefaultRuntimeUsageAccountService implements RuntimeUsageAccountSer
         this.properties = properties;
     }
 
+    /**
+     * 执行checkBeforeExecution。
+     *
+     * @param capabilityCode 能力编码
+     */
     @Override
     public void checkBeforeExecution(String capabilityCode) {
         if (!properties.getAccount().isEnabled()) {
@@ -57,6 +63,12 @@ public class DefaultRuntimeUsageAccountService implements RuntimeUsageAccountSer
         }
     }
 
+    /**
+     * 执行recordUsage。
+     *
+     * @param usageRecord usageRecord
+     * @return 执行结果
+     */
     @Override
     public UsageAccount recordUsage(UsageRecord usageRecord) {
         if (!properties.getAccount().isEnabled()) {
@@ -75,6 +87,10 @@ public class DefaultRuntimeUsageAccountService implements RuntimeUsageAccountSer
         return updated;
     }
 
+    /**
+     * 执行current账户。
+     * @return 执行结果
+     */
     @Override
     public UsageAccount currentAccount() {
         String tenantCode = TenantContext.currentTenantCode();
@@ -82,6 +98,12 @@ public class DefaultRuntimeUsageAccountService implements RuntimeUsageAccountSer
                 .orElseGet(() -> createDefaultAccount(tenantCode));
     }
 
+    /**
+     * 创建默认账户。
+     *
+     * @param tenantCode 租户编码
+     * @return 创建结果
+     */
     private UsageAccount createDefaultAccount(String tenantCode) {
         UsageAccount account = new UsageAccount(
                 tenantCode,
@@ -94,6 +116,12 @@ public class DefaultRuntimeUsageAccountService implements RuntimeUsageAccountSer
         return account;
     }
 
+    /**
+     * 执行normalizeAmount。
+     *
+     * @param amount amount
+     * @return 执行结果
+     */
     private BigDecimal normalizeAmount(BigDecimal amount) {
         return amount == null ? BigDecimal.ZERO : amount;
     }

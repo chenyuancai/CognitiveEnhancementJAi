@@ -5,9 +5,8 @@ import java.util.Map;
 /**
  * Harness WebSocket 消息统一结构。
  *
- * @param type    消息类型：CONNECTED / RUN / STEP / COMPLETE / ERROR / CANCEL
- * @param payload 消息载荷
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record HarnessWsMessage(
         String type,

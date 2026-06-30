@@ -8,6 +8,7 @@ import cn.cyc.ai.cog.runtime.harness.dto.HarnessContext;
 import cn.cyc.ai.cog.runtime.harness.dto.HarnessScenario;
 import cn.cyc.ai.cog.runtime.harness.spi.HarnessStep;
 import cn.cyc.ai.cog.runtime.harness.spi.HarnessStepResult;
+import cn.cyc.ai.cog.runtime.harness.support.HarnessImportWorkflowSupport;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -16,34 +17,62 @@ import java.util.Map;
  * 能力路由验证步骤，验证 CapabilityRuntime 能正确路由到 Agent。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class CapabilityRouteStep implements HarnessStep {
 
+    /** 能力运行时。 */
     private final CapabilityRuntime capabilityRuntime;
 
+    /**
+     * 创建CapabilityRouteStep。
+     *
+     * @param capabilityRuntime 能力运行时
+     */
     public CapabilityRouteStep(CapabilityRuntime capabilityRuntime) {
         this.capabilityRuntime = capabilityRuntime;
     }
 
+    /**
+     * 执行step编码。
+     * @return 执行结果
+     */
     @Override
     public String stepCode() {
         return "CAPABILITY_ROUTE";
     }
 
+    /**
+     * 执行step名称。
+     * @return 执行结果
+     */
     @Override
     public String stepName() {
         return "能力路由验证";
     }
 
+    /**
+     * 执行描述。
+     * @return 执行结果
+     */
     @Override
     public String description() {
         return "验证 CapabilityRuntime 能正确路由到对应 Agent";
     }
 
+    /**
+     * 执行操作。
+     *
+     * @param ctx ctx
+     * @return 执行结果
+     */
     @Override
     public HarnessStepResult run(HarnessContext ctx) {
         HarnessScenario scenario = ctx.scenario();
+        if (HarnessImportWorkflowSupport.isImportKbFileParse(scenario)) {
+            return HarnessImportWorkflowSupport.skipStep(this, "导入工作流场景，跳过能力路由");
+        }
         if (scenario == null || scenario.capabilityCode() == null) {
             return new HarnessStepResult(
                     stepCode(), stepName(), false, 0,

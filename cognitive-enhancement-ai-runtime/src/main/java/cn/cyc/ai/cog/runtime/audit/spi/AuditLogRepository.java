@@ -8,6 +8,7 @@ import java.util.List;
  * 审计日志仓储接口。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface AuditLogRepository {
 

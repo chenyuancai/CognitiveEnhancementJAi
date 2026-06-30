@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * IAM 租户管理接口。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "IAM-租户", description = "平台租户查询与维护")
 @RestController
@@ -42,6 +45,12 @@ public class TenantAdminController {
         this.iamAdminVoAssembler = iamAdminVoAssembler;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Operation(summary = "分页查询租户")
     @RequirePermission("admin:user:view")
     @PostMapping("/page")
@@ -49,6 +58,12 @@ public class TenantAdminController {
         return ApiResponse.success(tenantService.page(query).map(iamAdminVoAssembler::toTenantVo));
     }
 
+    /**
+     * 执行detail。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     @Operation(summary = "租户详情")
     @RequirePermission("admin:user:view")
     @GetMapping("/{id}")
@@ -56,6 +71,12 @@ public class TenantAdminController {
         return ApiResponse.success(iamAdminVoAssembler.toTenantVo(tenantService.detail(id)));
     }
 
+    /**
+     * 创建Item。
+     *
+     * @param request 请求
+     * @return 创建结果
+     */
     @Operation(summary = "创建租户")
     @RequirePermission("admin:user:update")
     @PostMapping
@@ -63,6 +84,12 @@ public class TenantAdminController {
         return ApiResponse.success(iamAdminVoAssembler.toTenantVo(tenantService.create(request)));
     }
 
+    /**
+     * 更新Item。
+     *
+     * @param request 请求
+     * @return 更新结果
+     */
     @Operation(summary = "更新租户")
     @RequirePermission("admin:user:update")
     @PostMapping("/update")
@@ -70,6 +97,12 @@ public class TenantAdminController {
         return ApiResponse.success(iamAdminVoAssembler.toTenantVo(tenantService.update(request.getId(), request)));
     }
 
+    /**
+     * 更新状态。
+     *
+     * @param request 请求
+     * @return 更新结果
+     */
     @Operation(summary = "更新租户状态")
     @RequirePermission("admin:user:update")
     @PostMapping("/status")

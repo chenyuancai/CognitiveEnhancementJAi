@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * C 端额度明细接口：成员分配与 Token 流水。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "App-额度明细", description = "成员分配与 Token 流水")
 @RestController

@@ -20,13 +20,19 @@ import java.util.Map;
  * 多 Agent 协调器：按策略委派子 Agent 并汇总结果。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class MultiAgentCoordinator {
 
+    /** 智能体运行时提供者。 */
     private final ObjectProvider<AgentRuntime> agentRuntimeProvider;
+    /** 链路SpanRecorder。 */
     private final TraceSpanRecorder traceSpanRecorder;
 
+    /**
+     * 创建MultiAgentCoordinator。
+     */
     public MultiAgentCoordinator(ObjectProvider<AgentRuntime> agentRuntimeProvider,
                                  TraceSpanRecorder traceSpanRecorder) {
         this.agentRuntimeProvider = agentRuntimeProvider;
@@ -112,6 +118,13 @@ public class MultiAgentCoordinator {
         return results;
     }
 
+    /**
+     * 执行selectDelegateCodes。
+     *
+     * @param delegateAgentCodes delegate智能体Codes
+     * @param strategy 策略
+     * @return 执行结果
+     */
     private List<String> selectDelegateCodes(List<String> delegateAgentCodes, ExecutionStrategy strategy) {
         if (strategy == ExecutionStrategy.COST_FIRST) {
             return List.of(delegateAgentCodes.get(0));

@@ -21,17 +21,31 @@ import java.util.UUID;
 
 /**
  * 本地磁盘对象存储（默认策略）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public class DiskFileStorageStrategy implements FileStorageStrategy {
 
+    /** MONTHDIR。 */
     private static final DateTimeFormatter MONTH_DIR = DateTimeFormatter.ofPattern("yyyyMM");
 
+    /** properties。 */
     private final FileStorageProperties properties;
 
+    /**
+     * 创建DiskFileStorageStrategy。
+     *
+     * @param properties properties
+     */
     public DiskFileStorageStrategy(FileStorageProperties properties) {
         this.properties = properties;
     }
 
+    /**
+     * 执行store。
+     * @return 执行结果
+     */
     @Override
     public StoredFileObject store(InputStream inputStream, long sizeBytes, String originalName, String contentType,
                                   Long tenantId, String bizCode) {
@@ -62,6 +76,11 @@ public class DiskFileStorageStrategy implements FileStorageStrategy {
         }
     }
 
+    /**
+     * 删除Item。
+     *
+     * @param storagePath storage路径
+     */
     @Override
     public void delete(String storagePath) {
         if (!StringUtils.hasText(storagePath)) {
@@ -75,6 +94,12 @@ public class DiskFileStorageStrategy implements FileStorageStrategy {
         }
     }
 
+    /**
+     * 执行readBytes。
+     *
+     * @param storagePath storage路径
+     * @return 执行结果
+     */
     @Override
     public byte[] readBytes(String storagePath) {
         Path path = resolveAbsolutePath(storagePath);
@@ -85,11 +110,23 @@ public class DiskFileStorageStrategy implements FileStorageStrategy {
         }
     }
 
+    /**
+     * 执行openAsResource。
+     *
+     * @param storagePath storage路径
+     * @return 执行结果
+     */
     @Override
     public Resource openAsResource(String storagePath) {
         return new FileSystemResource(resolveAbsolutePath(storagePath));
     }
 
+    /**
+     * 执行resolveAbsolute路径。
+     *
+     * @param storagePath storage路径
+     * @return 执行结果
+     */
     private Path resolveAbsolutePath(String storagePath) {
         Path path = resolveRoot().resolve(storagePath).normalize();
         if (!path.startsWith(resolveRoot())) {
@@ -101,10 +138,20 @@ public class DiskFileStorageStrategy implements FileStorageStrategy {
         return path;
     }
 
+    /**
+     * 执行resolveRoot。
+     * @return 执行结果
+     */
     private Path resolveRoot() {
         return Path.of(properties.resolveDiskRootPath()).toAbsolutePath().normalize();
     }
 
+    /**
+     * 执行sanitize文件名称。
+     *
+     * @param originalName original名称
+     * @return 执行结果
+     */
     private static String sanitizeFileName(String originalName) {
         if (!StringUtils.hasText(originalName)) {
             return "file";

@@ -7,6 +7,7 @@ import cn.cyc.ai.cog.core.metadata.tool.ToolProtocolType;
  * Tool Adapter SPI，按协议类型统一封装 Tool 调用。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface ToolAdapter {
 

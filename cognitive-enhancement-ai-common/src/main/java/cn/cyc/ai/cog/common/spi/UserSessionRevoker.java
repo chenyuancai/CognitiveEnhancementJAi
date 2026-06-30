@@ -2,6 +2,9 @@ package cn.cyc.ai.cog.common.spi;
 
 /**
  * 用户会话吊销 SPI（封禁等场景撤销已签发 OAuth2 令牌）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface UserSessionRevoker {
 

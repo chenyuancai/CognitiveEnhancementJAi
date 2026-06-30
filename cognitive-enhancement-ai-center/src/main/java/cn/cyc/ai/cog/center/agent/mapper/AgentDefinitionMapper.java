@@ -10,6 +10,9 @@ import java.util.List;
 
 /**
  * Agent 定义 Mapper。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Mapper
 public interface AgentDefinitionMapper extends BaseMapper<AgentDefinitionEntity> {

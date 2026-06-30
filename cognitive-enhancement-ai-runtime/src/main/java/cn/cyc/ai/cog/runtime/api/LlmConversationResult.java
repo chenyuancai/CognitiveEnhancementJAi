@@ -4,6 +4,9 @@ import java.util.List;
 
 /**
  * 多轮对话 LLM 响应。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record LlmConversationResult(
         String content,
@@ -16,6 +19,10 @@ public record LlmConversationResult(
         boolean mock
 ) {
 
+    /**
+     * 判断是否包含工具Calls。
+     * @return 是否包含
+     */
     public boolean hasToolCalls() {
         return toolCalls != null && !toolCalls.isEmpty();
     }

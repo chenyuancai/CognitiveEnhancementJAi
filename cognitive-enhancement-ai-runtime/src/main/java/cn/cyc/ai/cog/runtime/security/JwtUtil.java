@@ -14,13 +14,21 @@ import java.util.List;
  * JWT 工具类，负责 token 生成与解析。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class JwtUtil {
 
+    /** properties。 */
     private final JwtProperties properties;
+    /** 键。 */
     private final SecretKey key;
 
+    /**
+     * 创建JwtUtil。
+     *
+     * @param properties properties
+     */
     public JwtUtil(JwtProperties properties) {
         this.properties = properties;
         this.key = Keys.hmacShaKeyFor(properties.getSecret().getBytes(StandardCharsets.UTF_8));

@@ -12,15 +12,27 @@ import java.util.Set;
 
 /**
  * 内容 CSV 导入解析：固定表头 title,content_type,author,summary,body,min_level_code,tags。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class ContentImportCsvSupport {
 
     private static final List<String> EXPECTED_HEADERS = List.of(
             "title", "content_type", "author", "summary", "body", "min_level_code", "tags");
 
+    /**
+     * 创建内容ImportCsv支持工具。
+     */
     private ContentImportCsvSupport() {
     }
 
+    /**
+     * 执行parse。
+     *
+     * @param csvContent csv内容
+     * @return 执行结果
+     */
     public static ParseResult parse(String csvContent) {
         if (!StringUtils.hasText(csvContent)) {
             throw new IllegalArgumentException("CSV 内容为空");
@@ -57,6 +69,11 @@ public final class ContentImportCsvSupport {
         return new ParseResult(rows);
     }
 
+    /**
+     * 校验参数。
+     *
+     * @param headers headers
+     */
     private static void validateHeaders(List<String> headers) {
         if (headers.size() < EXPECTED_HEADERS.size()) {
             throw new IllegalArgumentException("CSV 表头列不足，期望：" + EXPECTED_HEADERS);
@@ -80,6 +97,14 @@ public final class ContentImportCsvSupport {
         return row;
     }
 
+    /**
+     * 执行required。
+     *
+     * @param row row
+     * @param key 键
+     * @param lineNo lineNo
+     * @return 执行结果
+     */
     private static String required(Map<String, String> row, String key, int lineNo) {
         String value = row.get(key);
         if (!StringUtils.hasText(value)) {
@@ -88,6 +113,12 @@ public final class ContentImportCsvSupport {
         return value.trim();
     }
 
+    /**
+     * 执行blankToNull。
+     *
+     * @param value 值
+     * @return 执行结果
+     */
     private static String blankToNull(String value) {
         return StringUtils.hasText(value) ? value.trim() : null;
     }
@@ -116,22 +147,50 @@ public final class ContentImportCsvSupport {
         return cells;
     }
 
+    /**
+     * Row结果
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     public record RowResult(int lineNo, ContentSaveRequest request, String tags, String error) {
+        /**
+         * 构建成功响应。
+         * @return 统一响应对象
+         */
         public boolean success() {
             return error == null && request != null;
         }
     }
 
+    /**
+     * Parse结果
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     public record ParseResult(List<RowResult> rows) {
 
+        /**
+         * 执行成功数量。
+         * @return 执行结果
+         */
         public int successCount() {
             return (int) rows.stream().filter(RowResult::success).count();
         }
 
+        /**
+         * 执行fail数量。
+         * @return 执行结果
+         */
         public int failCount() {
             return rows.size() - successCount();
         }
 
+        /**
+         * 转换为结果JSON。
+         * @return 转换结果
+         */
         public String toResultJson() {
             StringBuilder sb = new StringBuilder("{\"rows\":[");
             for (int i = 0; i < rows.size(); i++) {
@@ -151,6 +210,12 @@ public final class ContentImportCsvSupport {
             return sb.toString();
         }
 
+        /**
+         * 执行escape。
+         *
+         * @param value 值
+         * @return 执行结果
+         */
         private static String escape(String value) {
             if (value == null) {
                 return "";

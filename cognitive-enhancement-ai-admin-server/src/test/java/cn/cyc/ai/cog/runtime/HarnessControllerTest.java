@@ -44,8 +44,9 @@ class HarnessControllerTest {
         mockMvc.perform(get("/api/admin/harness/scenario-templates"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success", is(true)))
-                .andExpect(jsonPath("$.data.length()", is(2)))
-                .andExpect(jsonPath("$.data[0].name", is("智能问答")));
+                .andExpect(jsonPath("$.data.length()", is(3)))
+                .andExpect(jsonPath("$.data[0].name", is("智能问答")))
+                .andExpect(jsonPath("$.data[2].name", is("知识文件导入")));
     }
 
     @Test

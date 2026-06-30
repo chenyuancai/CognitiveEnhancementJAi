@@ -10,9 +10,15 @@ import java.util.Map;
 
 /**
  * 字典项树构建工具。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class DictTreeBuilder {
 
+    /**
+     * 创建DictTree构建器。
+     */
     private DictTreeBuilder() {
     }
 
@@ -43,6 +49,11 @@ public final class DictTreeBuilder {
         return roots;
     }
 
+    /**
+     * 执行sortTree。
+     *
+     * @param nodes nodes
+     */
     private static void sortTree(List<DictItemVO> nodes) {
         nodes.sort(Comparator.comparing(DictItemVO::getSort, Comparator.nullsLast(Integer::compareTo))
                 .thenComparing(DictItemVO::getId, Comparator.nullsLast(Long::compareTo)));

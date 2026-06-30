@@ -8,10 +8,12 @@ import lombok.Data;
  * 手动退款请求。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 public class RefundRequest {
 
+    /** 订单ID */
     private Long orderId;
 
     /** 退款金额（分），不得超过订单金额。 */

@@ -18,15 +18,30 @@ import java.util.UUID;
 
 /**
  * 加载或生成 RSA JWK，并持久化到本地文件。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class PersistentRsaJwkSupport {
 
+    /**
+     * 执行loadOr创建。
+     *
+     * @param properties properties
+     * @return 执行结果
+     */
     public JWKSource<SecurityContext> loadOrCreate(AuthJwkProperties properties) {
         RSAKey rsaKey = loadExisting(properties).orElseGet(() -> generateAndPersist(properties));
         return new ImmutableJWKSet<>(new JWKSet(rsaKey));
     }
 
+    /**
+     * 执行loadExisting。
+     *
+     * @param properties properties
+     * @return 执行结果
+     */
     private java.util.Optional<RSAKey> loadExisting(AuthJwkProperties properties) {
         Path path = Path.of(properties.getKeyPath());
         if (!Files.isRegularFile(path)) {
@@ -41,6 +56,12 @@ public class PersistentRsaJwkSupport {
         }
     }
 
+    /**
+     * 执行generateAndPersist。
+     *
+     * @param properties properties
+     * @return 执行结果
+     */
     private RSAKey generateAndPersist(AuthJwkProperties properties) {
         try {
             KeyPair keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();

@@ -27,6 +27,9 @@ import java.time.LocalDateTime;
 
 /**
  * 订单支付后权益发放：订阅 / 加油包，幂等按 orderNo。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class FulfillmentService {
@@ -143,6 +146,12 @@ public class FulfillmentService {
         return fulfilled;
     }
 
+    /**
+     * 执行fulfillSubscription。
+     *
+     * @param order 订单
+     * @param idem idem
+     */
     private void fulfillSubscription(Order order, String idem) {
         SubscriptionPackage pkg = subscriptionPackageRepository.requireById(order.packageId());
         MembershipLevel level = pkg.levelId() == null ? null : membershipLevelRepository.findById(pkg.levelId());
@@ -173,6 +182,12 @@ public class FulfillmentService {
         }
     }
 
+    /**
+     * 执行fulfill额度Package。
+     *
+     * @param order 订单
+     * @param idem idem
+     */
     private void fulfillQuotaPackage(Order order, String idem) {
         QuotaPackage pkg = quotaPackageRepository.requireById(order.packageId());
         long tokens = pkg.tokenAmount() == null ? 0L : pkg.tokenAmount();

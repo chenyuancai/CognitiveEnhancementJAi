@@ -10,6 +10,7 @@ import java.util.Map;
  * 统一调用流水 Span。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record TraceSpan(
         String tenantCode,

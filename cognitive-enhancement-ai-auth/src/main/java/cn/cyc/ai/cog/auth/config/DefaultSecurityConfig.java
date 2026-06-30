@@ -14,10 +14,17 @@ import org.springframework.security.web.SecurityFilterChain;
  * 默认认证安全链：表单登录 + 放行登录/健康检查端点。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Configuration
 public class DefaultSecurityConfig {
 
+    /**
+     * 执行默认Security过滤器Chain。
+     *
+     * @param http http
+     * @return 执行结果
+     */
     @Bean
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -29,6 +36,10 @@ public class DefaultSecurityConfig {
         return http.build();
     }
 
+    /**
+     * 执行密码Encoder。
+     * @return 执行结果
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         DelegatingPasswordEncoder encoder = (DelegatingPasswordEncoder) PasswordEncoderFactories.createDelegatingPasswordEncoder();

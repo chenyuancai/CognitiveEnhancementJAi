@@ -5,10 +5,8 @@ import java.util.List;
 /**
  * 管理中心列表返回对象。
  *
- * @param total 总量
- * @param items 列表项
- * @param <T>   项类型
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record DefinitionListResult<T>(
         int total,

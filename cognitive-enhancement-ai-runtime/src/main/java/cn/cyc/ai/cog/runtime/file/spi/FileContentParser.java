@@ -4,6 +4,9 @@ import cn.cyc.ai.cog.runtime.file.domain.FileUploadRecord;
 
 /**
  * 文件正文解析器。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface FileContentParser {
 

@@ -19,6 +19,9 @@ import org.springframework.util.StringUtils;
  */
 /**
  * 订单仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbOrderRepository implements OrderRepository {
@@ -33,6 +36,12 @@ public class DbOrderRepository implements OrderRepository {
         this.orderMapper = orderMapper;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Override
     public PageResult<Order> page(OrderPageQuery query) {
         LambdaQueryWrapper<OrderEntity> wrapper = new LambdaQueryWrapper<>();
@@ -58,6 +67,12 @@ public class DbOrderRepository implements OrderRepository {
                 page.getSize());
     }
 
+    /**
+     * 执行require人ID。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     @Override
     public Order requireById(Long id) {
         OrderEntity entity = orderMapper.selectById(id);
@@ -67,6 +82,12 @@ public class DbOrderRepository implements OrderRepository {
         return toDomain(entity);
     }
 
+    /**
+     * 执行require人订单No。
+     *
+     * @param orderNo 订单No
+     * @return 执行结果
+     */
     @Override
     public Order requireByOrderNo(String orderNo) {
         OrderEntity entity = orderMapper.selectOne(new LambdaQueryWrapper<OrderEntity>()
@@ -78,6 +99,12 @@ public class DbOrderRepository implements OrderRepository {
         return toDomain(entity);
     }
 
+    /**
+     * 执行insert。
+     *
+     * @param order 订单
+     * @return 执行结果
+     */
     @Override
     public Order insert(Order order) {
         OrderEntity entity = toEntity(order);
@@ -85,6 +112,12 @@ public class DbOrderRepository implements OrderRepository {
         return toDomain(entity);
     }
 
+    /**
+     * 更新Item。
+     *
+     * @param order 订单
+     * @return 更新结果
+     */
     @Override
     public int update(Order order) {
         OrderEntity entity = toEntity(order);
@@ -95,6 +128,14 @@ public class DbOrderRepository implements OrderRepository {
         return orderMapper.updateById(entity);
     }
 
+    /**
+     * 执行sumPaidGmvFen。
+     *
+     * @param tenantId 租户 ID
+     * @param start start
+     * @param end end
+     * @return 执行结果
+     */
     @Override
     public long sumPaidGmvFen(Long tenantId, java.time.LocalDateTime start, java.time.LocalDateTime end) {
         LambdaQueryWrapper<OrderEntity> wrapper = new LambdaQueryWrapper<>();
@@ -109,6 +150,13 @@ public class DbOrderRepository implements OrderRepository {
                 .sum();
     }
 
+    /**
+     * 执行数量人状态。
+     *
+     * @param tenantId 租户 ID
+     * @param status 状态
+     * @return 执行结果
+     */
     @Override
     public long countByStatus(Long tenantId, String status) {
         LambdaQueryWrapper<OrderEntity> wrapper = new LambdaQueryWrapper<>();
@@ -119,6 +167,12 @@ public class DbOrderRepository implements OrderRepository {
         return orderMapper.selectCount(wrapper);
     }
 
+    /**
+     * 查询PendingCreatedBefore列表。
+     *
+     * @param deadline deadline
+     * @return 结果列表
+     */
     @Override
     public java.util.List<Order> listPendingCreatedBefore(java.time.LocalDateTime deadline) {
         LambdaQueryWrapper<OrderEntity> wrapper = new LambdaQueryWrapper<>();
@@ -127,6 +181,12 @@ public class DbOrderRepository implements OrderRepository {
         return orderMapper.selectList(wrapper).stream().map(this::toDomain).toList();
     }
 
+    /**
+     * 执行数量All。
+     *
+     * @param tenantId 租户 ID
+     * @return 执行结果
+     */
     @Override
     public long countAll(Long tenantId) {
         LambdaQueryWrapper<OrderEntity> wrapper = new LambdaQueryWrapper<>();
@@ -136,6 +196,12 @@ public class DbOrderRepository implements OrderRepository {
         return orderMapper.selectCount(wrapper);
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private Order toDomain(OrderEntity entity) {
         return new Order(
                 entity.getId(),
@@ -159,6 +225,12 @@ public class DbOrderRepository implements OrderRepository {
         );
     }
 
+    /**
+     * 转换为实体。
+     *
+     * @param order 订单
+     * @return 转换结果
+     */
     private OrderEntity toEntity(Order order) {
         OrderEntity entity = new OrderEntity();
         entity.setId(order.id());

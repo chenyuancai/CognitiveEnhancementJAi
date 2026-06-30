@@ -7,6 +7,12 @@ import cn.cyc.ai.cog.platform.membership.dto.MemberPageQuery;
 
 import java.util.List;
 
+/**
+ * 账户会员仓储
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 public interface AccountMembershipRepository {
 
     PageResult<AccountMembership> page(MemberPageQuery query);

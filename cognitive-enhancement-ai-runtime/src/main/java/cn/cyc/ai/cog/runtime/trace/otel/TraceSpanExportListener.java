@@ -6,6 +6,7 @@ import cn.cyc.ai.cog.runtime.trace.domain.TraceSpan;
  * TraceSpan 导出监听器，用于对接 OpenTelemetry 等外部观测系统。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface TraceSpanExportListener {
 

@@ -11,13 +11,20 @@ import java.util.concurrent.ConcurrentHashMap;
  * 执行循环防护：检测同一 trace 内重复的 Tool/LLM 调用。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class ExecutionLoopGuard {
 
+    /** properties。 */
     private final LoopGuardProperties properties;
     private final ThreadLocal<Map<String, Integer>> counters = ThreadLocal.withInitial(ConcurrentHashMap::new);
 
+    /**
+     * 创建ExecutionLoopGuard。
+     *
+     * @param properties properties
+     */
     public ExecutionLoopGuard(LoopGuardProperties properties) {
         this.properties = properties;
     }

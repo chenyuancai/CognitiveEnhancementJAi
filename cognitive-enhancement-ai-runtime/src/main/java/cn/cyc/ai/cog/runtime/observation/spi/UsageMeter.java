@@ -8,6 +8,7 @@ import cn.cyc.ai.cog.runtime.observation.domain.UsageRecord;
  * 用量记录器。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface UsageMeter {
 

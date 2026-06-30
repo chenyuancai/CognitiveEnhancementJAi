@@ -7,18 +7,17 @@ import java.util.List;
 
 /**
  * 技能装载器，负责将 Agent 绑定的技能编码解析为可执行的技能定义列表。
- *
  * <p>一期的职责：
  * <ul>
- *   <li>按编码从仓储查询技能定义</li>
- *   <li>验证技能状态（ENABLED）</li>
- *   <li>验证技能与 Agent 的绑定权限</li>
- *   <li>按加载顺序排序</li>
+ * <li>按编码从仓储查询技能定义</li>
+ * <li>验证技能状态（ENABLED）</li>
+ * <li>验证技能与 Agent 的绑定权限</li>
+ * <li>按加载顺序排序</li>
  * </ul>
- *
  * <p>二期可扩展：技能版本管理、动态技能发现、技能依赖解析。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface SkillLoader {
 

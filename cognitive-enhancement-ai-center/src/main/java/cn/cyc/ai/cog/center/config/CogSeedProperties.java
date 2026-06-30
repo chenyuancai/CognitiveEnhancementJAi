@@ -4,14 +4,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * 运行时种子数据开关。
- *
  * <p>与 {@code cog.persistence.enabled} 组合决定种子来源：
  * <ul>
- *   <li>持久化开启：Flyway 迁移（V2~V6）负责表结构与演示元数据；{@link AdminUserInitializer} 负责 admin 账号</li>
- *   <li>持久化关闭：{@link CenterDemoDataInitializer} 负责内存演示元数据</li>
+ * <li>持久化开启：Flyway 迁移（V2~V6）负责表结构与演示元数据；{@link AdminUserInitializer} 负责 admin 账号</li>
+ * <li>持久化关闭：{@link CenterDemoDataInitializer} 负责内存演示元数据</li>
  * </ul>
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @ConfigurationProperties(prefix = "cog.seed")
 public class CogSeedProperties {
@@ -21,10 +21,19 @@ public class CogSeedProperties {
      */
     private boolean enabled = true;
 
+    /**
+     * 判断是否为是否启用。
+     * @return 是否满足条件
+     */
     public boolean isEnabled() {
         return enabled;
     }
 
+    /**
+     * 设置是否启用。
+     *
+     * @param enabled 是否启用
+     */
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }

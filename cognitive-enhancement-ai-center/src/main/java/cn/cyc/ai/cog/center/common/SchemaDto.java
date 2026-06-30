@@ -6,12 +6,8 @@ import java.util.Map;
 /**
  * Center 层使用的 Schema DTO。
  *
- * @param type        类型
- * @param description 描述
- * @param required    是否必填
- * @param properties  子属性
- * @param items       数组元素
- * @param enumValues  枚举值
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record SchemaDto(
         String type,

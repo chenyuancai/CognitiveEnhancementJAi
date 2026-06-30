@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
  * 运营位 / Banner 实体（映射 qz_ops_banner）。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

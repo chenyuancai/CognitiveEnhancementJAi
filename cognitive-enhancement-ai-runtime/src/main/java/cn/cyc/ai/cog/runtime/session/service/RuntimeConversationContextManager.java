@@ -25,14 +25,21 @@ import java.util.UUID;
  * Runtime 会话上下文管理器。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class RuntimeConversationContextManager {
 
+    /** properties。 */
     private final ConversationProperties properties;
+    /** 会话仓储。 */
     private final ConversationSessionRepository sessionRepository;
+    /** 消息仓储。 */
     private final ConversationMessageRepository messageRepository;
 
+    /**
+     * 创建RuntimeConversationContextManager。
+     */
     public RuntimeConversationContextManager(ConversationProperties properties,
                                              ConversationSessionRepository sessionRepository,
                                              ConversationMessageRepository messageRepository) {
@@ -118,11 +125,23 @@ public class RuntimeConversationContextManager {
         ));
     }
 
+    /**
+     * 执行会话 ID。
+     *
+     * @param context 上下文
+     * @return 执行结果
+     */
     private String sessionId(ExecutionContext context) {
         Object value = context.request().parameters().get("sessionId");
         return value == null ? null : value.toString();
     }
 
+    /**
+     * 校验参数。
+     *
+     * @param context 上下文
+     * @param session 会话
+     */
     private void validateSession(ExecutionContext context, ConversationSession session) {
         if (session.status() != SessionStatus.ACTIVE) {
             throw new BusinessException("CONFLICT", "会话未激活: " + session.sessionId());
@@ -141,6 +160,13 @@ public class RuntimeConversationContextManager {
         }
     }
 
+    /**
+     * 执行takeRecent。
+     *
+     * @param messages messages
+     * @param limit 限制
+     * @return 执行结果
+     */
     private List<ConversationMessage> takeRecent(List<ConversationMessage> messages, int limit) {
         if (limit <= 0 || messages.size() <= limit) {
             return messages;
@@ -148,6 +174,12 @@ public class RuntimeConversationContextManager {
         return messages.subList(messages.size() - limit, messages.size());
     }
 
+    /**
+     * 执行trim消息。
+     *
+     * @param message 消息
+     * @return 执行结果
+     */
     private ConversationMessage trimMessage(ConversationMessage message) {
         String content = message.content();
         int maxChars = Math.max(0, properties.getMaxMessageChars());
@@ -174,6 +206,12 @@ public class RuntimeConversationContextManager {
                 .toList();
     }
 
+    /**
+     * 执行appendHistory。
+     *
+     * @param target 目标
+     * @param history history
+     */
     private void appendHistory(List<ChatMessage> target, List<ConversationMessage> history) {
         for (ConversationMessage message : history) {
             if (message.role() == MessageRole.USER) {
@@ -184,6 +222,14 @@ public class RuntimeConversationContextManager {
         }
     }
 
+    /**
+     * 执行append。
+     *
+     * @param session 会话
+     * @param role 角色
+     * @param content 内容
+     * @param traceId 链路 Trace ID
+     */
     private void append(ConversationSession session, MessageRole role, String content, String traceId) {
         messageRepository.save(new ConversationMessage(
                 session.tenantCode(),

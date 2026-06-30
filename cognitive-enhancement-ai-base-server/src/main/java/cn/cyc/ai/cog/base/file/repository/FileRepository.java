@@ -9,6 +9,9 @@ import java.util.Optional;
 
 /**
  * 文件元数据仓储。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface FileRepository {
 

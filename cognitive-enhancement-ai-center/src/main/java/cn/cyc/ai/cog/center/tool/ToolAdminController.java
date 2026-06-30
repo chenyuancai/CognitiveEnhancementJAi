@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Tool 后台管理接口。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "Center - Tool", description = "Tool 工具元数据管理：JAVA_LOCAL / HTTP / MCP 协议配置")
 @RestController

@@ -9,6 +9,12 @@ import cn.cyc.ai.cog.platform.knowledge.dto.KnowledgePackageSaveRequest;
 
 import java.util.List;
 
+/**
+ * 知识Package仓储
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 public interface KnowledgePackageRepository {
 
     PageResult<KnowledgePackage> page(KnowledgePackagePageQuery query);

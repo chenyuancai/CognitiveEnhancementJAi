@@ -5,12 +5,21 @@ import org.springframework.stereotype.Service;
 
 /**
  * 客服工单只读统计服务。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class SupportTicketStatsService {
 
+    /** 支持Ticket仓储。 */
     private final SupportTicketRepository supportTicketRepository;
 
+    /**
+     * 创建支持TicketStats服务。
+     *
+     * @param supportTicketRepository 支持Ticket仓储
+     */
     public SupportTicketStatsService(SupportTicketRepository supportTicketRepository) {
         this.supportTicketRepository = supportTicketRepository;
     }

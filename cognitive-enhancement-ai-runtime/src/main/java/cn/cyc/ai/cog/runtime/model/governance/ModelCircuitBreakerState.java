@@ -4,6 +4,7 @@ package cn.cyc.ai.cog.runtime.model.governance;
  * 模型熔断器状态。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public enum ModelCircuitBreakerState {
 

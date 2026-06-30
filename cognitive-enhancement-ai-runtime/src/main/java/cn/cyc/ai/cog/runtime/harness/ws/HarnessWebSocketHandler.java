@@ -28,23 +28,35 @@ import java.util.concurrent.ConcurrentHashMap;
  * Harness WebSocket 处理器，支持实时推送验证步骤进度与可中断取消。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public class HarnessWebSocketHandler extends TextWebSocketHandler {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(HarnessWebSocketHandler.class);
 
+    /** ATTRHARNESSID */
     private static final String ATTR_HARNESS_ID = "harnessId";
+    /** ATTRCANCELLATION。 */
     private static final String ATTR_CANCELLATION = "cancellation";
+    /** ATTRRUNFUTURE。 */
     private static final String ATTR_RUN_FUTURE = "runFuture";
 
+    /** harnessEngine。 */
     private final HarnessEngine harnessEngine;
+    /** steps。 */
     private final List<HarnessStep> steps;
+    /** report仓储。 */
     private final HarnessReportRepository reportRepository;
+    /** JSON 序列化器 */
     private final ObjectMapper objectMapper;
 
     private final Map<String, HarnessCancellation> cancellationBySession = new ConcurrentHashMap<>();
     private final Map<String, CompletableFuture<Void>> runFutureBySession = new ConcurrentHashMap<>();
 
+    /**
+     * 创建HarnessWebSocket处理器。
+     */
     public HarnessWebSocketHandler(HarnessEngine harnessEngine,
                                     List<HarnessStep> steps,
                                     HarnessReportRepository reportRepository,
@@ -55,6 +67,11 @@ public class HarnessWebSocketHandler extends TextWebSocketHandler {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * 执行afterConnectionEstablished。
+     *
+     * @param session 会话
+     */
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String harnessId = "HAR-" + LocalDate.now().toString().replace("-", "")
@@ -67,6 +84,12 @@ public class HarnessWebSocketHandler extends TextWebSocketHandler {
         log.info("Harness WebSocket connected, sessionId={}, harnessId={}", session.getId(), harnessId);
     }
 
+    /**
+     * 处理请求。
+     *
+     * @param session 会话
+     * @param message 消息
+     */
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         String payload = message.getPayload();
@@ -79,6 +102,12 @@ public class HarnessWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
+    /**
+     * 处理请求。
+     *
+     * @param session 会话
+     * @param wsMessage ws消息
+     */
     private void handleRun(WebSocketSession session, HarnessWsMessage wsMessage) throws Exception {
         CompletableFuture<Void> existingFuture = runFutureBySession.get(session.getId());
         if (existingFuture != null && !existingFuture.isDone()) {
@@ -141,6 +170,11 @@ public class HarnessWebSocketHandler extends TextWebSocketHandler {
         session.getAttributes().put(ATTR_RUN_FUTURE, runFuture);
     }
 
+    /**
+     * 处理请求。
+     *
+     * @param session 会话
+     */
     private void handleCancel(WebSocketSession session) throws Exception {
         HarnessCancellation cancellation = cancellationBySession.get(session.getId());
         if (cancellation == null) {
@@ -155,6 +189,12 @@ public class HarnessWebSocketHandler extends TextWebSocketHandler {
         log.info("Harness WebSocket CANCEL received, sessionId={}", session.getId());
     }
 
+    /**
+     * 执行afterConnectionClosed。
+     *
+     * @param session 会话
+     * @param status 状态
+     */
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         HarnessCancellation cancellation = cancellationBySession.remove(session.getId());
@@ -165,6 +205,12 @@ public class HarnessWebSocketHandler extends TextWebSocketHandler {
         log.info("Harness WebSocket closed, sessionId={}, status={}", session.getId(), status);
     }
 
+    /**
+     * 执行send消息。
+     *
+     * @param session 会话
+     * @param message 消息
+     */
     private void sendMessage(WebSocketSession session, HarnessWsMessage message) throws Exception {
         if (session.isOpen()) {
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));

@@ -7,6 +7,9 @@ import java.util.Optional;
 
 /**
  * Prompt 模板仓储接口。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface PromptTemplateRepository extends MetadataRepository<PromptTemplate> {
 

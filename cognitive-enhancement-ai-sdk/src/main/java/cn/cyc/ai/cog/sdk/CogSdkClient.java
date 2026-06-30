@@ -13,23 +13,43 @@ import java.util.Map;
  * Cognitive Enhancement JAi Java SDK 客户端。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public class CogSdkClient {
 
+    /** EXECUTE路径。 */
     private static final String EXECUTE_PATH = "/api/runtime/capabilities/execute";
+    /** SDKTRANSPORT错误编码。 */
     private static final String SDK_TRANSPORT_ERROR_CODE = "SDK_TRANSPORT_ERROR";
+    /** SDK响应错误编码。 */
     private static final String SDK_RESPONSE_ERROR_CODE = "SDK_RESPONSE_ERROR";
 
+    /** 配置。 */
     private final CogSdkClientConfig config;
+    /** transport。 */
     private final CogSdkTransport transport;
+    /** JSON 序列化器 */
     private final ObjectMapper objectMapper;
 
+    /**
+     * 创建CogSdk客户端。
+     *
+     * @param config 配置
+     * @param transport transport
+     * @param objectMapper JSON 序列化器
+     */
     private CogSdkClient(CogSdkClientConfig config, CogSdkTransport transport, ObjectMapper objectMapper) {
         this.config = config;
         this.transport = transport;
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * 创建Item。
+     *
+     * @param config 配置
+     * @return 创建结果
+     */
     public static CogSdkClient create(CogSdkClientConfig config) {
         return new CogSdkClient(config, new JavaNetCogSdkTransport(config), new ObjectMapper());
     }
@@ -60,6 +80,12 @@ public class CogSdkClient {
         );
     }
 
+    /**
+     * 执行sendExecute请求。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     private String sendExecuteRequest(CapabilityExecutionRequest request) {
         SdkHttpRequest httpRequest = new SdkHttpRequest(
                 "POST",
@@ -98,6 +124,12 @@ public class CogSdkClient {
         return headers;
     }
 
+    /**
+     * 转换为JSON。
+     *
+     * @param value 值
+     * @return 转换结果
+     */
     private String toJson(Object value) {
         try {
             return objectMapper.writeValueAsString(value);
@@ -106,6 +138,13 @@ public class CogSdkClient {
         }
     }
 
+    /**
+     * 执行parseJSON。
+     *
+     * @param body body
+     * @param httpStatus http状态
+     * @return 执行结果
+     */
     private JsonNode parseJson(String body, int httpStatus) {
         try {
             return objectMapper.readTree(body);
@@ -123,6 +162,13 @@ public class CogSdkClient {
         });
     }
 
+    /**
+     * 执行apiException。
+     *
+     * @param httpStatus http状态
+     * @param root root
+     * @return 执行结果
+     */
     private CogSdkException apiException(int httpStatus, JsonNode root) {
         return new CogSdkException(
                 httpStatus,
@@ -132,6 +178,12 @@ public class CogSdkClient {
         );
     }
 
+    /**
+     * 判断是否包含Text。
+     *
+     * @param value 值
+     * @return 是否包含
+     */
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
     }

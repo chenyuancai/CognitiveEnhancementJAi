@@ -15,6 +15,7 @@ import java.util.Objects;
  * 能力定义对象。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record CapabilityDefinition(
         String capabilityCode,
@@ -71,11 +72,19 @@ public record CapabilityDefinition(
                 "1.0.0", Instant.now(), CapabilityLifecycleStatus.PUBLISHED);
     }
 
+    /**
+     * 执行编码。
+     * @return 执行结果
+     */
     @Override
     public String code() {
         return capabilityCode;
     }
 
+    /**
+     * 执行名称。
+     * @return 执行结果
+     */
     @Override
     public String name() {
         return capabilityName;

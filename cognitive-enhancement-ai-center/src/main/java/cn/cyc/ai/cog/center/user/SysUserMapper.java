@@ -9,6 +9,9 @@ import java.util.List;
 
 /**
  * 系统用户 Mapper。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Mapper
 public interface SysUserMapper extends BaseMapper<SysUserEntity> {

@@ -25,22 +25,39 @@ import java.util.Optional;
  * 能力定义数据库仓储实现。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true", matchIfMissing = true)
 public class DbCapabilityDefinitionRepository implements CapabilityDefinitionRepository {
 
+    /** Mapper。 */
     private final CapabilityDefinitionMapper mapper;
 
+    /**
+     * 创建Db能力Definition仓储。
+     *
+     * @param mapper Mapper
+     */
     public DbCapabilityDefinitionRepository(CapabilityDefinitionMapper mapper) {
         this.mapper = mapper;
     }
 
+    /**
+     * 查找人编码。
+     *
+     * @param code 编码
+     * @return 查找结果
+     */
     @Override
     public Optional<CapabilityDefinition> findByCode(String code) {
         return findPublishedByCapabilityCode(code);
     }
 
+    /**
+     * 查询All列表。
+     * @return 结果列表
+     */
     @Override
     public List<CapabilityDefinition> listAll() {
         QueryWrapper<CapabilityDefinitionEntity> wrapper = new QueryWrapper<>();
@@ -52,6 +69,12 @@ public class DbCapabilityDefinitionRepository implements CapabilityDefinitionRep
                 .toList();
     }
 
+    /**
+     * 查询Versions人能力编码列表。
+     *
+     * @param capabilityCode 能力编码
+     * @return 结果列表
+     */
     @Override
     public List<CapabilityDefinition> listVersionsByCapabilityCode(String capabilityCode) {
         QueryWrapper<CapabilityDefinitionEntity> wrapper = new QueryWrapper<>();
@@ -63,6 +86,12 @@ public class DbCapabilityDefinitionRepository implements CapabilityDefinitionRep
                 .toList();
     }
 
+    /**
+     * 执行save。
+     *
+     * @param definition definition
+     * @return 执行结果
+     */
     @Override
     public CapabilityDefinition save(CapabilityDefinition definition) {
         QueryWrapper<CapabilityDefinitionEntity> wrapper = new QueryWrapper<>();
@@ -81,6 +110,12 @@ public class DbCapabilityDefinitionRepository implements CapabilityDefinitionRep
         return definition;
     }
 
+    /**
+     * 转换为Definition。
+     *
+     * @param e e
+     * @return 转换结果
+     */
     private CapabilityDefinition toDefinition(CapabilityDefinitionEntity e) {
         CapabilityLifecycleStatus lifecycleStatus = e.getLifecycleStatus() == null
                 ? CapabilityLifecycleStatus.DRAFT
@@ -103,6 +138,12 @@ public class DbCapabilityDefinitionRepository implements CapabilityDefinitionRep
         );
     }
 
+    /**
+     * 转换为实体。
+     *
+     * @param d d
+     * @return 转换结果
+     */
     private CapabilityDefinitionEntity toEntity(CapabilityDefinition d) {
         CapabilityDefinitionEntity e = new CapabilityDefinitionEntity();
         e.setTenantId(TenantContext.currentTenantId());

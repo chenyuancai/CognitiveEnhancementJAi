@@ -20,6 +20,9 @@ import java.time.LocalDateTime;
 
 /**
  * 内容导入任务仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbContentImportJobRepository implements ContentImportJobRepository {
@@ -34,6 +37,12 @@ public class DbContentImportJobRepository implements ContentImportJobRepository 
         this.importJobMapper = importJobMapper;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Override
     public PageResult<ContentImportJob> page(ContentImportJobPageQuery query) {
         LambdaQueryWrapper<ContentImportJobEntity> wrapper = new LambdaQueryWrapper<>();
@@ -46,6 +55,12 @@ public class DbContentImportJobRepository implements ContentImportJobRepository 
                 page.getTotal(), page.getCurrent(), page.getSize());
     }
 
+    /**
+     * 查找人ID。
+     *
+     * @param id 主键 ID
+     * @return 查找结果
+     */
     @Override
     public ContentImportJob findById(Long id) {
         ContentImportJobEntity job = importJobMapper.selectById(id);
@@ -55,6 +70,14 @@ public class DbContentImportJobRepository implements ContentImportJobRepository 
         return toDomain(job);
     }
 
+    /**
+     * 创建Item。
+     *
+     * @param request 请求
+     * @param tenantId 租户 ID
+     * @param createBy 创建人 ID
+     * @return 创建结果
+     */
     @Override
     public ContentImportJob create(ContentImportJobCreateRequest request, Long tenantId, Long createBy) {
         ContentImportJobEntity job = new ContentImportJobEntity();
@@ -73,6 +96,10 @@ public class DbContentImportJobRepository implements ContentImportJobRepository 
         return toDomain(job);
     }
 
+    /**
+     * 执行pollPending。
+     * @return 执行结果
+     */
     @Override
     public ContentImportJob pollPending() {
         ContentImportJobEntity job = importJobMapper.selectOne(new LambdaQueryWrapper<ContentImportJobEntity>()
@@ -82,6 +109,12 @@ public class DbContentImportJobRepository implements ContentImportJobRepository 
         return job == null ? null : toDomain(job);
     }
 
+    /**
+     * 执行markRunning。
+     *
+     * @param jobId jobID
+     * @return 执行结果
+     */
     @Override
     public boolean markRunning(Long jobId) {
         int updated = importJobMapper.update(null, new LambdaUpdateWrapper<ContentImportJobEntity>()
@@ -92,6 +125,15 @@ public class DbContentImportJobRepository implements ContentImportJobRepository 
         return updated > 0;
     }
 
+    /**
+     * 执行mark成功。
+     *
+     * @param jobId jobID
+     * @param totalCount 总数数量
+     * @param successCount 成功数量
+     * @param failCount fail数量
+     * @param resultJson 结果JSON
+     */
     @Override
     public void markSuccess(Long jobId, int totalCount, int successCount, int failCount, String resultJson) {
         importJobMapper.update(null, new LambdaUpdateWrapper<ContentImportJobEntity>()
@@ -105,6 +147,12 @@ public class DbContentImportJobRepository implements ContentImportJobRepository 
                 .set(ContentImportJobEntity::getUpdateTime, LocalDateTime.now()));
     }
 
+    /**
+     * 执行markFailed。
+     *
+     * @param jobId jobID
+     * @param message 消息
+     */
     @Override
     public void markFailed(Long jobId, String message) {
         importJobMapper.update(null, new LambdaUpdateWrapper<ContentImportJobEntity>()
@@ -116,6 +164,14 @@ public class DbContentImportJobRepository implements ContentImportJobRepository 
                 .set(ContentImportJobEntity::getUpdateTime, LocalDateTime.now()));
     }
 
+    /**
+     * 执行数量人租户And时间Range。
+     *
+     * @param tenantId 租户 ID
+     * @param start start
+     * @param end end
+     * @return 执行结果
+     */
     @Override
     public long countByTenantAndTimeRange(Long tenantId, LocalDateTime start, LocalDateTime end) {
         LambdaQueryWrapper<ContentImportJobEntity> wrapper = new LambdaQueryWrapper<>();
@@ -127,6 +183,13 @@ public class DbContentImportJobRepository implements ContentImportJobRepository 
         return importJobMapper.selectCount(wrapper);
     }
 
+    /**
+     * 执行数量人状态。
+     *
+     * @param tenantId 租户 ID
+     * @param status 状态
+     * @return 执行结果
+     */
     @Override
     public long countByStatus(Long tenantId, String status) {
         LambdaQueryWrapper<ContentImportJobEntity> wrapper = new LambdaQueryWrapper<>();
@@ -137,6 +200,12 @@ public class DbContentImportJobRepository implements ContentImportJobRepository 
         return importJobMapper.selectCount(wrapper);
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private ContentImportJob toDomain(ContentImportJobEntity entity) {
         return new ContentImportJob(
                 entity.getId(),
@@ -155,6 +224,12 @@ public class DbContentImportJobRepository implements ContentImportJobRepository 
         );
     }
 
+    /**
+     * 执行escapeJSON。
+     *
+     * @param value 值
+     * @return 执行结果
+     */
     private String escapeJson(String value) {
         return value.replace("\\", "\\\\").replace("\"", "\\\"");
     }

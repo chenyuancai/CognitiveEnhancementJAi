@@ -19,6 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * C 端鉴权接口：当前用户上下文。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "App-鉴权", description = "C 端当前用户上下文")
 @RestController

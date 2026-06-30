@@ -23,6 +23,9 @@ import java.util.Map;
 
 /**
  * 运营看板聚合服务。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class OperationDashboardService {
@@ -100,12 +103,27 @@ public class OperationDashboardService {
         return result;
     }
 
+    /**
+     * 执行sum令牌Delta。
+     *
+     * @param tenantId 租户 ID
+     * @param start start
+     * @param end end
+     * @return 执行结果
+     */
     private long sumTokenDelta(Long tenantId, LocalDateTime start, LocalDateTime end) {
         return tokenRecordRepository.listByTenantAndTimeRange(tenantId, start, end).stream()
                 .mapToLong(record -> record.deltaAmount() == null ? 0L : Math.abs(record.deltaAmount()))
                 .sum();
     }
 
+    /**
+     * 构建用户GrowthTrend。
+     *
+     * @param tenantId 租户 ID
+     * @param range range
+     * @return 构建结果
+     */
     private List<OperationDashboardResult.DailyCount> buildUserGrowthTrend(Long tenantId, DateRange range) {
         Map<LocalDate, Long> dailyNew = new LinkedHashMap<>();
         LocalDate cursor = range.start().toLocalDate();
@@ -134,6 +152,12 @@ public class OperationDashboardService {
         return trend;
     }
 
+    /**
+     * 构建会员Distribution。
+     *
+     * @param tenantId 租户 ID
+     * @return 构建结果
+     */
     private List<OperationDashboardResult.LevelCount> buildMembershipDistribution(Long tenantId) {
         Map<String, Long> grouped = new LinkedHashMap<>();
         for (AccountMembership membership : accountMembershipRepository.listByTenant(tenantId)) {
@@ -151,6 +175,10 @@ public class OperationDashboardService {
                 .toList();
     }
 
+    /**
+     * 构建能力Distribution。
+     * @return 构建结果
+     */
     private List<OperationDashboardResult.CapabilityCount> buildCapabilityDistribution(Long tenantId,
                                                                                        DateRange range) {
         Map<String, Long> grouped = new LinkedHashMap<>();
@@ -172,6 +200,13 @@ public class OperationDashboardService {
                 .toList();
     }
 
+    /**
+     * 构建令牌CostTrend。
+     *
+     * @param tenantId 租户 ID
+     * @param range range
+     * @return 构建结果
+     */
     private List<OperationDashboardResult.DailyTokenCost> buildTokenCostTrend(Long tenantId, DateRange range) {
         Map<LocalDate, Long> daily = new LinkedHashMap<>();
         LocalDate cursor = range.start().toLocalDate();
@@ -197,6 +232,12 @@ public class OperationDashboardService {
                 .toList();
     }
 
+    /**
+     * 执行resolveRange。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     private DateRange resolveRange(OperationDashboardQuery query) {
         LocalDateTime end = LocalDateTime.now();
         if (StringUtils.hasText(query.getPreset())) {
@@ -213,6 +254,12 @@ public class OperationDashboardService {
         return new DateRange(end.minusDays(7), end);
     }
 
+    /**
+     * DateRange 记录
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     private record DateRange(LocalDateTime start, LocalDateTime end) {
     }
 }

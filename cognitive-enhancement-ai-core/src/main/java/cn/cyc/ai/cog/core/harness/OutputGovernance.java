@@ -6,17 +6,16 @@ import java.util.Map;
 
 /**
  * 输出治理器，负责运行时执行结果的标准化治理。
- *
  * <p>一期的职责：
  * <ul>
- *   <li>输出格式标准化（统一 JSON 结构）</li>
- *   <li>输出 Schema 校验</li>
- *   <li>敏感信息脱敏（日志级别）</li>
+ * <li>输出格式标准化（统一 JSON 结构）</li>
+ * <li>输出 Schema 校验</li>
+ * <li>敏感信息脱敏（日志级别）</li>
  * </ul>
- *
  * <p>二期可扩展：内容安全审核、输出缓存、多语言适配。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface OutputGovernance {
 

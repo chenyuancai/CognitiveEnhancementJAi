@@ -6,6 +6,9 @@ import cn.cyc.ai.cog.platform.billing.dto.PaymentPrepayResult;
 
 /**
  * 支付通道 SPI：各渠道负责预下单与客户端调起参数。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface PaymentChannelGateway {
 

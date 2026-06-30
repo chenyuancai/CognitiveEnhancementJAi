@@ -6,6 +6,12 @@ import cn.cyc.ai.cog.platform.quota.domain.TokenRecord;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * 令牌Record仓储
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 public interface TokenRecordRepository {
 
     PageResult<TokenRecord> page(long current, long size, Long accountId);

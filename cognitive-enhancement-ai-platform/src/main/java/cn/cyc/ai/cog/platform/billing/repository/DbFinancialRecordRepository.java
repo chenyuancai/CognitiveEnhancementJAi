@@ -17,6 +17,9 @@ import java.time.LocalDateTime;
  */
 /**
  * 资金流水仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbFinancialRecordRepository implements FinancialRecordRepository {
@@ -31,6 +34,15 @@ public class DbFinancialRecordRepository implements FinancialRecordRepository {
         this.financialRecordMapper = financialRecordMapper;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param current current
+     * @param size 大小
+     * @param accountId 账户ID
+     * @param orderId 订单ID
+     * @return 执行结果
+     */
     @Override
     public PageResult<FinancialRecord> page(long current, long size, Long accountId, Long orderId) {
         LambdaQueryWrapper<FinancialRecordEntity> wrapper = new LambdaQueryWrapper<>();
@@ -49,6 +61,15 @@ public class DbFinancialRecordRepository implements FinancialRecordRepository {
                 page.getSize());
     }
 
+    /**
+     * 执行insert支付。
+     *
+     * @param tenantId 租户 ID
+     * @param accountId 账户ID
+     * @param orderId 订单ID
+     * @param amountFen amountFen
+     * @param remark remark
+     */
     @Override
     public void insertPayment(Long tenantId, Long accountId, Long orderId, Long amountFen, String remark) {
         FinancialRecordEntity record = new FinancialRecordEntity();
@@ -63,6 +84,15 @@ public class DbFinancialRecordRepository implements FinancialRecordRepository {
         financialRecordMapper.insert(record);
     }
 
+    /**
+     * 执行insertRefund。
+     *
+     * @param tenantId 租户 ID
+     * @param accountId 账户ID
+     * @param orderId 订单ID
+     * @param refundAmountFen refundAmountFen
+     * @param remark remark
+     */
     @Override
     public void insertRefund(Long tenantId, Long accountId, Long orderId, long refundAmountFen, String remark) {
         FinancialRecordEntity record = new FinancialRecordEntity();
@@ -77,6 +107,15 @@ public class DbFinancialRecordRepository implements FinancialRecordRepository {
         financialRecordMapper.insert(record);
     }
 
+    /**
+     * 执行sumAmountFen。
+     *
+     * @param tenantId 租户 ID
+     * @param recordType record类型
+     * @param start start
+     * @param end end
+     * @return 执行结果
+     */
     @Override
     public long sumAmountFen(Long tenantId, String recordType, LocalDateTime start, LocalDateTime end) {
         LambdaQueryWrapper<FinancialRecordEntity> wrapper = new LambdaQueryWrapper<>();
@@ -97,6 +136,12 @@ public class DbFinancialRecordRepository implements FinancialRecordRepository {
                 .sum();
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private FinancialRecord toDomain(FinancialRecordEntity entity) {
         return new FinancialRecord(
                 entity.getId(),

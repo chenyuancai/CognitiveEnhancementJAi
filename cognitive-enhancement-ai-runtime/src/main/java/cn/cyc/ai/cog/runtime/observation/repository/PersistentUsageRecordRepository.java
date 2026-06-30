@@ -18,6 +18,7 @@ import java.util.List;
  * 基于 MyBatis Plus 的用量记录仓储。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true")

@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
  * Web 基础设施装配。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Configuration
 public class TraceWebConfiguration {

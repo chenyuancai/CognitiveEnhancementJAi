@@ -6,6 +6,7 @@ import java.util.Map;
  * MCP Tool 客户端 SPI，负责与 MCP Server 交互。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface McpToolClient {
 

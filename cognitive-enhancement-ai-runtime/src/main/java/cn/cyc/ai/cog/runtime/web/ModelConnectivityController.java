@@ -30,19 +30,28 @@ import java.util.List;
  * Runtime 模型连通性检查控制器。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "Runtime - 模型", description = "模型连通性检查、状态总览与熔断治理查询")
 @RestController
 @RequestMapping("/api/runtime/models")
 public class ModelConnectivityController {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(ModelConnectivityController.class);
 
+    /** 模型ConnectivityCheck服务。 */
     private final ModelConnectivityCheckService modelConnectivityCheckService;
+    /** 模型运行时查询服务。 */
     private final ModelRuntimeQueryService modelRuntimeQueryService;
+    /** 模型状态Refresh服务。 */
     private final ModelStatusRefreshService modelStatusRefreshService;
+    /** 模型Governance。 */
     private final DefaultModelGovernance modelGovernance;
 
+    /**
+     * 创建模型Connectivity接口。
+     */
     public ModelConnectivityController(ModelConnectivityCheckService modelConnectivityCheckService,
                                        ModelRuntimeQueryService modelRuntimeQueryService,
                                        ModelStatusRefreshService modelStatusRefreshService,
@@ -53,6 +62,12 @@ public class ModelConnectivityController {
         this.modelGovernance = modelGovernance;
     }
 
+    /**
+     * 执行check。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Operation(summary = "检查模型连通性", description = "对指定 modelCode 发起连通性探测并返回检查结果。")
     @PostMapping("/check")
     public ApiResponse<ModelConnectivityCheckResult> check(@RequestBody ModelConnectivityCheckRequest request) {
@@ -60,6 +75,10 @@ public class ModelConnectivityController {
         return RuntimeResponses.success(modelConnectivityCheckService.check(request));
     }
 
+    /**
+     * 查询Statuses列表。
+     * @return 结果列表
+     */
     @Operation(summary = "查询模型状态列表", description = "按 providerCode/modelCode 筛选模型运行状态摘要。")
     @GetMapping("/statuses")
     public ApiResponse<RuntimeListResult<ModelStatusSummaryResult>> listStatuses(
@@ -69,6 +88,10 @@ public class ModelConnectivityController {
         return RuntimeResponses.success(modelRuntimeQueryService.listModelStatuses(providerCode, modelCode));
     }
 
+    /**
+     * 获取Overview。
+     * @return Overview
+     */
     @Operation(summary = "查询模型状态总览", description = "聚合成功/失败次数、最近检查时间与失败摘要。")
     @GetMapping("/overview")
     public ApiResponse<ModelStatusOverviewResult> getOverview() {
@@ -76,6 +99,10 @@ public class ModelConnectivityController {
         return RuntimeResponses.success(modelRuntimeQueryService.getModelStatusOverview());
     }
 
+    /**
+     * 查询GovernanceStates列表。
+     * @return 结果列表
+     */
     @Operation(summary = "查询模型治理状态", description = "返回熔断状态、连续失败次数与降级模型信息。")
     @GetMapping("/governance")
     public ApiResponse<RuntimeListResult<ModelGovernanceStateResult>> listGovernanceStates() {
@@ -84,6 +111,10 @@ public class ModelConnectivityController {
         return RuntimeResponses.success(new RuntimeListResult<>(items.size(), items));
     }
 
+    /**
+     * 执行refreshStatuses。
+     * @return 执行结果
+     */
     @Operation(summary = "刷新模型状态", description = "批量重新检查模型连通性并更新状态。")
     @PostMapping("/statuses/refresh")
     public ApiResponse<RuntimeListResult<ModelConnectivityCheckResult>> refreshStatuses(

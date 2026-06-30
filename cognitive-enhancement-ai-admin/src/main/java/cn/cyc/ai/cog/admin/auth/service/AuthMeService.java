@@ -22,6 +22,9 @@ import java.util.Map;
 
 /**
  * 当前登录用户上下文聚合：用户、账户、权限、菜单、会员与额度摘要。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class AuthMeService {
@@ -82,6 +85,13 @@ public class AuthMeService {
         return response;
     }
 
+    /**
+     * 执行resolveRoles。
+     *
+     * @param authUser 认证用户
+     * @param userId 用户 ID
+     * @return 执行结果
+     */
     private List<String> resolveRoles(AuthUser authUser, Long userId) {
         if (authUser.getRoles() != null && !authUser.getRoles().isEmpty()) {
             return authUser.getRoles();
@@ -89,6 +99,12 @@ public class AuthMeService {
         return iamUserRepository.listRoleCodes(userId);
     }
 
+    /**
+     * 执行effective编码。
+     *
+     * @param permission 权限
+     * @return 执行结果
+     */
     private String effectiveCode(PermissionEntity permission) {
         return StringUtils.hasText(permission.getAliasCode())
                 ? permission.getAliasCode() : permission.getPermissionCode();
@@ -104,6 +120,12 @@ public class AuthMeService {
         return aliases;
     }
 
+    /**
+     * 构建MenuTree。
+     *
+     * @param permissions permissions
+     * @return 构建结果
+     */
     private List<AuthMeResponse.AuthMeMenuNode> buildMenuTree(List<PermissionEntity> permissions) {
         List<AuthMeResponse.AuthMeMenuNode> nodes = new ArrayList<>();
         for (PermissionEntity permission : permissions) {

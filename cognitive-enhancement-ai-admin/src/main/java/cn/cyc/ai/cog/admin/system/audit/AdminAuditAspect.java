@@ -21,21 +21,39 @@ import java.util.Arrays;
 
 /**
  * 管理后台写操作审计：POST/PUT/DELETE 控制器方法自动落库（含中文 message）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Aspect
 @Component
 public class AdminAuditAspect {
 
+    /** MAXJSONLENGTH。 */
     private static final int MAX_JSON_LENGTH = 2000;
 
+    /** auditLog服务。 */
     private final AuditLogService auditLogService;
+    /** JSON 序列化器 */
     private final ObjectMapper objectMapper;
 
+    /**
+     * 创建AdminAuditAspect。
+     *
+     * @param auditLogService auditLog服务
+     * @param objectMapper JSON 序列化器
+     */
     public AdminAuditAspect(AuditLogService auditLogService, ObjectMapper objectMapper) {
         this.auditLogService = auditLogService;
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * 执行auditWrite。
+     *
+     * @param joinPoint joinPoint
+     * @return 执行结果
+     */
     @Around("@within(org.springframework.web.bind.annotation.RestController) && within(cn.cyc.ai.cog.admin..*)")
     public Object auditWrite(ProceedingJoinPoint joinPoint) throws Throwable {
         Method method = resolveTargetMethod(joinPoint);
@@ -50,6 +68,12 @@ public class AdminAuditAspect {
         return result;
     }
 
+    /**
+     * 判断是否为WriteMapping。
+     *
+     * @param method method
+     * @return 是否满足条件
+     */
     private boolean isWriteMapping(Method method) {
         return method.isAnnotationPresent(PostMapping.class)
                 || method.isAnnotationPresent(PutMapping.class)
@@ -66,6 +90,12 @@ public class AdminAuditAspect {
                 || Arrays.stream(mapping.path()).anyMatch(this::isReadOnlyPostSegment);
     }
 
+    /**
+     * 判断是否为ReadOnlyPostSegment。
+     *
+     * @param segment segment
+     * @return 是否满足条件
+     */
     private boolean isReadOnlyPostSegment(String segment) {
         if (!StringUtils.hasText(segment)) {
             return false;
@@ -77,6 +107,12 @@ public class AdminAuditAspect {
                 || normalized.endsWith("/query");
     }
 
+    /**
+     * 执行resolveAction。
+     *
+     * @param method method
+     * @return 执行结果
+     */
     private String resolveAction(Method method) {
         if (method.isAnnotationPresent(DeleteMapping.class)) {
             return "DELETE";
@@ -95,6 +131,12 @@ public class AdminAuditAspect {
         return "UPDATE";
     }
 
+    /**
+     * 判断是否为更新Post路径。
+     *
+     * @param path 路径
+     * @return 是否满足条件
+     */
     private boolean isUpdatePostPath(String path) {
         if (!StringUtils.hasText(path)) {
             return false;
@@ -113,6 +155,12 @@ public class AdminAuditAspect {
                 || normalized.contains("/send");
     }
 
+    /**
+     * 执行first路径。
+     *
+     * @param mapping mapping
+     * @return 执行结果
+     */
     private String firstPath(PostMapping mapping) {
         if (mapping.value().length > 0) {
             return mapping.value()[0];
@@ -123,6 +171,12 @@ public class AdminAuditAspect {
         return "";
     }
 
+    /**
+     * 执行resolve目标Method。
+     *
+     * @param joinPoint joinPoint
+     * @return 执行结果
+     */
     private Method resolveTargetMethod(ProceedingJoinPoint joinPoint) throws NoSuchMethodException {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
@@ -133,12 +187,26 @@ public class AdminAuditAspect {
         return method;
     }
 
+    /**
+     * 执行resolve消息。
+     *
+     * @param method method
+     * @param action action
+     * @param resourceType resource类型
+     * @return 执行结果
+     */
     private String resolveMessage(Method method, String action, String resourceType) {
         Operation operation = AnnotatedElementUtils.findMergedAnnotation(method, Operation.class);
         String summary = operation == null ? null : operation.summary();
         return OperationRecordMessages.audit(summary, action, resourceType);
     }
 
+    /**
+     * 转换为JSON快照。
+     *
+     * @param value 值
+     * @return 转换结果
+     */
     private String toJsonSnapshot(Object value) {
         if (value == null) {
             return null;
@@ -153,6 +221,12 @@ public class AdminAuditAspect {
         }
     }
 
+    /**
+     * 执行truncate。
+     *
+     * @param value 值
+     * @return 执行结果
+     */
     private String truncate(String value) {
         if (value == null) {
             return null;

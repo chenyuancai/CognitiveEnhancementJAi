@@ -16,6 +16,9 @@ import org.springframework.util.StringUtils;
 
 /**
  * 功能开关仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbFeatureSwitchRepository implements FeatureSwitchRepository {
@@ -30,6 +33,12 @@ public class DbFeatureSwitchRepository implements FeatureSwitchRepository {
         this.featureSwitchMapper = featureSwitchMapper;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Override
     public PageResult<FeatureSwitch> page(FeatureSwitchPageQuery query) {
         LambdaQueryWrapper<FeatureSwitchEntity> wrapper = new LambdaQueryWrapper<>();
@@ -46,6 +55,13 @@ public class DbFeatureSwitchRepository implements FeatureSwitchRepository {
                 page.getTotal(), page.getCurrent(), page.getSize());
     }
 
+    /**
+     * 执行save。
+     *
+     * @param id 主键 ID
+     * @param request 请求
+     * @return 执行结果
+     */
     @Override
     public FeatureSwitch save(Long id, FeatureSwitchSaveRequest request) {
         FeatureSwitchEntity entity = id == null ? new FeatureSwitchEntity() : require(id);
@@ -62,6 +78,10 @@ public class DbFeatureSwitchRepository implements FeatureSwitchRepository {
         return toDomain(entity);
     }
 
+    /**
+     * 查询是否启用列表。
+     * @return 结果列表
+     */
     @Override
     public java.util.List<FeatureSwitch> listEnabled() {
         return featureSwitchMapper.selectList(new LambdaQueryWrapper<FeatureSwitchEntity>()
@@ -70,6 +90,12 @@ public class DbFeatureSwitchRepository implements FeatureSwitchRepository {
                 .stream().map(this::toDomain).toList();
     }
 
+    /**
+     * 执行require。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     private FeatureSwitchEntity require(Long id) {
         FeatureSwitchEntity entity = featureSwitchMapper.selectById(id);
         if (entity == null) {
@@ -78,6 +104,12 @@ public class DbFeatureSwitchRepository implements FeatureSwitchRepository {
         return entity;
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private FeatureSwitch toDomain(FeatureSwitchEntity entity) {
         return new FeatureSwitch(
                 entity.getId(),

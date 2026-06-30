@@ -17,16 +17,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
  * 管理员用户初始化，应用启动时自动创建默认 admin 账号。
- *
  * <p>仅在持久化模式（Flyway 已初始化角色表）下执行；演示元数据由 Flyway V3 负责。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Configuration
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true", matchIfMissing = true)
 @ConditionalOnProperty(name = "cog.seed.enabled", havingValue = "true", matchIfMissing = true)
 public class AdminUserInitializer {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(AdminUserInitializer.class);
 
     @Bean
@@ -60,6 +61,14 @@ public class AdminUserInitializer {
         };
     }
 
+    /**
+     * 执行assign角色。
+     *
+     * @param userRoleMapper 用户角色Mapper
+     * @param roleMapper 角色Mapper
+     * @param userId 用户 ID
+     * @param roleCode 角色编码
+     */
     private void assignRole(SysUserRoleMapper userRoleMapper, SysRoleMapper roleMapper, Long userId, String roleCode) {
         QueryWrapper<SysRoleEntity> wrapper = new QueryWrapper<>();
         wrapper.eq("role_code", roleCode);

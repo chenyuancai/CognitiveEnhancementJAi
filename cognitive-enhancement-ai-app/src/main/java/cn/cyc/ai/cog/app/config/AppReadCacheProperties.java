@@ -5,6 +5,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * C 端只读数据缓存配置（{@code cog.app.cache.*}）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 @ConfigurationProperties(prefix = "cog.app.cache")

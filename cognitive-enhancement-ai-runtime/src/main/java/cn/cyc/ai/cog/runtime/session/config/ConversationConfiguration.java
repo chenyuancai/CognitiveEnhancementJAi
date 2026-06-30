@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
  * Runtime 会话上下文配置。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Configuration
 @EnableConfigurationProperties(ConversationProperties.class)

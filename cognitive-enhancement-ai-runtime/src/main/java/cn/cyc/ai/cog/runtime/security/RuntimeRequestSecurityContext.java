@@ -13,6 +13,7 @@ import java.util.List;
  * 从当前 HTTP 请求读取 JWT 认证上下文，供 Runtime 策略治理使用。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class RuntimeRequestSecurityContext {
@@ -22,8 +23,14 @@ public class RuntimeRequestSecurityContext {
      */
     public static final String ATTR_ROLES = "roles";
 
+    /** jwtProperties。 */
     private final JwtProperties jwtProperties;
 
+    /**
+     * 创建RuntimeRequestSecurityContext。
+     *
+     * @param jwtProperties jwtProperties
+     */
     public RuntimeRequestSecurityContext(JwtProperties jwtProperties) {
         this.jwtProperties = jwtProperties;
     }
@@ -68,6 +75,10 @@ public class RuntimeRequestSecurityContext {
         return currentRoles().contains(role);
     }
 
+    /**
+     * 执行current请求。
+     * @return 执行结果
+     */
     private HttpServletRequest currentRequest() {
         RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
         if (attributes instanceof ServletRequestAttributes servletRequestAttributes) {

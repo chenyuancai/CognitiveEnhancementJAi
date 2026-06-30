@@ -1,0 +1,34 @@
+server:
+  port: 8806
+
+spring:
+  application:
+    name: cognitive-enhancement-ai-sse-server
+
+springdoc:
+  api-docs:
+    enabled: ${cog.openapi.enabled:true}
+  swagger-ui:
+    enabled: ${cog.openapi.enabled:true}
+knife4j:
+  enable: false
+  setting:
+    language: zh_cn
+
+cog:
+  openapi:
+    enabled: true
+    gateway-url: http://localhost:8801
+  jwt:
+    secret: cognitive-enhancement-ai-default-secret-key
+  sse:
+    url: http://localhost:8806
+    connection-timeout-ms: 600000
+    heartbeat-interval-ms: 30000
+    dev-auth-bypass: true
+    trust-gateway-headers: true
+    oauth2-jwk-set-uri: http://localhost:8802/oauth2/jwks
+
+logging:
+  level:
+    cn.cyc.ai.cog.sse: info

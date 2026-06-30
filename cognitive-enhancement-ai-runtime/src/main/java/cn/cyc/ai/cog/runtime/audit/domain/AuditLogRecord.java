@@ -9,17 +9,8 @@ import java.util.Map;
 /**
  * 审计日志记录。
  *
- * @param tenantCode   租户编码
- * @param traceId      链路追踪 ID
- * @param eventType    事件类型
- * @param action       操作动作
- * @param resourceType 资源类型
- * @param resourceCode 资源编码
- * @param operator     操作人
- * @param success      是否成功
- * @param detail       审计详情
- * @param recordedAt   记录时间
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record AuditLogRecord(String tenantCode,
                              String traceId,

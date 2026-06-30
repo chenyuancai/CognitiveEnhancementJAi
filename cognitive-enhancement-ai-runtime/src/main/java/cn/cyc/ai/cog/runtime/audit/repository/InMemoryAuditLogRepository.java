@@ -15,6 +15,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * 基于内存的审计日志仓储。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "false", matchIfMissing = true)

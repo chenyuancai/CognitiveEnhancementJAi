@@ -6,6 +6,7 @@ import java.io.IOException;
  * SDK HTTP 传输接口。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 interface CogSdkTransport {
 

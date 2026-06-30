@@ -26,21 +26,33 @@ import java.util.Map;
  * RuntimeHarness 默认实现，协调各治理组件完成带治理的执行。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class DefaultRuntimeHarness implements RuntimeHarness {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(DefaultRuntimeHarness.class);
 
+    /** HUMANCONFIRMEDPARAMETER。 */
     private static final String HUMAN_CONFIRMED_PARAMETER = "humanConfirmed";
 
+    /** 链路Harness。 */
     private final TraceHarness traceHarness;
+    /** policyHarness。 */
     private final PolicyHarness policyHarness;
+    /** 能力版本号Resolver。 */
     private final CapabilityVersionResolver capabilityVersionResolver;
+    /** 能力运行时。 */
     private final CapabilityRuntime capabilityRuntime;
+    /** 输出Governance。 */
     private final OutputGovernance outputGovernance;
+    /** conversation会话服务。 */
     private final ConversationSessionService conversationSessionService;
 
+    /**
+     * 创建DefaultRuntimeHarness。
+     */
     public DefaultRuntimeHarness(TraceHarness traceHarness,
                                  PolicyHarness policyHarness,
                                  CapabilityVersionResolver capabilityVersionResolver,
@@ -55,6 +67,12 @@ public class DefaultRuntimeHarness implements RuntimeHarness {
         this.conversationSessionService = conversationSessionService;
     }
 
+    /**
+     * 执行操作。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Override
     public CapabilityExecuteResponse execute(CapabilityExecuteRequest request) {
         String traceId = TraceContext.getTraceId();
@@ -111,6 +129,12 @@ public class DefaultRuntimeHarness implements RuntimeHarness {
         return new CapabilityExecuteRequest(request.capabilityCode(), request.input(), parameters);
     }
 
+    /**
+     * 执行record会话Messages。
+     *
+     * @param request 请求
+     * @param response 响应
+     */
     private void recordSessionMessages(CapabilityExecuteRequest request, CapabilityExecuteResponse response) {
         Object sessionIdValue = request.parameters().get("sessionId");
         if (!(sessionIdValue instanceof String sessionId) || sessionId.isBlank()) {

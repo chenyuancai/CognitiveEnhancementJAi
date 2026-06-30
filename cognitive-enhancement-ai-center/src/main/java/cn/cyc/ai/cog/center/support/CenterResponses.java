@@ -7,9 +7,13 @@ import cn.cyc.ai.cog.core.trace.TraceContext;
  * 管理中心统一响应工厂，负责补齐链路追踪标识。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class CenterResponses {
 
+    /**
+     * 创建CenterResponses。
+     */
     private CenterResponses() {
     }
 

@@ -6,8 +6,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.util.List;
 
 /**
- * 网关 /api/** 鉴权：除白名单外强制有效 Bearer。
- */
+ /**
+  * 网关Api认证配置属性
+  *
+  * @author cyc
+  * @date 2026/6/15 14:18
+  */
 @Data
 @ConfigurationProperties(prefix = "cog.gateway.api-auth")
 public class GatewayApiAuthProperties {

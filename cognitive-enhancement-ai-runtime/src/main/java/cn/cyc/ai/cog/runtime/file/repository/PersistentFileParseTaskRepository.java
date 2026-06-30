@@ -19,6 +19,7 @@ import java.util.Optional;
  * 持久化文件解析任务仓储。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true")
@@ -43,12 +44,23 @@ public class PersistentFileParseTaskRepository implements FileParseTaskRepositor
         this.fileParseTaskMapper = fileParseTaskMapper;
     }
 
+    /**
+     * 执行save。
+     *
+     * @param task task
+     */
     @Override
     public void save(FileParseTask task) {
         fileParseTaskMapper.insert(toEntity(task));
         log.debug("持久化文件解析任务, taskId={}, fileId={}, status={}", task.taskId(), task.fileId(), task.status());
     }
 
+    /**
+     * 查找LatestSucceeded人文件ID。
+     *
+     * @param fileId 文件ID
+     * @return 查找结果
+     */
     @Override
     public Optional<FileParseTask> findLatestSucceededByFileId(String fileId) {
         LambdaQueryWrapper<FileParseTaskEntity> queryWrapper = new LambdaQueryWrapper<FileParseTaskEntity>()
@@ -63,6 +75,12 @@ public class PersistentFileParseTaskRepository implements FileParseTaskRepositor
                 .map(this::toDomain);
     }
 
+    /**
+     * 转换为实体。
+     *
+     * @param task task
+     * @return 转换结果
+     */
     private FileParseTaskEntity toEntity(FileParseTask task) {
         FileParseTaskEntity entity = new FileParseTaskEntity();
         entity.setTenantId(TenantIds.resolveId(task.tenantCode()));
@@ -77,6 +95,12 @@ public class PersistentFileParseTaskRepository implements FileParseTaskRepositor
         return entity;
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private FileParseTask toDomain(FileParseTaskEntity entity) {
         return new FileParseTask(
                 TenantIds.toCode(entity.getTenantId()),

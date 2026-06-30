@@ -6,13 +6,8 @@ import java.util.Map;
 /**
  * Harness 测试场景配置，由前端传入。
  *
- * @param capabilityCode 能力编码（可选）
- * @param agentCode      Agent 编码（必选）
- * @param skillCodes     技能编码列表（可选）
- * @param toolCodes      工具编码列表（可选）
- * @param modelCode      模型编码（可选）
- * @param inputParams    测试输入参数
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record HarnessScenario(
         String capabilityCode,

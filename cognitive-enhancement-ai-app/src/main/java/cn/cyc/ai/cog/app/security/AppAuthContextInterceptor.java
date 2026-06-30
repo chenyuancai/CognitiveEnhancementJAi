@@ -8,6 +8,9 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
  * C 端鉴权上下文拦截器：在 Filter 未绑定用户时二次尝试绑定。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class AppAuthContextInterceptor implements HandlerInterceptor {

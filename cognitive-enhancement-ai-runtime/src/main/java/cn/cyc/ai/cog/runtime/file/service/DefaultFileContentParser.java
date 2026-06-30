@@ -15,6 +15,9 @@ import java.util.Set;
 
 /**
  * 默认文件正文解析器。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class DefaultFileContentParser implements FileContentParser {
@@ -23,6 +26,12 @@ public class DefaultFileContentParser implements FileContentParser {
             ".txt", ".md", ".markdown", ".json", ".csv", ".tsv", ".xml", ".html", ".htm", ".log"
     );
 
+    /**
+     * 执行parseText。
+     *
+     * @param upload upload
+     * @return 执行结果
+     */
     @Override
     public String parseText(FileUploadRecord upload) {
         if (!StringUtils.hasText(upload.storagePath())) {
@@ -42,6 +51,12 @@ public class DefaultFileContentParser implements FileContentParser {
         }
     }
 
+    /**
+     * 判断是否为SupportedText文件。
+     *
+     * @param upload upload
+     * @return 是否满足条件
+     */
     private boolean isSupportedTextFile(FileUploadRecord upload) {
         String contentType = upload.contentType();
         if (StringUtils.hasText(contentType)) {

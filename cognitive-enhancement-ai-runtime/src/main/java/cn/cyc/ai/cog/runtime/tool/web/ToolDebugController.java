@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Tool 调试调用控制器。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "Runtime - Tool 调试", description = "Tool 管理页试调用入口，绕过完整 Capability 链路")
 @RestController

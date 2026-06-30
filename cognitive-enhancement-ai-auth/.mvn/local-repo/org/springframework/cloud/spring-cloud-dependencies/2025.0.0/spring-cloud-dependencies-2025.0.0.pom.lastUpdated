@@ -1,0 +1,6 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Sat Jun 20 21:39:09 CST 2026
+https\://maven.aliyun.com/repository/central/.error=Could not transfer artifact org.springframework.cloud\:spring-cloud-dependencies\:pom\:2025.0.0 from/to aliyun-central (https\://maven.aliyun.com/repository/central)\: maven.aliyun.com
+@default-aliyun-https\://maven.aliyun.com/repository/public/.lastUpdated=1781962749733
+@default-aliyun-central-https\://maven.aliyun.com/repository/central/.lastUpdated=1781962749732
+https\://maven.aliyun.com/repository/public/.error=Could not transfer artifact org.springframework.cloud\:spring-cloud-dependencies\:pom\:2025.0.0 from/to aliyun (https\://maven.aliyun.com/repository/public)\: maven.aliyun.com

@@ -13,22 +13,41 @@ import java.util.Optional;
 
 /**
  * 基于模型目录仓储的模型定义仓储适配器。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class CatalogModelDefinitionRepository implements ModelDefinitionRepository {
 
+    /** catalog仓储。 */
     private final ModelCatalogRepository catalogRepository;
 
+    /**
+     * 创建Catalog模型Definition仓储。
+     *
+     * @param catalogRepository catalog仓储
+     */
     public CatalogModelDefinitionRepository(ModelCatalogRepository catalogRepository) {
         this.catalogRepository = catalogRepository;
     }
 
+    /**
+     * 查找人编码。
+     *
+     * @param code 编码
+     * @return 查找结果
+     */
     @Override
     public Optional<ModelDefinition> findByCode(String code) {
         return catalogRepository.findModelByCode(code)
                 .flatMap(model -> ModelRouteResolver.selectPrimaryRoute(model, catalogRepository.listProviders()));
     }
 
+    /**
+     * 查询All列表。
+     * @return 结果列表
+     */
     @Override
     public List<ModelDefinition> listAll() {
         return ModelRouteResolver.expandRoutes(
@@ -36,6 +55,12 @@ public class CatalogModelDefinitionRepository implements ModelDefinitionReposito
                 catalogRepository.listProviders());
     }
 
+    /**
+     * 执行save。
+     *
+     * @param definition definition
+     * @return 执行结果
+     */
     @Override
     public ModelDefinition save(ModelDefinition definition) {
         ModelProviderDefinition provider = new ModelProviderDefinition(
@@ -55,6 +80,13 @@ public class CatalogModelDefinitionRepository implements ModelDefinitionReposito
                 .orElse(definition);
     }
 
+    /**
+     * 执行mergeRoute。
+     *
+     * @param existing existing
+     * @param route route
+     * @return 执行结果
+     */
     private ModelMasterDefinition mergeRoute(ModelMasterDefinition existing, ModelDefinition route) {
         if (existing == null) {
             return new ModelMasterDefinition(
@@ -102,6 +134,10 @@ public class CatalogModelDefinitionRepository implements ModelDefinitionReposito
         );
     }
 
+    /**
+     * 执行appendBinding。
+     * @return 执行结果
+     */
     private List<cn.cyc.ai.cog.center.model.catalog.ModelBindingDefinition> appendBinding(
             List<cn.cyc.ai.cog.center.model.catalog.ModelBindingDefinition> bindings,
             ModelDefinition route) {

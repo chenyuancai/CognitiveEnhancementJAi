@@ -10,6 +10,7 @@ import java.util.List;
  * 输出治理配置。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 @ConfigurationProperties(prefix = "cog.runtime.output-governance")
@@ -25,18 +26,36 @@ public class OutputGovernanceProperties {
      */
     private List<String> forbiddenKeywords = new ArrayList<>();
 
+    /**
+     * 获取MaxLog内容Length。
+     * @return MaxLog内容Length
+     */
     public int getMaxLogContentLength() {
         return maxLogContentLength;
     }
 
+    /**
+     * 设置MaxLog内容Length。
+     *
+     * @param maxLogContentLength maxLog内容Length
+     */
     public void setMaxLogContentLength(int maxLogContentLength) {
         this.maxLogContentLength = maxLogContentLength;
     }
 
+    /**
+     * 获取ForbiddenKeywords。
+     * @return ForbiddenKeywords
+     */
     public List<String> getForbiddenKeywords() {
         return forbiddenKeywords;
     }
 
+    /**
+     * 设置ForbiddenKeywords。
+     *
+     * @param forbiddenKeywords forbiddenKeywords
+     */
     public void setForbiddenKeywords(List<String> forbiddenKeywords) {
         this.forbiddenKeywords = forbiddenKeywords == null ? new ArrayList<>() : forbiddenKeywords;
     }

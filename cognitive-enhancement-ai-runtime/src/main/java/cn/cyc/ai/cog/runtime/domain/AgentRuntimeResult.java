@@ -6,9 +6,8 @@ import cn.cyc.ai.cog.core.runtime.ExecutionResult;
 /**
  * AgentRuntime 输出。
  *
- * @param context 执行后的上下文
- * @param result  执行结果
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record AgentRuntimeResult(
         ExecutionContext context,

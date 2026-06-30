@@ -22,9 +22,16 @@ import java.util.Set;
  * 将 {@code grant_type=password} 的令牌请求转换为 {@link OAuth2ResourceOwnerPasswordAuthenticationToken}。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public class OAuth2ResourceOwnerPasswordAuthenticationConverter implements AuthenticationConverter {
 
+    /**
+     * 执行convert。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Override
     public Authentication convert(HttpServletRequest request) {
         String grantType = request.getParameter(OAuth2ParameterNames.GRANT_TYPE);
@@ -77,6 +84,12 @@ public class OAuth2ResourceOwnerPasswordAuthenticationConverter implements Authe
         return parameters;
     }
 
+    /**
+     * 执行错误。
+     *
+     * @param parameterName parameter名称
+     * @return 执行结果
+     */
     private static OAuth2AuthenticationException error(String parameterName) {
         OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST,
                 "缺少或非法的请求参数：" + parameterName,

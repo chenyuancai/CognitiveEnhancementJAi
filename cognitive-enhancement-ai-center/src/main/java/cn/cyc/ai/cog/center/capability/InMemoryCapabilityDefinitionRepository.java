@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentMap;
  * 能力定义内存仓储实现。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "false")
@@ -22,11 +23,21 @@ public class InMemoryCapabilityDefinitionRepository implements CapabilityDefinit
 
     private final ConcurrentMap<String, CapabilityDefinition> storage = new ConcurrentHashMap<>();
 
+    /**
+     * 查找人编码。
+     *
+     * @param code 编码
+     * @return 查找结果
+     */
     @Override
     public Optional<CapabilityDefinition> findByCode(String code) {
         return findPublishedByCapabilityCode(code);
     }
 
+    /**
+     * 查询All列表。
+     * @return 结果列表
+     */
     @Override
     public List<CapabilityDefinition> listAll() {
         return storage.values().stream()
@@ -35,6 +46,12 @@ public class InMemoryCapabilityDefinitionRepository implements CapabilityDefinit
                 .toList();
     }
 
+    /**
+     * 查询Versions人能力编码列表。
+     *
+     * @param capabilityCode 能力编码
+     * @return 结果列表
+     */
     @Override
     public List<CapabilityDefinition> listVersionsByCapabilityCode(String capabilityCode) {
         return storage.values().stream()
@@ -43,12 +60,25 @@ public class InMemoryCapabilityDefinitionRepository implements CapabilityDefinit
                 .toList();
     }
 
+    /**
+     * 执行save。
+     *
+     * @param definition definition
+     * @return 执行结果
+     */
     @Override
     public CapabilityDefinition save(CapabilityDefinition definition) {
         storage.put(versionKey(definition.capabilityCode(), definition.version()), definition);
         return definition;
     }
 
+    /**
+     * 执行版本号键。
+     *
+     * @param capabilityCode 能力编码
+     * @param version 版本号
+     * @return 执行结果
+     */
     private String versionKey(String capabilityCode, String version) {
         return capabilityCode + "@" + version;
     }

@@ -3,11 +3,13 @@ package cn.cyc.ai.cog.runtime.session.spi;
 import cn.cyc.ai.cog.runtime.session.domain.ConversationMessage;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 会话消息仓储接口。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface ConversationMessageRepository {
 
@@ -25,4 +27,9 @@ public interface ConversationMessageRepository {
      * @return 消息列表
      */
     List<ConversationMessage> findBySessionId(String sessionId);
+
+    /**
+     * 查询会话最新一条消息。
+     */
+    Optional<ConversationMessage> findLatestBySessionId(String sessionId);
 }

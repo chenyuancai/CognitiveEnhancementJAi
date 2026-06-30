@@ -27,13 +27,22 @@ import java.util.Map;
  * OpenAI-compatible Chat Completions 协议客户端。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class OpenAiCompatibleChatClient {
 
+    /** JSON 序列化器 */
     private final ObjectMapper objectMapper;
+    /** llmHttpExecutor。 */
     private final LlmHttpExecutor llmHttpExecutor;
 
+    /**
+     * 创建OpenAiCompatibleChat客户端。
+     *
+     * @param objectMapper JSON 序列化器
+     * @param llmHttpExecutor llmHttpExecutor
+     */
     public OpenAiCompatibleChatClient(ObjectMapper objectMapper, LlmHttpExecutor llmHttpExecutor) {
         this.objectMapper = objectMapper;
         this.llmHttpExecutor = llmHttpExecutor;
@@ -88,6 +97,13 @@ public class OpenAiCompatibleChatClient {
         return parseConversationResponse(response.body(), latencyMs);
     }
 
+    /**
+     * 执行resolveEndpoint。
+     *
+     * @param endpoint endpoint
+     * @param path 路径
+     * @return 执行结果
+     */
     private String resolveEndpoint(String endpoint, String path) {
         if (!StringUtils.hasText(endpoint)) {
             throw new BusinessException("INVALID_ARGUMENT", "OpenAI-compatible endpoint 不能为空");
@@ -105,6 +121,12 @@ public class OpenAiCompatibleChatClient {
         return endpoint + normalizedPath;
     }
 
+    /**
+     * 构建请求Body。
+     *
+     * @param request 请求
+     * @return 构建结果
+     */
     private String buildRequestBody(LlmInvocationRequest request) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("model", request.modelCode());
@@ -123,6 +145,9 @@ public class OpenAiCompatibleChatClient {
         }
     }
 
+    /**
+     * 执行appendParameter。
+     */
     private void appendParameter(Map<String, Object> payload,
                                  Map<String, Object> parameters,
                                  String sourceKey,
@@ -133,6 +158,13 @@ public class OpenAiCompatibleChatClient {
         payload.put(payloadKey, parameters.get(sourceKey));
     }
 
+    /**
+     * 构建ConversationBody。
+     *
+     * @param modelCode 模型编码
+     * @param request 请求
+     * @return 构建结果
+     */
     private String buildConversationBody(String modelCode, LlmConversationRequest request) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("model", modelCode);
@@ -183,6 +215,13 @@ public class OpenAiCompatibleChatClient {
         return result;
     }
 
+    /**
+     * 执行parseConversation响应。
+     *
+     * @param responseBody 响应Body
+     * @param latencyMs latencyMs
+     * @return 执行结果
+     */
     private LlmConversationResult parseConversationResponse(String responseBody, long latencyMs) {
         try {
             JsonNode rootNode = objectMapper.readTree(responseBody);
@@ -222,6 +261,12 @@ public class OpenAiCompatibleChatClient {
         }
     }
 
+    /**
+     * 执行parse工具Call。
+     *
+     * @param toolCallNode 工具CallNode
+     * @return 执行结果
+     */
     private LlmToolCall parseToolCall(JsonNode toolCallNode) {
         String id = toolCallNode.path("id").asText("");
         String name = toolCallNode.path("function").path("name").asText("");
@@ -238,6 +283,13 @@ public class OpenAiCompatibleChatClient {
         );
     }
 
+    /**
+     * 执行parse响应。
+     *
+     * @param responseBody 响应Body
+     * @param latencyMs latencyMs
+     * @return 执行结果
+     */
     private ChatCompletionResult parseResponse(String responseBody, long latencyMs) {
         try {
             JsonNode rootNode = objectMapper.readTree(responseBody);
@@ -256,9 +308,8 @@ public class OpenAiCompatibleChatClient {
     /**
      * Chat Completions 响应解析结果。
      *
-     * @param answer     回答文本
-     * @param tokenUsage token 用量
-     * @param latencyMs  调用延迟
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     public record ChatCompletionResult(String answer, LlmTokenUsage tokenUsage, long latencyMs) {
     }

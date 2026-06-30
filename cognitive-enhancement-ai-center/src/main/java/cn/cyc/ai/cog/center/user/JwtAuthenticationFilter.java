@@ -27,15 +27,25 @@ import java.util.List;
 
 /**
  * JWT 认证过滤器：OAuth2 RS256 / legacy HS256 Bearer，或信任网关透传身份头。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    /** jwtProperties。 */
     private final JwtProperties jwtProperties;
+    /** JSON 序列化器 */
     private final ObjectMapper objectMapper;
+    /** bearerIdentityParser。 */
     private final CompositeBearerIdentityParser bearerIdentityParser;
+    /** 路径Matcher。 */
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
+    /**
+     * 创建JwtAuthentication过滤器。
+     */
     public JwtAuthenticationFilter(JwtProperties jwtProperties,
                                    ObjectMapper objectMapper,
                                    @Qualifier("adminJwtDecoder") ObjectProvider<JwtDecoder> adminJwtDecoderProvider,
@@ -50,6 +60,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 jwtProperties.getSecret(), jwtDecoder);
     }
 
+    /**
+     * 执行do过滤器Internal。
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -101,6 +114,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
+    /**
+     * 判断是否为PermitAll。
+     *
+     * @param path 路径
+     * @return 是否满足条件
+     */
     private boolean isPermitAll(String path) {
         List<String> permitAll = jwtProperties.getPermitAll();
         if (permitAll == null || permitAll.isEmpty()) {
@@ -109,6 +128,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return permitAll.stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
     }
 
+    /**
+     * 执行writeUnauthorized。
+     *
+     * @param response 响应
+     * @param message 消息
+     */
     private void writeUnauthorized(HttpServletResponse response, String message) throws IOException {
         response.setStatus(ErrorCode.UNAUTHORIZED.getHttpStatus());
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());

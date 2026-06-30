@@ -21,28 +21,53 @@ import java.util.Map;
  * HTTP Tool Adapter。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class HttpToolAdapter implements ToolAdapter {
 
+    /** 工具HttpExecutor。 */
     private final ToolHttpExecutor toolHttpExecutor;
+    /** JSON 序列化器 */
     private final ObjectMapper objectMapper;
 
+    /**
+     * 创建HttpToolAdapter。
+     *
+     * @param toolHttpExecutor 工具HttpExecutor
+     * @param objectMapper JSON 序列化器
+     */
     public HttpToolAdapter(ToolHttpExecutor toolHttpExecutor, ObjectMapper objectMapper) {
         this.toolHttpExecutor = toolHttpExecutor;
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * 执行protocol类型。
+     * @return 执行结果
+     */
     @Override
     public ToolProtocolType protocolType() {
         return ToolProtocolType.HTTP;
     }
 
+    /**
+     * 执行mock。
+     *
+     * @param tool 工具
+     * @return 执行结果
+     */
     @Override
     public boolean mock(ToolDefinition tool) {
         return false;
     }
 
+    /**
+     * 执行操作。
+     *
+     * @param context 上下文
+     * @return 执行结果
+     */
     @Override
     public Object invoke(ToolAdapterContext context) {
         ToolDefinition tool = context.tool();
@@ -86,6 +111,12 @@ public class HttpToolAdapter implements ToolAdapter {
         }
     }
 
+    /**
+     * 执行abbreviate。
+     *
+     * @param body body
+     * @return 执行结果
+     */
     private String abbreviate(String body) {
         if (body == null) {
             return "";

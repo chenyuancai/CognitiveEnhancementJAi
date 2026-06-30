@@ -10,6 +10,7 @@ import cn.cyc.ai.cog.runtime.harness.dto.HarnessRunRequest;
 import cn.cyc.ai.cog.runtime.harness.dto.HarnessRunResponse;
 import cn.cyc.ai.cog.runtime.harness.dto.HarnessScenario;
 import cn.cyc.ai.cog.runtime.harness.dto.HarnessScenarioTemplate;
+import cn.cyc.ai.cog.runtime.harness.support.HarnessImportWorkflowSupport;
 import cn.cyc.ai.cog.runtime.harness.spi.HarnessEngine;
 import cn.cyc.ai.cog.runtime.harness.spi.HarnessReportRepository;
 import cn.cyc.ai.cog.runtime.harness.spi.HarnessStep;
@@ -32,18 +33,26 @@ import java.util.concurrent.CompletableFuture;
  * Harness 测试控制器。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "Admin - Harness", description = "Agent Harness 治理验证：异步演练、报告查询与场景模板")
 @RestController
 @RequestMapping("/api/admin/harness")
 public class HarnessController {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(HarnessController.class);
 
+    /** harnessEngine。 */
     private final HarnessEngine harnessEngine;
+    /** harnessSteps。 */
     private final List<HarnessStep> harnessSteps;
+    /** report仓储。 */
     private final HarnessReportRepository reportRepository;
 
+    /**
+     * 创建Harness接口。
+     */
     public HarnessController(HarnessEngine harnessEngine,
                               List<HarnessStep> harnessSteps,
                               HarnessReportRepository reportRepository) {
@@ -52,6 +61,12 @@ public class HarnessController {
         this.reportRepository = reportRepository;
     }
 
+    /**
+     * 执行操作。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Operation(summary = "启动 Harness 演练", description = "异步执行预置治理步骤链，立即返回 harnessId。")
     @PostMapping("/run")
     public ApiResponse<HarnessRunResponse> run(@RequestBody HarnessRunRequest request) {
@@ -80,6 +95,12 @@ public class HarnessController {
         return RuntimeResponses.success(new HarnessRunResponse(harnessId, "RUNNING", "Harness 执行中"));
     }
 
+    /**
+     * 获取Report。
+     *
+     * @param harnessId harnessID
+     * @return Report
+     */
     @Operation(summary = "查询 Harness 报告", description = "按 harnessId 查询完整演练报告。")
     @GetMapping("/reports/{harnessId}")
     public ApiResponse<HarnessReport> getReport(@PathVariable("harnessId") String harnessId) {
@@ -88,6 +109,10 @@ public class HarnessController {
                 .orElse(RuntimeResponses.success(null));
     }
 
+    /**
+     * 查询Reports列表。
+     * @return 结果列表
+     */
     @Operation(summary = "分页查询 Harness 报告", description = "支持 status、startFrom、startTo 筛选。")
     @GetMapping("/reports")
     public ApiResponse<Page<HarnessReportSummary>> listReports(
@@ -109,6 +134,10 @@ public class HarnessController {
         return RuntimeResponses.success(resultPage);
     }
 
+    /**
+     * 获取LatestReport。
+     * @return LatestReport
+     */
     @Operation(summary = "查询最新 Harness 报告", description = "返回最近一条演练报告。")
     @GetMapping("/reports/latest")
     public ApiResponse<HarnessReport> getLatestReport() {
@@ -117,6 +146,10 @@ public class HarnessController {
                 .orElse(RuntimeResponses.success(null));
     }
 
+    /**
+     * 获取ScenarioTemplates。
+     * @return ScenarioTemplates
+     */
     @Operation(summary = "查询 Harness 场景模板", description = "返回内置 QA/Chat 等演练场景模板。")
     @GetMapping("/scenario-templates")
     public ApiResponse<List<HarnessScenarioTemplate>> getScenarioTemplates() {
@@ -137,6 +170,24 @@ public class HarnessController {
                                 "capability.chat.generate", "agent.chat",
                                 List.of("skill.chat"), List.of(),
                                 "qwen-plus", Map.of("question", "你好")
+                        )
+                ),
+                new HarnessScenarioTemplate(
+                        "知识文件导入",
+                        "调试 KB 文件解析导入流水线（inputParams 需提供 fileId）",
+                        new HarnessScenario(
+                                "capability.kb.summary", "agent.qa",
+                                List.of(), List.of(),
+                                "qwen-plus",
+                                Map.of(
+                                        HarnessImportWorkflowSupport.WORKFLOW_TYPE_KEY,
+                                        HarnessImportWorkflowSupport.IMPORT_KB_FILE_PARSE,
+                                        "importBizType", "KNOWLEDGE_DOCUMENT",
+                                        "fileId", 1,
+                                        "title", "Harness 导入测试",
+                                        "tenantId", 1,
+                                        "aiEnhanced", false
+                                )
                         )
                 )
         );

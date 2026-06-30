@@ -17,10 +17,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * C 端 API 滑动窗口限流拦截器。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class AppRateLimitInterceptor implements HandlerInterceptor {
 
+    /** properties。 */
     private final AppRateLimitProperties properties;
     private final Map<String, Deque<Long>> windows = new ConcurrentHashMap<>();
 
@@ -31,6 +35,14 @@ public class AppRateLimitInterceptor implements HandlerInterceptor {
         this.properties = properties;
     }
 
+    /**
+     * 执行preHandle。
+     *
+     * @param request 请求
+     * @param response 响应
+     * @param handler 处理器
+     * @return 执行结果
+     */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (!properties.isEnabled()) {
@@ -52,6 +64,12 @@ public class AppRateLimitInterceptor implements HandlerInterceptor {
         return true;
     }
 
+    /**
+     * 执行resolve客户端键。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     private String resolveClientKey(HttpServletRequest request) {
         if (UserContext.get() != null && UserContext.currentUserId() != null) {
             return "u:" + UserContext.currentUserId();

@@ -13,15 +13,26 @@ import java.util.function.BiFunction;
  * 本地 MCP Tool 客户端骨架，用于演示与联调。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public class LocalMcpToolClient implements McpToolClient {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(LocalMcpToolClient.class);
 
     private final Map<String, BiFunction<Object, Map<String, Object>, Object>> localTools = Map.of(
             "demoEcho", this::demoEcho
     );
 
+    /**
+     * 执行call工具。
+     *
+     * @param serverRef serverRef
+     * @param toolName 工具名称
+     * @param arguments arguments
+     * @param parameters parameters
+     * @return 执行结果
+     */
     @Override
     public Object callTool(String serverRef, String toolName, Object arguments, Map<String, Object> parameters) {
         if (!"local".equalsIgnoreCase(serverRef)) {
@@ -35,6 +46,13 @@ public class LocalMcpToolClient implements McpToolClient {
         return handler.apply(arguments, parameters == null ? Map.of() : parameters);
     }
 
+    /**
+     * 执行demoEcho。
+     *
+     * @param arguments arguments
+     * @param parameters parameters
+     * @return 执行结果
+     */
     private Object demoEcho(Object arguments, Map<String, Object> parameters) {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("protocol", "MCP");

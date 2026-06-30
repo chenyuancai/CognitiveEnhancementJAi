@@ -10,6 +10,7 @@ import java.util.List;
  * 认证用户 Mapper：加载用户与其角色编码。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Mapper
 public interface AuthUserMapper extends BaseMapper<AuthUserEntity> {

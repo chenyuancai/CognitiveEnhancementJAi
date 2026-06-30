@@ -3,10 +3,8 @@ package cn.cyc.ai.cog.runtime.api;
 /**
  * LLM 调用 token 用量摘要。
  *
- * @param inputTokenCount  输入 token 数
- * @param outputTokenCount 输出 token 数
- * @param totalTokenCount  总 token 数
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record LlmTokenUsage(int inputTokenCount, int outputTokenCount, int totalTokenCount) {
 

@@ -24,17 +24,35 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * 知识Package管理后台接口
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 @Tag(name = "内容-知识包", description = "知识包与条目管理")
 @RestController
 @RequestMapping("/api/admin/content/knowledge-packages")
 public class KnowledgePackageAdminController {
 
+    /** 知识Package服务。 */
     private final KnowledgePackageService knowledgePackageService;
 
+    /**
+     * 创建知识Package管理后台接口。
+     *
+     * @param knowledgePackageService 知识Package服务
+     */
     public KnowledgePackageAdminController(KnowledgePackageService knowledgePackageService) {
         this.knowledgePackageService = knowledgePackageService;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Operation(summary = "知识包分页")
     @RequirePermission("admin:content:update")
     @PostMapping("/page")
@@ -42,6 +60,12 @@ public class KnowledgePackageAdminController {
         return ApiResponse.success(knowledgePackageService.page(query).map(this::toVo));
     }
 
+    /**
+     * 执行detail。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     @Operation(summary = "知识包详情")
     @RequirePermission("admin:content:update")
     @GetMapping("/{id}")
@@ -49,6 +73,12 @@ public class KnowledgePackageAdminController {
         return ApiResponse.success(toVo(knowledgePackageService.detail(id)));
     }
 
+    /**
+     * 执行items。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     @Operation(summary = "知识包条目列表")
     @RequirePermission("admin:content:update")
     @GetMapping("/{id}/items")
@@ -56,6 +86,12 @@ public class KnowledgePackageAdminController {
         return ApiResponse.success(knowledgePackageService.listItems(id).stream().map(this::toItemVo).toList());
     }
 
+    /**
+     * 创建Item。
+     *
+     * @param request 请求
+     * @return 创建结果
+     */
     @Operation(summary = "新增知识包")
     @RequirePermission("admin:content:create")
     @PostMapping
@@ -63,6 +99,12 @@ public class KnowledgePackageAdminController {
         return ApiResponse.success(toVo(knowledgePackageService.create(request)));
     }
 
+    /**
+     * 更新Item。
+     *
+     * @param request 请求
+     * @return 更新结果
+     */
     @Operation(summary = "编辑知识包")
     @RequirePermission("admin:content:update")
     @PostMapping("/update")
@@ -70,6 +112,12 @@ public class KnowledgePackageAdminController {
         return ApiResponse.success(toVo(knowledgePackageService.update(request.getId(), request)));
     }
 
+    /**
+     * 执行addItem。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Operation(summary = "新增知识包条目")
     @RequirePermission("admin:content:update")
     @PostMapping("/items")
@@ -77,6 +125,12 @@ public class KnowledgePackageAdminController {
         return ApiResponse.success(toItemVo(knowledgePackageService.addItem(request.getPackageId(), request)));
     }
 
+    /**
+     * 删除Item。
+     *
+     * @param packageId packageID
+     * @param itemId itemID
+     */
     @Operation(summary = "删除知识包条目")
     @RequirePermission("admin:content:delete")
     @DeleteMapping("/{packageId}/items/{itemId}")
@@ -85,6 +139,12 @@ public class KnowledgePackageAdminController {
         return ApiResponse.success(null);
     }
 
+    /**
+     * 转换为Vo。
+     *
+     * @param pkg pkg
+     * @return 转换结果
+     */
     private KnowledgePackageVO toVo(KnowledgePackage pkg) {
         KnowledgePackageVO vo = new KnowledgePackageVO();
         vo.setId(pkg.id());
@@ -94,6 +154,12 @@ public class KnowledgePackageAdminController {
         return vo;
     }
 
+    /**
+     * 转换为ItemVo。
+     *
+     * @param item item
+     * @return 转换结果
+     */
     private KnowledgePackageItemVO toItemVo(KnowledgePackageItem item) {
         KnowledgePackageItemVO vo = new KnowledgePackageItemVO();
         vo.setId(item.id());

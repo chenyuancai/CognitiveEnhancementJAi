@@ -17,6 +17,7 @@ import java.util.Objects;
  * Prompt 模板管理服务。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class PromptAdminService extends AbstractMetadataAdminService<PromptTemplate, PromptUpsertRequest, PromptResult> {
@@ -98,6 +99,13 @@ public class PromptAdminService extends AbstractMetadataAdminService<PromptTempl
         return sorters;
     }
 
+    /**
+     * 执行matches。
+     *
+     * @param expected expected
+     * @param actual actual
+     * @return 执行结果
+     */
     private boolean matches(String expected, String actual) {
         return !StringUtils.hasText(expected) || expected.equals(actual);
     }

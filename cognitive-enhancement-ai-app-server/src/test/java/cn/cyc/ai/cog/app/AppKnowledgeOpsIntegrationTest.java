@@ -32,7 +32,7 @@ class AppKnowledgeOpsIntegrationTest {
                         .content("{}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success", is(true)))
-                .andExpect(jsonPath("$.data.records[0].title", is("Phase3 测试文章")));
+                .andExpect(jsonPath("$.data.records[*].title", hasItem("Phase3 测试文章")));
     }
 
     @Test

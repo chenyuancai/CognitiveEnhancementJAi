@@ -5,10 +5,8 @@ import java.util.Map;
 /**
  * 模型连通性检查请求。
  *
- * @param modelCode   模型编码
- * @param prompt      检查提示词
- * @param parameters  执行参数
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ModelConnectivityCheckRequest(String modelCode,
                                             String prompt,

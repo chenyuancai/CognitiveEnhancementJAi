@@ -18,6 +18,12 @@ springdoc:
     enabled: ${cog.openapi.enabled:true}
   swagger-ui:
     enabled: ${cog.openapi.enabled:true}
+    # 独立进程（base/sse）的文档 URL 须在此声明，Knife4j 下拉才会出现对应分组
+    urls:
+      - name: 基础服务
+        url: /v3/api-docs/base
+      - name: SSE 推送
+        url: /v3/api-docs/sse
 knife4j:
   # Knife4j 4.5.0 增强模式与 springdoc 2.8.x 不兼容，关闭后可正常生成 /v3/api-docs
   enable: false
@@ -27,7 +33,10 @@ cog:
   openapi:
     enabled: true
     gateway-url: http://localhost:8801
-    base-docs-url: /v3/api-docs/base
+    base-service-url: http://localhost:8805
+    sse-service-url: http://localhost:8806
+    external-docs-proxy:
+      enabled: true
   platform:
     cache:
       redis-enabled: false

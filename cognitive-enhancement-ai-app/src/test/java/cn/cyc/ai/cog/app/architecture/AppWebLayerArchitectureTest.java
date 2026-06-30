@@ -21,10 +21,19 @@ class AppWebLayerArchitectureTest {
     @Test
     void appWebShouldNotDependOnPlatformEntities() {
         ArchRule rule = noClasses()
-                .that().resideInAPackage("..app.web..")
+                .that().resideInAPackage("..app..web..")
                 .should().dependOnClassesThat().resideInAPackage("..platform..entity..")
                 .because("web 层应使用 VO/DTO，禁止直接依赖 Entity");
 
+        rule.check(APP_CLASSES);
+    }
+
+    @Test
+    void appModuleShouldNotDependOnCenter() {
+        ArchRule rule = noClasses()
+                .that().resideInAPackage("..app..")
+                .should().dependOnClassesThat().resideInAPackage("..center..")
+                .because("C 端 app 模块不应直连 center");
         rule.check(APP_CLASSES);
     }
 }

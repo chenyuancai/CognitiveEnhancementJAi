@@ -7,11 +7,17 @@ import java.util.List;
 
 /**
  * 工作台首页角色（2A 角色化卡片矩阵）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public enum WorkbenchRole {
 
+    /** 管理后台。 */
     ADMIN,
+    /** operator。 */
     OPERATOR,
+    /** 内容。 */
     CONTENT,
     SUPPORT;
 

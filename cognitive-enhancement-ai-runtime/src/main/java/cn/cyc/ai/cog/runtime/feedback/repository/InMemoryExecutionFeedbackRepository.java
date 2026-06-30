@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
  * 内存执行反馈仓储。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "false", matchIfMissing = true)
@@ -25,11 +26,22 @@ public class InMemoryExecutionFeedbackRepository implements ExecutionFeedbackRep
      */
     private final CopyOnWriteArrayList<ExecutionFeedback> feedbacks = new CopyOnWriteArrayList<>();
 
+    /**
+     * 执行save。
+     *
+     * @param feedback feedback
+     */
     @Override
     public void save(ExecutionFeedback feedback) {
         feedbacks.add(feedback);
     }
 
+    /**
+     * 查找人链路ID。
+     *
+     * @param traceId 链路 Trace ID
+     * @return 查找结果
+     */
     @Override
     public List<ExecutionFeedback> findByTraceId(String traceId) {
         String tenantCode = TenantContext.currentTenantCode();
@@ -40,6 +52,12 @@ public class InMemoryExecutionFeedbackRepository implements ExecutionFeedbackRep
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 查找人会话ID。
+     *
+     * @param sessionId 会话 ID
+     * @return 查找结果
+     */
     @Override
     public List<ExecutionFeedback> findBySessionId(String sessionId) {
         String tenantCode = TenantContext.currentTenantCode();

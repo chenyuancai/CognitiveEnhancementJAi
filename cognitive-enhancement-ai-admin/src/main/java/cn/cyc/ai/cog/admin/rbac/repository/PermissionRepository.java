@@ -6,6 +6,9 @@ import java.util.List;
 
 /**
  * 权限点仓储接口。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface PermissionRepository {
 

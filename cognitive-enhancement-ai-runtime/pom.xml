@@ -28,8 +28,23 @@
         </dependency>
         <dependency>
             <groupId>cn.cyc.ai</groupId>
+            <artifactId>cognitive-enhancement-ai-base-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.cyc.ai</groupId>
             <artifactId>cognitive-enhancement-ai-core</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.cyc.ai</groupId>
+            <artifactId>cognitive-enhancement-ai-platform</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>3.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

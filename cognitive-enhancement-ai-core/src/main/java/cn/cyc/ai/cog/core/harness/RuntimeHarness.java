@@ -5,13 +5,12 @@ import cn.cyc.ai.cog.core.runtime.CapabilityExecuteResponse;
 
 /**
  * 运行时治理器，作为 Capability 执行的统一治理入口。
- *
  * <p>一期的职责：协调 TraceHarness → PolicyHarness → SkillLoader → OutputGovernance
  * 完成一次带治理的执行。
- *
  * <p>二期可扩展：执行前缓存、执行后审计、异常降级。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface RuntimeHarness {
 

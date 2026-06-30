@@ -7,6 +7,7 @@ import cn.cyc.ai.cog.core.runtime.ExecutionContext;
  * Tool 运行时预留接口。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface ToolRuntime {
 

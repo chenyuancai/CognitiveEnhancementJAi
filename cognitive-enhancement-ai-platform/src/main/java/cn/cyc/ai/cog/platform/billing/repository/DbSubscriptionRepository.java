@@ -14,6 +14,9 @@ import java.util.List;
 
 /**
  * 订阅记录仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbSubscriptionRepository implements SubscriptionRepository {
@@ -28,6 +31,14 @@ public class DbSubscriptionRepository implements SubscriptionRepository {
         this.subscriptionMapper = subscriptionMapper;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param current current
+     * @param size 大小
+     * @param accountId 账户ID
+     * @return 执行结果
+     */
     @Override
     public PageResult<Subscription> page(long current, long size, Long accountId) {
         LambdaQueryWrapper<SubscriptionEntity> wrapper = new LambdaQueryWrapper<>();
@@ -43,6 +54,12 @@ public class DbSubscriptionRepository implements SubscriptionRepository {
                 page.getSize());
     }
 
+    /**
+     * 查找人订单ID。
+     *
+     * @param orderId 订单ID
+     * @return 查找结果
+     */
     @Override
     public Subscription findByOrderId(Long orderId) {
         SubscriptionEntity entity = subscriptionMapper.selectOne(new LambdaQueryWrapper<SubscriptionEntity>()
@@ -51,6 +68,10 @@ public class DbSubscriptionRepository implements SubscriptionRepository {
         return entity == null ? null : toDomain(entity);
     }
 
+    /**
+     * 执行insertActive。
+     * @return 执行结果
+     */
     @Override
     public Subscription insertActive(Long tenantId, Long accountId, Long orderId, Long packageId,
                                      String levelCode, String phase, LocalDateTime startAt, LocalDateTime endAt) {
@@ -69,6 +90,11 @@ public class DbSubscriptionRepository implements SubscriptionRepository {
         return toDomain(sub);
     }
 
+    /**
+     * 执行markRefunded。
+     *
+     * @param subscriptionId subscriptionID
+     */
     @Override
     public void markRefunded(Long subscriptionId) {
         SubscriptionEntity sub = subscriptionMapper.selectById(subscriptionId);
@@ -78,6 +104,12 @@ public class DbSubscriptionRepository implements SubscriptionRepository {
         }
     }
 
+    /**
+     * 查询TrialExpiredActive列表。
+     *
+     * @param now now
+     * @return 结果列表
+     */
     @Override
     public List<Subscription> listTrialExpiredActive(LocalDateTime now) {
         return subscriptionMapper.selectList(new LambdaQueryWrapper<SubscriptionEntity>()
@@ -89,6 +121,12 @@ public class DbSubscriptionRepository implements SubscriptionRepository {
                 .toList();
     }
 
+    /**
+     * 查询FormalExpiredActive列表。
+     *
+     * @param now now
+     * @return 结果列表
+     */
     @Override
     public List<Subscription> listFormalExpiredActive(LocalDateTime now) {
         return subscriptionMapper.selectList(new LambdaQueryWrapper<SubscriptionEntity>()
@@ -102,6 +140,12 @@ public class DbSubscriptionRepository implements SubscriptionRepository {
                 .toList();
     }
 
+    /**
+     * 执行advanceToFormal。
+     *
+     * @param subscriptionId subscriptionID
+     * @param endAt endAt
+     */
     @Override
     public void advanceToFormal(Long subscriptionId, LocalDateTime endAt) {
         SubscriptionEntity sub = subscriptionMapper.selectById(subscriptionId);
@@ -113,12 +157,23 @@ public class DbSubscriptionRepository implements SubscriptionRepository {
         subscriptionMapper.updateById(sub);
     }
 
+    /**
+     * 查询ExpiredActive列表。
+     *
+     * @param now now
+     * @return 结果列表
+     */
     @Override
     @Deprecated
     public List<Subscription> listExpiredActive(LocalDateTime now) {
         return listFormalExpiredActive(now);
     }
 
+    /**
+     * 执行markExpired。
+     *
+     * @param subscriptionId subscriptionID
+     */
     @Override
     public void markExpired(Long subscriptionId) {
         SubscriptionEntity sub = subscriptionMapper.selectById(subscriptionId);
@@ -128,6 +183,13 @@ public class DbSubscriptionRepository implements SubscriptionRepository {
         }
     }
 
+    /**
+     * 查找ActiveValid人账户ID。
+     *
+     * @param accountId 账户ID
+     * @param now now
+     * @return 查找结果
+     */
     @Override
     public Subscription findActiveValidByAccountId(Long accountId, LocalDateTime now) {
         SubscriptionEntity entity = subscriptionMapper.selectOne(new LambdaQueryWrapper<SubscriptionEntity>()
@@ -139,6 +201,12 @@ public class DbSubscriptionRepository implements SubscriptionRepository {
         return entity == null ? null : toDomain(entity);
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private Subscription toDomain(SubscriptionEntity entity) {
         return new Subscription(
                 entity.getId(),

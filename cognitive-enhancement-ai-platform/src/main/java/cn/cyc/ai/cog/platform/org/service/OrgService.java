@@ -19,6 +19,9 @@ import java.util.List;
 
 /**
  * 组织治理服务：组织、部门与成员管理。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class OrgService {

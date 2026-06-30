@@ -4,6 +4,9 @@ import java.util.Map;
 
 /**
  * 预支付结果：供客户端调起微信/支付宝/MOCK 支付。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record PaymentPrepayResult(
         Long orderId,

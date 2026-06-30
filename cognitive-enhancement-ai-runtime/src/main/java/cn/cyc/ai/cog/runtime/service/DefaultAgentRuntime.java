@@ -54,6 +54,7 @@ import java.util.Optional;
  * 默认 AgentRuntime，实现一期最小装载与 mock 执行。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class DefaultAgentRuntime implements AgentRuntime {
@@ -103,6 +104,7 @@ public class DefaultAgentRuntime implements AgentRuntime {
      */
     private final DefaultModelGovernance modelGovernance;
 
+    /** 链路SpanRecorder。 */
     private final TraceSpanRecorder traceSpanRecorder;
 
     /**
@@ -145,10 +147,13 @@ public class DefaultAgentRuntime implements AgentRuntime {
      */
     private final PlanDrivenToolSelector planDrivenToolSelector;
 
+    /** reAct智能体Executor。 */
     private final ReActAgentExecutor reActAgentExecutor;
 
+    /** reActProperties。 */
     private final ReActProperties reActProperties;
 
+    /** conversation上下文Manager。 */
     private final RuntimeConversationContextManager conversationContextManager;
 
     /**
@@ -314,6 +319,13 @@ public class DefaultAgentRuntime implements AgentRuntime {
         return copyResult(result, output);
     }
 
+    /**
+     * 执行copy结果。
+     *
+     * @param result 结果
+     * @param output 输出
+     * @return 执行结果
+     */
     private ExecutionResult copyResult(ExecutionResult result, Map<String, Object> output) {
         return new ExecutionResult(result.status(), result.message(), result.allowedSkillCodes(), output);
     }
@@ -332,6 +344,12 @@ public class DefaultAgentRuntime implements AgentRuntime {
                 .toList();
     }
 
+    /**
+     * 执行shouldUseReAct。
+     *
+     * @param context 上下文
+     * @return 执行结果
+     */
     private boolean shouldUseReAct(ExecutionContext context) {
         Object override = context.request().parameters().get("reactEnabled");
         if (override instanceof Boolean enabled) {
@@ -453,6 +471,10 @@ public class DefaultAgentRuntime implements AgentRuntime {
         return new LlmPipelineResult(reflectionOutcome.result(), reflectionOutcome);
     }
 
+    /**
+     * 执行invokeLlmOnce。
+     * @return 执行结果
+     */
     private LlmInvocationResult invokeLlmOnce(ExecutionContext context,
                                               ModelGovernanceResolution modelResolution,
                                               Object promptInput) {
@@ -469,6 +491,12 @@ public class DefaultAgentRuntime implements AgentRuntime {
         }
     }
 
+    /**
+     * 执行appendReflection输出。
+     *
+     * @param output 输出
+     * @param reflectionOutcome reflectionOutcome
+     */
     private void appendReflectionOutput(Map<String, Object> output, ReflectionOutcome reflectionOutcome) {
         output.put("reflectionApplied", reflectionOutcome.applied());
         output.put("reflectionRetryCount", reflectionOutcome.retryCount());
@@ -477,9 +505,18 @@ public class DefaultAgentRuntime implements AgentRuntime {
         }
     }
 
+    /**
+     * LlmPipeline结果
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     private record LlmPipelineResult(LlmInvocationResult llmResult, ReflectionOutcome reflectionOutcome) {
     }
 
+    /**
+     * 执行append模型Governance输出。
+     */
     private void appendModelGovernanceOutput(Map<String, Object> output,
                                              ModelGovernanceResolution modelResolution,
                                              ModelDefinition model,

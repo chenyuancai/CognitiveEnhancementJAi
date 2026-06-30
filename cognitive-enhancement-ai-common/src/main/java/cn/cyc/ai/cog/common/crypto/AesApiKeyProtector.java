@@ -11,18 +11,30 @@ import java.util.Base64;
 
 /**
  * AES-256-GCM API Key 保护器。
- *
  * <p>存储格式：{@code enc:v1:<base64(iv+ciphertext)>}
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public class AesApiKeyProtector implements ApiKeyProtector {
 
+    /** PREFIX。 */
     private static final String PREFIX = "enc:v1:";
+    /** GCMIVLENGTH。 */
     private static final int GCM_IV_LENGTH = 12;
+    /** GCM标签LENGTH。 */
     private static final int GCM_TAG_LENGTH = 128;
 
+    /** 键Bytes。 */
     private final byte[] keyBytes;
+    /** secureRandom。 */
     private final SecureRandom secureRandom = new SecureRandom();
 
+    /**
+     * 创建AesApiKeyProtector。
+     *
+     * @param masterKey master键
+     */
     public AesApiKeyProtector(String masterKey) {
         if (masterKey == null || masterKey.isBlank()) {
             throw new IllegalArgumentException("masterKey 不能为空");
@@ -35,6 +47,12 @@ public class AesApiKeyProtector implements ApiKeyProtector {
         }
     }
 
+    /**
+     * 执行protect。
+     *
+     * @param plainApiKey plainApi键
+     * @return 执行结果
+     */
     @Override
     public String protect(String plainApiKey) {
         if (plainApiKey == null || plainApiKey.isBlank()) {
@@ -58,6 +76,12 @@ public class AesApiKeyProtector implements ApiKeyProtector {
         }
     }
 
+    /**
+     * 执行reveal。
+     *
+     * @param storedApiKey storedApi键
+     * @return 执行结果
+     */
     @Override
     public String reveal(String storedApiKey) {
         if (storedApiKey == null || storedApiKey.isBlank()) {

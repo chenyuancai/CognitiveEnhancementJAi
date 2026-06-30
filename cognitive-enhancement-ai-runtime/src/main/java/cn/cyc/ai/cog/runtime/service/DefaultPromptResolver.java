@@ -29,18 +29,28 @@ import java.util.regex.Pattern;
  * 默认 Prompt 解析器。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class DefaultPromptResolver implements PromptResolver {
 
+    /** PLACEHOLDERPATTERN。 */
     private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{\\{\\s*([\\w.-]+)\\s*}}");
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(DefaultPromptResolver.class);
 
+    /** 提示词Template仓储。 */
     private final PromptTemplateRepository promptTemplateRepository;
+    /** 提示词ReleaseRouter。 */
     private final PromptReleaseRouter promptReleaseRouter;
+    /** 知识Retrieval服务。 */
     private final KnowledgeRetrievalService knowledgeRetrievalService;
+    /** 文件Processing服务。 */
     private final FileProcessingService fileProcessingService;
 
+    /**
+     * 创建DefaultPromptResolver。
+     */
     public DefaultPromptResolver(PromptTemplateRepository promptTemplateRepository,
                                  PromptReleaseRouter promptReleaseRouter,
                                  KnowledgeRetrievalService knowledgeRetrievalService,
@@ -51,6 +61,12 @@ public class DefaultPromptResolver implements PromptResolver {
         this.fileProcessingService = fileProcessingService;
     }
 
+    /**
+     * 执行resolve。
+     *
+     * @param context 上下文
+     * @return 执行结果
+     */
     @Override
     public PromptTemplate resolve(ExecutionContext context) {
         String scenarioCode = resolveScenarioCode(context.capability().capabilityCode());
@@ -79,6 +95,13 @@ public class DefaultPromptResolver implements PromptResolver {
         return resolvedTemplate;
     }
 
+    /**
+     * 执行render。
+     *
+     * @param promptTemplate 提示词Template
+     * @param context 上下文
+     * @return 执行结果
+     */
     @Override
     public String render(PromptTemplate promptTemplate, ExecutionContext context) {
         if (promptTemplate == null) {
@@ -101,6 +124,14 @@ public class DefaultPromptResolver implements PromptResolver {
         return appendExecutionContext(rendered, context, resolveScenarioCode(context.capability().capabilityCode()));
     }
 
+    /**
+     * 执行appendExecution上下文。
+     *
+     * @param rendered rendered
+     * @param context 上下文
+     * @param defaultScenarioCode 默认Scenario编码
+     * @return 执行结果
+     */
     private String appendExecutionContext(String rendered, ExecutionContext context, String defaultScenarioCode) {
         StringBuilder builder = new StringBuilder(rendered);
         Map<String, Object> parameters = context.request().parameters();
@@ -137,6 +168,12 @@ public class DefaultPromptResolver implements PromptResolver {
         return builder.toString();
     }
 
+    /**
+     * 执行resolve文件ParseTask。
+     *
+     * @param fileId 文件ID
+     * @return 执行结果
+     */
     private FileParseTask resolveFileParseTask(String fileId) {
         try {
             return fileProcessingService.getLatestParseResult(fileId);
@@ -149,6 +186,12 @@ public class DefaultPromptResolver implements PromptResolver {
         }
     }
 
+    /**
+     * 执行shouldRetrieve知识。
+     *
+     * @param parameters parameters
+     * @return 执行结果
+     */
     private boolean shouldRetrieveKnowledge(Map<String, Object> parameters) {
         if (parameters == null || parameters.isEmpty()) {
             return false;
@@ -160,6 +203,13 @@ public class DefaultPromptResolver implements PromptResolver {
         return Boolean.TRUE.equals(enabled) || "true".equalsIgnoreCase(String.valueOf(enabled));
     }
 
+    /**
+     * 执行resolve知识Scenario。
+     *
+     * @param parameters parameters
+     * @param defaultScenarioCode 默认Scenario编码
+     * @return 执行结果
+     */
     private String resolveKnowledgeScenario(Map<String, Object> parameters, String defaultScenarioCode) {
         Object scenario = parameters.get("knowledgeScenario");
         if (scenario != null && !String.valueOf(scenario).isBlank()) {
@@ -168,6 +218,12 @@ public class DefaultPromptResolver implements PromptResolver {
         return defaultScenarioCode;
     }
 
+    /**
+     * 执行extract查询。
+     *
+     * @param context 上下文
+     * @return 执行结果
+     */
     private String extractQuery(ExecutionContext context) {
         Object question = context.request().input().get("question");
         if (question != null && !String.valueOf(question).isBlank()) {
@@ -176,6 +232,12 @@ public class DefaultPromptResolver implements PromptResolver {
         return context.request().input().toString();
     }
 
+    /**
+     * 执行resolveScenario编码。
+     *
+     * @param capabilityCode 能力编码
+     * @return 执行结果
+     */
     private String resolveScenarioCode(String capabilityCode) {
         String[] parts = capabilityCode.split("\\.");
         if (parts.length >= 2) {
@@ -184,6 +246,12 @@ public class DefaultPromptResolver implements PromptResolver {
         return capabilityCode;
     }
 
+    /**
+     * 校验参数。
+     *
+     * @param promptTemplate 提示词Template
+     * @param context 上下文
+     */
     private void validateRequiredVariables(PromptTemplate promptTemplate, ExecutionContext context) {
         SchemaDefinition variableSchema = promptTemplate.variableSchema();
         List<String> missingVariables = variableSchema.properties().entrySet().stream()
@@ -202,6 +270,12 @@ public class DefaultPromptResolver implements PromptResolver {
         }
     }
 
+    /**
+     * 查找UnresolvedVariables。
+     *
+     * @param renderedPrompt rendered提示词
+     * @return 查找结果
+     */
     private List<String> findUnresolvedVariables(String renderedPrompt) {
         Matcher matcher = PLACEHOLDER_PATTERN.matcher(renderedPrompt);
         Set<String> unresolvedVariables = new LinkedHashSet<>();

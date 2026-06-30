@@ -2,9 +2,15 @@ package cn.cyc.ai.cog.platform.iam.support;
 
 /**
  * 认证相关安全配置键常量。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class AuthConfigKeys {
 
+    /**
+     * 创建AuthConfigKeys。
+     */
     private AuthConfigKeys() {
     }
 

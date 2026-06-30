@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
  * 本地 Tool 注册表。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class LocalToolRegistry {

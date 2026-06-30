@@ -2,9 +2,15 @@ package cn.cyc.ai.cog.platform.billing.entity;
 
 /**
  * 订阅周期阶段常量。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class SubscriptionPhase {
 
+    /**
+     * 创建SubscriptionPhase。
+     */
     private SubscriptionPhase() {
     }
 

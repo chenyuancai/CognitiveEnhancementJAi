@@ -7,6 +7,7 @@ import cn.cyc.ai.cog.core.runtime.CapabilityExecuteResponse;
  * 能力运行时入口。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface CapabilityRuntime {
 

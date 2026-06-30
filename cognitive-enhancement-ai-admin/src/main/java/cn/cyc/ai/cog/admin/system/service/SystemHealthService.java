@@ -12,12 +12,21 @@ import java.util.Map;
 
 /**
  * 系统健康探针：数据库实测 + 其余组件占位。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class SystemHealthService {
 
+    /** 数据来源。 */
     private final DataSource dataSource;
 
+    /**
+     * 创建SystemHealth服务。
+     *
+     * @param dataSource 数据来源
+     */
     public SystemHealthService(DataSource dataSource) {
         this.dataSource = dataSource;
     }
@@ -70,6 +79,12 @@ public class SystemHealthService {
         return item;
     }
 
+    /**
+     * 执行aggregate状态。
+     *
+     * @param services services
+     * @return 执行结果
+     */
     private String aggregateStatus(List<Map<String, Object>> services) {
         boolean anyDown = services.stream().anyMatch(s -> "DOWN".equals(s.get("status")));
         if (anyDown) {

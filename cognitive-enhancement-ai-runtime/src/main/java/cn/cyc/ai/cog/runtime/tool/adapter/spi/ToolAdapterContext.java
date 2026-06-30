@@ -7,10 +7,8 @@ import cn.cyc.ai.cog.runtime.api.ToolInvocationRequest;
 /**
  * Tool Adapter 调用上下文。
  *
- * @param executionContext 执行上下文
- * @param tool             Tool 定义
- * @param request          Tool 调用请求
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ToolAdapterContext(
         ExecutionContext executionContext,

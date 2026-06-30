@@ -6,6 +6,9 @@ import cn.cyc.ai.cog.platform.iam.dto.UserPageQuery;
 
 /**
  * IAM 用户仓储接口。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface IamUserRepository {
 

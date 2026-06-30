@@ -7,6 +7,9 @@ import java.io.InputStream;
 
 /**
  * 文件二进制对象存储策略（磁盘 / MinIO / S3 等可替换实现）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface FileStorageStrategy {
 

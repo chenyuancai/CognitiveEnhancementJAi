@@ -22,6 +22,7 @@ import java.util.Map;
  * 默认审计记录器。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class LoggingAuditRecorder implements AuditRecorder {
@@ -81,6 +82,14 @@ public class LoggingAuditRecorder implements AuditRecorder {
         return recordRuntimeFailure(context, failureReason, null);
     }
 
+    /**
+     * 执行record运行时失败。
+     *
+     * @param context 上下文
+     * @param failureReason 失败原因
+     * @param cause cause
+     * @return 执行结果
+     */
     @Override
     public AuditLogRecord recordRuntimeFailure(ExecutionContext context, String failureReason, Throwable cause) {
         Map<String, Object> detail = new LinkedHashMap<>();
@@ -162,6 +171,10 @@ public class LoggingAuditRecorder implements AuditRecorder {
         return record;
     }
 
+    /**
+     * 执行运行时Record。
+     * @return 执行结果
+     */
     private AuditLogRecord runtimeRecord(ExecutionContext context,
                                          String action,
                                          boolean success,

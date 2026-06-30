@@ -6,9 +6,13 @@ import cn.cyc.ai.cog.api.enums.EnableStatus;
  * 平台通用常量（借鉴 zcloud-core-common 约定）。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class CommonConstants {
 
+    /**
+     * 创建Common常量定义。
+     */
     private CommonConstants() {
     }
 

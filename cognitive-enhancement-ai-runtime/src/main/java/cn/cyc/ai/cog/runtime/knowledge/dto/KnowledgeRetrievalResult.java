@@ -7,11 +7,8 @@ import java.util.List;
 /**
  * 知识检索结果。
  *
- * @param query        检索关键词
- * @param scenarioCode 场景编码
- * @param total        命中总量
- * @param items        知识片段列表
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record KnowledgeRetrievalResult(
         String query,

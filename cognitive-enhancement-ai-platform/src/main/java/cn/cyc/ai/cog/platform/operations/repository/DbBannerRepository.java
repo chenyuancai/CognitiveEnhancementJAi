@@ -20,6 +20,9 @@ import java.util.List;
 
 /**
  * Banner 仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbBannerRepository implements BannerRepository {
@@ -34,6 +37,12 @@ public class DbBannerRepository implements BannerRepository {
         this.bannerMapper = bannerMapper;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Override
     public PageResult<Banner> page(BannerPageQuery query) {
         LambdaQueryWrapper<BannerEntity> wrapper = new LambdaQueryWrapper<>();
@@ -52,11 +61,24 @@ public class DbBannerRepository implements BannerRepository {
                 page.getTotal(), page.getCurrent(), page.getSize());
     }
 
+    /**
+     * 查找人ID。
+     *
+     * @param id 主键 ID
+     * @return 查找结果
+     */
     @Override
     public Banner findById(Long id) {
         return toDomain(getExisting(id));
     }
 
+    /**
+     * 查询Active人Position列表。
+     *
+     * @param position position
+     * @param now now
+     * @return 结果列表
+     */
     @Override
     public List<Banner> listActiveByPosition(String position, LocalDateTime now) {
         LocalDateTime effective = now == null ? LocalDateTime.now() : now;
@@ -72,6 +94,13 @@ public class DbBannerRepository implements BannerRepository {
                 .toList();
     }
 
+    /**
+     * 判断是否为Active。
+     *
+     * @param banner banner
+     * @param now now
+     * @return 是否满足条件
+     */
     private boolean isActive(Banner banner, LocalDateTime now) {
         if (banner.startTime() != null && banner.startTime().isAfter(now)) {
             return false;
@@ -82,6 +111,12 @@ public class DbBannerRepository implements BannerRepository {
         return true;
     }
 
+    /**
+     * 创建Item。
+     *
+     * @param request 请求
+     * @return 创建结果
+     */
     @Override
     public Banner create(BannerSaveRequest request) {
         BannerEntity entity = toEntity(request, new BannerEntity());
@@ -89,6 +124,13 @@ public class DbBannerRepository implements BannerRepository {
         return toDomain(entity);
     }
 
+    /**
+     * 更新Item。
+     *
+     * @param id 主键 ID
+     * @param request 请求
+     * @return 更新结果
+     */
     @Override
     public Banner update(Long id, BannerSaveRequest request) {
         BannerEntity entity = toEntity(request, getExisting(id));
@@ -96,12 +138,24 @@ public class DbBannerRepository implements BannerRepository {
         return toDomain(entity);
     }
 
+    /**
+     * 删除Item。
+     *
+     * @param id 主键 ID
+     */
     @Override
     public void delete(Long id) {
         getExisting(id);
         bannerMapper.deleteById(id);
     }
 
+    /**
+     * 转换为实体。
+     *
+     * @param request 请求
+     * @param entity 实体
+     * @return 转换结果
+     */
     private BannerEntity toEntity(BannerSaveRequest request, BannerEntity entity) {
         entity.setTitle(request.getTitle().trim());
         entity.setImageUrl(request.getImageUrl().trim());
@@ -115,6 +169,12 @@ public class DbBannerRepository implements BannerRepository {
         return entity;
     }
 
+    /**
+     * 获取Existing。
+     *
+     * @param id 主键 ID
+     * @return Existing
+     */
     private BannerEntity getExisting(Long id) {
         BannerEntity entity = bannerMapper.selectById(id);
         if (entity == null) {
@@ -123,6 +183,12 @@ public class DbBannerRepository implements BannerRepository {
         return entity;
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private Banner toDomain(BannerEntity entity) {
         return new Banner(
                 entity.getId(),

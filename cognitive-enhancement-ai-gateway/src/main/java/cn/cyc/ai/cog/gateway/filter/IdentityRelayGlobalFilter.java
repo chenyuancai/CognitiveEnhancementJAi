@@ -19,17 +19,33 @@ import java.util.List;
 
 /**
  * 身份透传（方案 B）：将 JWT 解析为内部请求头。方案 A 下不启用。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 @ConditionalOnProperty(name = "cog.gateway.api-auth.enabled", havingValue = "true")
 public class IdentityRelayGlobalFilter implements GlobalFilter, Ordered {
 
+    /** compositeBearerIdentityParser。 */
     private final GatewayCompositeBearerIdentityParser compositeBearerIdentityParser;
 
+    /**
+     * 创建IdentityRelayGlobal过滤器。
+     *
+     * @param compositeBearerIdentityParser compositeBearerIdentityParser
+     */
     public IdentityRelayGlobalFilter(GatewayCompositeBearerIdentityParser compositeBearerIdentityParser) {
         this.compositeBearerIdentityParser = compositeBearerIdentityParser;
     }
 
+    /**
+     * 执行过滤器。
+     *
+     * @param exchange exchange
+     * @param chain chain
+     * @return 执行结果
+     */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         AuthUser verified = exchange.getAttribute(SecurityConstants.GATEWAY_AUTH_USER_ATTR);
@@ -44,6 +60,12 @@ public class IdentityRelayGlobalFilter implements GlobalFilter, Ordered {
                 .flatMap(chain::filter);
     }
 
+    /**
+     * 执行mutateFromLegacyBearer。
+     *
+     * @param exchange exchange
+     * @return 执行结果
+     */
     private ServerWebExchange mutateFromLegacyBearer(ServerWebExchange exchange) {
         String authorization = exchange.getRequest().getHeaders().getFirst(SecurityConstants.AUTHORIZATION_HEADER);
         AuthUser user = compositeBearerIdentityParser.parseBearer(authorization);
@@ -53,6 +75,13 @@ public class IdentityRelayGlobalFilter implements GlobalFilter, Ordered {
         return mutate(exchange, user);
     }
 
+    /**
+     * 执行mutateFromOAuth2Jwt。
+     *
+     * @param exchange exchange
+     * @param jwt jwt
+     * @return 执行结果
+     */
     private ServerWebExchange mutateFromOAuth2Jwt(ServerWebExchange exchange, Jwt jwt) {
         AuthUser user = compositeBearerIdentityParser.parseBearer(
                 SecurityConstants.BEARER_PREFIX + jwt.getTokenValue());
@@ -67,6 +96,13 @@ public class IdentityRelayGlobalFilter implements GlobalFilter, Ordered {
         return mutate(exchange, user);
     }
 
+    /**
+     * 执行mutate。
+     *
+     * @param exchange exchange
+     * @param user 用户
+     * @return 执行结果
+     */
     private ServerWebExchange mutate(ServerWebExchange exchange, AuthUser user) {
         ServerHttpRequest request = exchange.getRequest().mutate()
                 .headers(headers -> {
@@ -83,11 +119,25 @@ public class IdentityRelayGlobalFilter implements GlobalFilter, Ordered {
         return exchange.mutate().request(request).build();
     }
 
+    /**
+     * 执行claimAsString。
+     *
+     * @param jwt jwt
+     * @param name 名称
+     * @return 执行结果
+     */
     private String claimAsString(Jwt jwt, String name) {
         Object value = jwt.getClaim(name);
         return value == null ? "" : String.valueOf(value);
     }
 
+    /**
+     * 执行claimAsCsv。
+     *
+     * @param jwt jwt
+     * @param name 名称
+     * @return 执行结果
+     */
     @SuppressWarnings("unchecked")
     private List<String> claimAsCsv(Jwt jwt, String name) {
         Object value = jwt.getClaim(name);
@@ -97,14 +147,32 @@ public class IdentityRelayGlobalFilter implements GlobalFilter, Ordered {
         return value == null ? List.of() : List.of(String.valueOf(value));
     }
 
+    /**
+     * 执行joinCsv。
+     *
+     * @param values values
+     * @return 执行结果
+     */
     private String joinCsv(List<String> values) {
         return values == null || values.isEmpty() ? "" : String.join(",", values);
     }
 
+    /**
+     * 执行nullToEmpty。
+     *
+     * @param value 值
+     * @return 执行结果
+     */
     private String nullToEmpty(String value) {
         return value == null ? "" : value;
     }
 
+    /**
+     * 执行parseLong。
+     *
+     * @param value 值
+     * @return 执行结果
+     */
     private Long parseLong(String value) {
         if (!StringUtils.hasText(value)) {
             return null;
@@ -116,6 +184,10 @@ public class IdentityRelayGlobalFilter implements GlobalFilter, Ordered {
         }
     }
 
+    /**
+     * 获取订单。
+     * @return 订单
+     */
     @Override
     public int getOrder() {
         return Ordered.LOWEST_PRECEDENCE - 100;

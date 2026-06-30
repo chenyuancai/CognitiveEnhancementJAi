@@ -17,18 +17,33 @@ import java.util.List;
 
 /**
  * C 端运营投放接口（Banner / 公告）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "App-运营投放", description = "Banner 与公告只读查询")
 @RestController
 @RequestMapping("/api/app/ops")
 public class AppOpsController {
 
+    /** C端Ops服务。 */
     private final AppOpsService appOpsService;
 
+    /**
+     * 创建C端Ops接口。
+     *
+     * @param appOpsService C端Ops服务
+     */
     public AppOpsController(AppOpsService appOpsService) {
         this.appOpsService = appOpsService;
     }
 
+    /**
+     * 执行banners。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Operation(summary = "生效 Banner 列表", description = "按展示位与生效时间过滤，默认 HOME_TOP。")
     @PostMapping("/banners/page")
     public ApiResponse<List<AppBannerVO>> banners(@RequestBody(required = false) AppBannerQuery query) {
@@ -36,6 +51,10 @@ public class AppOpsController {
         return ApiResponse.success(appOpsService.listActiveBanners(position));
     }
 
+    /**
+     * 执行announcements。
+     * @return 执行结果
+     */
     @Operation(summary = "已发布公告列表")
     @GetMapping("/announcements")
     public ApiResponse<List<AppAnnouncementVO>> announcements() {

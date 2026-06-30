@@ -2,9 +2,15 @@ package cn.cyc.ai.cog.platform.billing.support;
 
 /**
  * 计费相关安全配置键常量。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class BillingConfigKeys {
 
+    /**
+     * 创建BillingConfigKeys。
+     */
     private BillingConfigKeys() {
     }
 

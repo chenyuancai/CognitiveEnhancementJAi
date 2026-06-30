@@ -5,6 +5,12 @@ import cn.cyc.ai.cog.platform.operations.domain.MessageTemplate;
 import cn.cyc.ai.cog.platform.operations.dto.MessageTemplatePageQuery;
 import cn.cyc.ai.cog.platform.operations.dto.MessageTemplateSaveRequest;
 
+/**
+ * 消息Template仓储
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 public interface MessageTemplateRepository {
 
     PageResult<MessageTemplate> page(MessageTemplatePageQuery query);

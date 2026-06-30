@@ -18,6 +18,9 @@ import org.springframework.stereotype.Service;
 
 /**
  * 管理端用户查询与状态治理服务。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class UserAdminService {
@@ -88,6 +91,12 @@ public class UserAdminService {
         return toResult(updated);
     }
 
+    /**
+     * 转换为结果。
+     *
+     * @param user 用户
+     * @return 转换结果
+     */
     private UserAdminResult toResult(IamUser user) {
         UserAdminResult result = new UserAdminResult();
         result.setId(String.valueOf(user.id()));

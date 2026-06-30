@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
  * 场景知识绑定 Mapper。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Mapper
 public interface ScenarioKnowledgeBindingMapper extends BaseMapper<ScenarioKnowledgeBindingEntity> {

@@ -21,14 +21,23 @@ import java.util.Optional;
 
 /**
  * 字典类型 MyBatis 仓储实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbDictTypeRepository implements DictTypeRepository {
 
+    /** dict类型Mapper。 */
     private final DictTypeMapper dictTypeMapper;
+    /** dictItem仓储。 */
     private final DictItemRepository dictItemRepository;
+    /** base服务Properties。 */
     private final BaseServiceProperties baseServiceProperties;
 
+    /**
+     * 创建DbDict类型仓储。
+     */
     public DbDictTypeRepository(DictTypeMapper dictTypeMapper,
                                 @Lazy DictItemRepository dictItemRepository,
                                 BaseServiceProperties baseServiceProperties) {
@@ -37,6 +46,13 @@ public class DbDictTypeRepository implements DictTypeRepository {
         this.baseServiceProperties = baseServiceProperties;
     }
 
+    /**
+     * 执行save。
+     *
+     * @param dictKind dictKind
+     * @param request 请求
+     * @return 执行结果
+     */
     @Override
     public DictType save(int dictKind, DictTypeSaveRequest request) {
         String bizCode = resolveBizCode(request.getBizCode());
@@ -64,6 +80,11 @@ public class DbDictTypeRepository implements DictTypeRepository {
         return DictConverter.toType(entity);
     }
 
+    /**
+     * 删除人ID。
+     *
+     * @param id 主键 ID
+     */
     @Override
     public void deleteById(Long id) {
         requireEntity(id);
@@ -71,12 +92,28 @@ public class DbDictTypeRepository implements DictTypeRepository {
         dictTypeMapper.deleteById(id);
     }
 
+    /**
+     * 查找人ID。
+     *
+     * @param id 主键 ID
+     * @return 查找结果
+     */
     @Override
     public Optional<DictType> findById(Long id) {
         DictTypeEntity entity = dictTypeMapper.selectById(id);
         return Optional.ofNullable(entity).map(DictConverter::toType);
     }
 
+    /**
+     * 查找人编码。
+     *
+     * @param dictKind dictKind
+     * @param bizCode biz编码
+     * @param shareScope shareScope
+     * @param tenantId 租户 ID
+     * @param code 编码
+     * @return 查找结果
+     */
     @Override
     public Optional<DictType> findByCode(int dictKind, String bizCode, String shareScope, Long tenantId, String code) {
         DictTypeEntity entity = dictTypeMapper.selectOne(new LambdaQueryWrapper<DictTypeEntity>()
@@ -88,6 +125,13 @@ public class DbDictTypeRepository implements DictTypeRepository {
         return Optional.ofNullable(entity).map(DictConverter::toType);
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param dictKind dictKind
+     * @param query 查询
+     * @return 执行结果
+     */
     @Override
     public PageResult<DictType> page(int dictKind, DictTypePageQuery query) {
         String bizCode = resolveBizCode(query.getBizCode());
@@ -107,6 +151,13 @@ public class DbDictTypeRepository implements DictTypeRepository {
         return PageResult.of(records, page.getTotal(), page.getCurrent(), page.getSize());
     }
 
+    /**
+     * 查询人编码列表。
+     *
+     * @param dictKind dictKind
+     * @param code 编码
+     * @return 结果列表
+     */
     @Override
     public List<DictType> listByCode(int dictKind, String code) {
         LambdaQueryWrapper<DictTypeEntity> wrapper = new LambdaQueryWrapper<DictTypeEntity>()
@@ -119,6 +170,9 @@ public class DbDictTypeRepository implements DictTypeRepository {
         return dictTypeMapper.selectList(wrapper).stream().map(DictConverter::toType).toList();
     }
 
+    /**
+     * 执行assert编码Unique。
+     */
     private void assertCodeUnique(int dictKind, String bizCode, String shareScope, Long tenantId,
                                   String code, Long excludeId) {
         LambdaQueryWrapper<DictTypeEntity> wrapper = new LambdaQueryWrapper<DictTypeEntity>()
@@ -133,6 +187,12 @@ public class DbDictTypeRepository implements DictTypeRepository {
         Errors.throwIf(dictTypeMapper.selectCount(wrapper) > 0, PlatformErrorCode.DICT_TYPE_CODE_DUPLICATE);
     }
 
+    /**
+     * 执行require实体。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     private DictTypeEntity requireEntity(Long id) {
         DictTypeEntity entity = dictTypeMapper.selectById(id);
         if (entity == null) {
@@ -141,10 +201,22 @@ public class DbDictTypeRepository implements DictTypeRepository {
         return entity;
     }
 
+    /**
+     * 执行resolveBiz编码。
+     *
+     * @param bizCode biz编码
+     * @return 执行结果
+     */
     private String resolveBizCode(String bizCode) {
         return StringUtils.hasText(bizCode) ? bizCode.trim() : baseServiceProperties.getDefaultBizCode();
     }
 
+    /**
+     * 执行resolveShareScope。
+     *
+     * @param shareScope shareScope
+     * @return 执行结果
+     */
     private String resolveShareScope(String shareScope) {
         return StringUtils.hasText(shareScope) ? shareScope.trim() : baseServiceProperties.getDefaultShareScope();
     }

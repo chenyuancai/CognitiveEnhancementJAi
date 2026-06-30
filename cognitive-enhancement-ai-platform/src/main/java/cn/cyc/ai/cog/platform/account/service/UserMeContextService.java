@@ -25,6 +25,9 @@ import org.springframework.stereotype.Service;
  * 供 C 端 {@code /api/app/auth/me} 与 Admin {@code /api/admin/auth/me} 共用账户域数据，
  * RBAC/菜单由 Admin 侧 {@link cn.cyc.ai.cog.admin.auth.service.AuthMeService} 额外补充。
  * </p>
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class UserMeContextService {
@@ -101,6 +104,12 @@ public class UserMeContextService {
         return context;
     }
 
+    /**
+     * 执行resolve账户。
+     *
+     * @param user 用户
+     * @return 执行结果
+     */
     private Account resolveAccount(IamUser user) {
         if (user.primaryAccountId() != null) {
             Account account = accountRepository.findById(user.primaryAccountId());
@@ -115,16 +124,29 @@ public class UserMeContextService {
         return account;
     }
 
+    /**
+     * 转换为用户。
+     *
+     * @param user 用户
+     * @return 转换结果
+     */
     private UserMeContext.UserSnapshot toUser(IamUser user) {
         UserMeContext.UserSnapshot snapshot = new UserMeContext.UserSnapshot();
         snapshot.setId(user.id());
         snapshot.setUsername(user.username());
         snapshot.setNickname(user.nickname());
+        snapshot.setEmail(user.email());
         snapshot.setAvatarUrl(user.avatarUrl());
         snapshot.setStatus(user.status());
         return snapshot;
     }
 
+    /**
+     * 转换为账户。
+     *
+     * @param account 账户
+     * @return 转换结果
+     */
     private UserMeContext.AccountSnapshot toAccount(Account account) {
         UserMeContext.AccountSnapshot snapshot = new UserMeContext.AccountSnapshot();
         snapshot.setId(account.id());
@@ -134,6 +156,12 @@ public class UserMeContextService {
         return snapshot;
     }
 
+    /**
+     * 转换为Organization。
+     *
+     * @param accountId 账户ID
+     * @return 转换结果
+     */
     private UserMeContext.OrganizationSnapshot toOrganization(Long accountId) {
         Organization org = organizationRepository.findByAccountId(accountId);
         if (org == null) {
@@ -146,6 +174,12 @@ public class UserMeContextService {
         return snapshot;
     }
 
+    /**
+     * 转换为会员。
+     *
+     * @param membership 会员
+     * @return 转换结果
+     */
     private UserMeContext.MembershipSnapshot toMembership(AccountMembership membership) {
         if (membership == null) {
             return null;
@@ -157,6 +191,12 @@ public class UserMeContextService {
         return snapshot;
     }
 
+    /**
+     * 转换为额度。
+     *
+     * @param quota 额度
+     * @return 转换结果
+     */
     private UserMeContext.QuotaSnapshot toQuota(QuotaAccount quota) {
         if (quota == null) {
             return null;

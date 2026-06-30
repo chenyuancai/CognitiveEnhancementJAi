@@ -6,6 +6,9 @@ import java.util.Objects;
 
 /**
  * 核心元数据域使用的 Schema 定义对象。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record SchemaDefinition(
         String type,

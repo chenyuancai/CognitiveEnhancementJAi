@@ -17,13 +17,23 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 /**
  * Base-Server 统一异常处理。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Hidden
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    /**
+     * 处理业务异常。
+     *
+     * @param exception 业务异常
+     * @return 统一错误响应
+     */
     @ExceptionHandler(ServiceException.class)
     public ResponseEntity<ApiResponse<Void>> handleServiceException(ServiceException exception) {
         ErrorCode errorCode = exception.getCategory() != null
@@ -33,6 +43,12 @@ public class GlobalExceptionHandler {
         return buildResponse(errorCode, exception.getMessage());
     }
 
+    /**
+     * 处理参数校验异常。
+     *
+     * @param exception 校验异常
+     * @return 统一错误响应
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleValidation(MethodArgumentNotValidException exception) {
         String message = exception.getBindingResult().getFieldErrors().stream()
@@ -42,6 +58,12 @@ public class GlobalExceptionHandler {
         return buildResponse(ErrorCode.BAD_REQUEST, message);
     }
 
+    /**
+     * 处理非法请求异常。
+     *
+     * @param exception 异常
+     * @return 统一错误响应
+     */
     @ExceptionHandler({
             IllegalArgumentException.class,
             MissingServletRequestParameterException.class,
@@ -52,12 +74,25 @@ public class GlobalExceptionHandler {
         return buildResponse(ErrorCode.BAD_REQUEST, exception.getMessage());
     }
 
+    /**
+     * 处理请求。
+     *
+     * @param exception 异常对象
+     * @return 统一错误响应
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception exception) {
         log.error("未处理异常", exception);
         return buildResponse(ErrorCode.SYSTEM_ERROR, ErrorCode.SYSTEM_ERROR.getMessage());
     }
 
+    /**
+     * 构建响应。
+     *
+     * @param errorCode 错误编码
+     * @param message 消息
+     * @return 构建结果
+     */
     private ResponseEntity<ApiResponse<Void>> buildResponse(ErrorCode errorCode, String message) {
         return ResponseEntity.status(HttpStatusCode.valueOf(errorCode.getHttpStatus()))
                 .body(ApiResponse.failure(errorCode, message, null));

@@ -5,6 +5,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * 支付回调验签配置（占位，生产需对接真实渠道密钥）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 @ConfigurationProperties(prefix = "cog.billing.pay-callback")

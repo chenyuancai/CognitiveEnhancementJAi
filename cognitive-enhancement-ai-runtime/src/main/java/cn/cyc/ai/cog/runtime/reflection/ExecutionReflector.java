@@ -16,13 +16,22 @@ import java.util.function.Function;
  * 执行自反思器：对低质量 LLM 回答进行一次修正重试。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class ExecutionReflector {
 
+    /** properties。 */
     private final ReflectionProperties properties;
+    /** 链路SpanRecorder。 */
     private final TraceSpanRecorder traceSpanRecorder;
 
+    /**
+     * 创建ExecutionReflector。
+     *
+     * @param properties properties
+     * @param traceSpanRecorder 链路SpanRecorder
+     */
     public ExecutionReflector(ReflectionProperties properties, TraceSpanRecorder traceSpanRecorder) {
         this.properties = properties;
         this.traceSpanRecorder = traceSpanRecorder;
@@ -65,12 +74,24 @@ public class ExecutionReflector {
         }
     }
 
+    /**
+     * 执行resolveMaxRetries。
+     *
+     * @param context 上下文
+     * @return 执行结果
+     */
     private int resolveMaxRetries(ExecutionContext context) {
         return RuntimeContextParameters.integer(context, "reflectionMaxRetries")
                 .filter(value -> value >= 0)
                 .orElse(properties.getMaxRetries());
     }
 
+    /**
+     * 执行needsReflection。
+     *
+     * @param result 结果
+     * @return 执行结果
+     */
     private boolean needsReflection(LlmInvocationResult result) {
         String answer = result.answer();
         if (!StringUtils.hasText(answer)) {
@@ -86,6 +107,13 @@ public class ExecutionReflector {
                 .anyMatch(normalized::contains);
     }
 
+    /**
+     * 构建Reflection提示词。
+     *
+     * @param originalPromptInput original提示词输入
+     * @param initialResult initial结果
+     * @return 构建结果
+     */
     private Object buildReflectionPrompt(Object originalPromptInput, LlmInvocationResult initialResult) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("instruction", """
@@ -97,6 +125,12 @@ public class ExecutionReflector {
         return payload;
     }
 
+    /**
+     * 执行回答Length。
+     *
+     * @param result 结果
+     * @return 执行结果
+     */
     private int answerLength(LlmInvocationResult result) {
         return result.answer() == null ? 0 : result.answer().length();
     }

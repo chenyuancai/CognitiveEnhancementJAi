@@ -13,12 +13,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
  * 持久化会话仓储。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true")
@@ -43,6 +45,12 @@ public class PersistentConversationSessionRepository implements ConversationSess
         this.conversationSessionMapper = conversationSessionMapper;
     }
 
+    /**
+     * 查找人会话ID。
+     *
+     * @param sessionId 会话 ID
+     * @return 查找结果
+     */
     @Override
     public Optional<ConversationSession> findBySessionId(String sessionId) {
         LambdaQueryWrapper<ConversationSessionEntity> queryWrapper = new LambdaQueryWrapper<ConversationSessionEntity>()
@@ -52,6 +60,11 @@ public class PersistentConversationSessionRepository implements ConversationSess
                 .map(this::toDomain);
     }
 
+    /**
+     * 执行save。
+     *
+     * @param session 会话
+     */
     @Override
     public void save(ConversationSession session) {
         LambdaQueryWrapper<ConversationSessionEntity> queryWrapper = new LambdaQueryWrapper<ConversationSessionEntity>()
@@ -69,6 +82,22 @@ public class PersistentConversationSessionRepository implements ConversationSess
         log.debug("持久化更新会话, sessionId={}, userId={}", session.sessionId(), session.userId());
     }
 
+    @Override
+    public List<ConversationSession> listByUserAndCapability(String userId, String capabilityCode) {
+        LambdaQueryWrapper<ConversationSessionEntity> queryWrapper = new LambdaQueryWrapper<ConversationSessionEntity>()
+                .eq(ConversationSessionEntity::getTenantId, TenantContext.currentTenantId())
+                .eq(ConversationSessionEntity::getUserId, userId)
+                .eq(capabilityCode != null, ConversationSessionEntity::getCapabilityCode, capabilityCode)
+                .orderByDesc(ConversationSessionEntity::getUpdatedAt);
+        return conversationSessionMapper.selectList(queryWrapper).stream().map(this::toDomain).toList();
+    }
+
+    /**
+     * 转换为实体。
+     *
+     * @param session 会话
+     * @return 转换结果
+     */
     private ConversationSessionEntity toEntity(ConversationSession session) {
         ConversationSessionEntity entity = new ConversationSessionEntity();
         entity.setTenantId(TenantIds.resolveId(session.tenantCode()));
@@ -82,6 +111,12 @@ public class PersistentConversationSessionRepository implements ConversationSess
         return entity;
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private ConversationSession toDomain(ConversationSessionEntity entity) {
         return new ConversationSession(
                 TenantIds.toCode(entity.getTenantId()),

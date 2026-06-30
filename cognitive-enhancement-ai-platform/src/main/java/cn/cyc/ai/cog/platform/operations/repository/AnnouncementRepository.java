@@ -8,6 +8,12 @@ import cn.cyc.ai.cog.platform.operations.dto.AnnouncementSaveRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Announcement仓储
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 public interface AnnouncementRepository {
 
     PageResult<Announcement> page(AnnouncementPageQuery query);

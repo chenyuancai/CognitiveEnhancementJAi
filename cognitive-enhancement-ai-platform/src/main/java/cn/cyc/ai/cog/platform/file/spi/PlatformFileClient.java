@@ -7,6 +7,9 @@ import java.util.List;
 
 /**
  * 平台侧文件访问 SPI：由 admin/app 进程通过 Feign 对接 base-server，测试环境可换内存实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface PlatformFileClient {
 
@@ -26,6 +29,11 @@ public interface PlatformFileClient {
      * 按 base 文件 ID 读取 UTF-8 文本。
      */
     String readText(Long fileId);
+
+    /**
+     * 按 base 文件 ID 下载原始字节（PDF 等二进制）。
+     */
+    byte[] downloadBytes(Long fileId);
 
     /**
      * 查询文件元数据。

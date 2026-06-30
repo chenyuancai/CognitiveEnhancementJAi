@@ -22,6 +22,7 @@ import java.util.UUID;
  * 文件处理服务。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class FileProcessingService {
@@ -35,7 +36,9 @@ public class FileProcessingService {
      * 文件解析任务仓储。
      */
     private final FileParseTaskRepository fileParseTaskRepository;
+    /** 文件内容Parser。 */
     private final FileContentParser fileContentParser;
+    /** JSON 序列化器 */
     private final ObjectMapper objectMapper;
 
     /**
@@ -155,6 +158,13 @@ public class FileProcessingService {
                 .orElseThrow(() -> new BusinessException("NOT_FOUND", "未找到文件解析结果: " + fileId));
     }
 
+    /**
+     * 构建Parse结果。
+     *
+     * @param upload upload
+     * @param text text
+     * @return 构建结果
+     */
     private String buildParseResult(FileUploadRecord upload, String text) {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("fileName", upload.fileName());
@@ -170,6 +180,12 @@ public class FileProcessingService {
         }
     }
 
+    /**
+     * 执行preview。
+     *
+     * @param text text
+     * @return 执行结果
+     */
     private String preview(String text) {
         if (text == null || text.length() <= 2000) {
             return text;

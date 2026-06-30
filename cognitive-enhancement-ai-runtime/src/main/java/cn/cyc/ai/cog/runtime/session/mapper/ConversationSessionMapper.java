@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
  * 会话 Mapper。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Mapper
 public interface ConversationSessionMapper extends BaseMapper<ConversationSessionEntity> {

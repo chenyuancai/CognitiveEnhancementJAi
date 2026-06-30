@@ -13,6 +13,9 @@ import java.time.LocalDateTime;
 
 /**
  * 免费会员订阅记录：注册赠送或手动授予 FREE 时写入 {@code qz_bill_subscription}。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class FreeSubscriptionService {
@@ -23,11 +26,17 @@ public class FreeSubscriptionService {
     /** FREE 默认订阅到期时间（永久有效，避免被过期任务误降级）。 */
     public static final LocalDateTime FREE_PERPETUAL_END = LocalDateTime.of(2099, 12, 31, 23, 59, 59);
 
+    /** FREE等级编码。 */
     private static final String FREE_LEVEL_CODE = "FREE";
 
+    /** subscription仓储。 */
     private final SubscriptionRepository subscriptionRepository;
+    /** subscriptionPackage仓储。 */
     private final SubscriptionPackageRepository subscriptionPackageRepository;
 
+    /**
+     * 创建FreeSubscription服务。
+     */
     public FreeSubscriptionService(SubscriptionRepository subscriptionRepository,
                                    SubscriptionPackageRepository subscriptionPackageRepository) {
         this.subscriptionRepository = subscriptionRepository;

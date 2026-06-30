@@ -21,19 +21,30 @@ import org.springframework.util.StringUtils;
  * PolicyHarness 默认实现：统一收口 RBAC、额度、限流、灰度租户启停、模型熔断预检与人工确认。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class DefaultPolicyHarness implements PolicyHarness {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(DefaultPolicyHarness.class);
 
+    /** properties。 */
     private final PolicyHarnessProperties properties;
+    /** 请求Security上下文。 */
     private final RuntimeRequestSecurityContext requestSecurityContext;
+    /** 运行时额度Limiter。 */
     private final RuntimeQuotaLimiter runtimeQuotaLimiter;
+    /** 运行时Usage账户服务。 */
     private final RuntimeUsageAccountService runtimeUsageAccountService;
+    /** 智能体Definition仓储。 */
     private final AgentDefinitionRepository agentDefinitionRepository;
+    /** 模型Governance。 */
     private final DefaultModelGovernance modelGovernance;
 
+    /**
+     * 创建DefaultPolicyHarness。
+     */
     public DefaultPolicyHarness(PolicyHarnessProperties properties,
                                 RuntimeRequestSecurityContext requestSecurityContext,
                                 RuntimeQuotaLimiter runtimeQuotaLimiter,
@@ -48,6 +59,13 @@ public class DefaultPolicyHarness implements PolicyHarness {
         this.modelGovernance = modelGovernance;
     }
 
+    /**
+     * 执行evaluate。
+     *
+     * @param capability 能力
+     * @param context 上下文
+     * @return 执行结果
+     */
     @Override
     public PolicyDecision evaluate(CapabilityDefinition capability, ExecutionContext context) {
         assertRoleAllowed(capability);
@@ -73,6 +91,11 @@ public class DefaultPolicyHarness implements PolicyHarness {
         );
     }
 
+    /**
+     * 执行assert角色Allowed。
+     *
+     * @param capability 能力
+     */
     private void assertRoleAllowed(CapabilityDefinition capability) {
         if (!properties.isRbacEnabled() || !requestSecurityContext.isAuthEnabled()) {
             return;
@@ -88,6 +111,12 @@ public class DefaultPolicyHarness implements PolicyHarness {
                 "无权执行能力 " + capability.capabilityCode() + "，需要角色: " + requiredRole);
     }
 
+    /**
+     * 执行required角色。
+     *
+     * @param riskLevel risk等级
+     * @return 执行结果
+     */
     private String requiredRole(RiskLevel riskLevel) {
         if (riskLevel == RiskLevel.HIGH) {
             return properties.getHighRiskRequiredRole();
@@ -98,6 +127,12 @@ public class DefaultPolicyHarness implements PolicyHarness {
         return "";
     }
 
+    /**
+     * 执行assert模型Available。
+     *
+     * @param capability 能力
+     * @param traceId 链路 Trace ID
+     */
     private void assertModelAvailable(CapabilityDefinition capability, String traceId) {
         if (!properties.isCircuitBreakerPreflightEnabled()) {
             return;
@@ -125,6 +160,12 @@ public class DefaultPolicyHarness implements PolicyHarness {
         }
     }
 
+    /**
+     * 构建成功原因。
+     *
+     * @param capability 能力
+     * @return 构建结果
+     */
     private String buildSuccessReason(CapabilityDefinition capability) {
         if (StringUtils.hasText(capability.version())) {
             return "策略检查通过, version=" + capability.version();
@@ -132,6 +173,12 @@ public class DefaultPolicyHarness implements PolicyHarness {
         return "策略检查通过";
     }
 
+    /**
+     * 执行humanConfirmed。
+     *
+     * @param context 上下文
+     * @return 执行结果
+     */
     private boolean humanConfirmed(ExecutionContext context) {
         Object value = context.request().parameters().get("humanConfirmed");
         return Boolean.TRUE.equals(value);

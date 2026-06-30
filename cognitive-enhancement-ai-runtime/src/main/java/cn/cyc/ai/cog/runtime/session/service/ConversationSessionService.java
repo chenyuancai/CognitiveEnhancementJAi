@@ -1,6 +1,7 @@
 package cn.cyc.ai.cog.runtime.session.service;
 
 import cn.cyc.ai.cog.common.context.UserContext;
+import cn.cyc.ai.cog.common.page.PageResult;
 import cn.cyc.ai.cog.core.exception.BusinessException;
 import cn.cyc.ai.cog.core.runtime.CapabilityExecuteRequest;
 import cn.cyc.ai.cog.core.runtime.CapabilityExecuteResponse;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +25,7 @@ import java.util.UUID;
  * 会话服务。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class ConversationSessionService {
@@ -99,6 +102,42 @@ public class ConversationSessionService {
     }
 
     /**
+     * 分页查询当前用户会话。
+     */
+    public PageResult<ConversationSession> pageMySessions(long current, long size, String capabilityCode) {
+        Long userId = UserContext.currentUserId();
+        if (userId == null) {
+            return PageResult.empty(current, size);
+        }
+        List<ConversationSession> all = conversationSessionRepository.listByUserAndCapability(
+                String.valueOf(userId), capabilityCode);
+        long page = current < 1 ? 1 : current;
+        long pageSize = size < 1 ? 10 : size;
+        int from = (int) ((page - 1) * pageSize);
+        if (from >= all.size()) {
+            return PageResult.empty(page, pageSize);
+        }
+        int to = (int) Math.min(from + pageSize, all.size());
+        return PageResult.of(new ArrayList<>(all.subList(from, to)), all.size(), page, pageSize);
+    }
+
+    /**
+     * 更新会话标题。
+     */
+    public void updateTitle(String sessionId, String title) {
+        ConversationSession session = getSession(sessionId);
+        conversationSessionRepository.save(new ConversationSession(
+                session.tenantCode(),
+                session.sessionId(),
+                session.userId(),
+                session.capabilityCode(),
+                title,
+                session.status(),
+                session.createdAt(),
+                Instant.now()));
+    }
+
+    /**
      * 追加会话消息。
      *
      * @param sessionId 会话 ID
@@ -148,6 +187,12 @@ public class ConversationSessionService {
         appendMessage(sessionId, MessageRole.ASSISTANT, extractAssistantContent(response), traceId);
     }
 
+    /**
+     * 执行extract用户内容。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     private String extractUserContent(CapabilityExecuteRequest request) {
         if (request == null || request.input() == null || request.input().isEmpty()) {
             return "";
@@ -156,6 +201,12 @@ public class ConversationSessionService {
         return question == null ? request.input().toString() : question.toString();
     }
 
+    /**
+     * 执行extractAssistant内容。
+     *
+     * @param response 响应
+     * @return 执行结果
+     */
     private String extractAssistantContent(CapabilityExecuteResponse response) {
         if (response == null || response.result() == null) {
             return "";
@@ -168,6 +219,12 @@ public class ConversationSessionService {
         return businessOutput == null ? result.output().toString() : businessOutput.toString();
     }
 
+    /**
+     * 执行resolveOwner用户ID。
+     *
+     * @param requestedUserId requested用户ID
+     * @return 执行结果
+     */
     private String resolveOwnerUserId(String requestedUserId) {
         Long currentUserId = UserContext.currentUserId();
         if (currentUserId == null) {
@@ -180,6 +237,11 @@ public class ConversationSessionService {
         return current;
     }
 
+    /**
+     * 校验参数。
+     *
+     * @param session 会话
+     */
     private void validateOwner(ConversationSession session) {
         Long currentUserId = UserContext.currentUserId();
         if (currentUserId != null

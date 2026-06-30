@@ -11,12 +11,24 @@ import cn.cyc.ai.cog.base.dict.entity.DictTypeEntity;
 
 /**
  * 字典对象转换。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class DictConverter {
 
+    /**
+     * 创建DictConverter。
+     */
     private DictConverter() {
     }
 
+    /**
+     * 转换为类型。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     public static DictType toType(DictTypeEntity entity) {
         return new DictType(
                 entity.getId(),
@@ -33,6 +45,12 @@ public final class DictConverter {
         );
     }
 
+    /**
+     * 转换为Item。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     public static DictItem toItem(DictItemEntity entity) {
         return new DictItem(
                 entity.getId(),
@@ -49,6 +67,12 @@ public final class DictConverter {
         );
     }
 
+    /**
+     * 转换为类型Vo。
+     *
+     * @param type 类型
+     * @return 转换结果
+     */
     public static DictTypeVO toTypeVo(DictType type) {
         DictTypeVO vo = new DictTypeVO();
         vo.setId(type.id());
@@ -65,6 +89,12 @@ public final class DictConverter {
         return vo;
     }
 
+    /**
+     * 转换为ItemVo。
+     *
+     * @param item item
+     * @return 转换结果
+     */
     public static DictItemVO toItemVo(DictItem item) {
         DictItemVO vo = new DictItemVO();
         vo.setId(item.id());
@@ -80,6 +110,12 @@ public final class DictConverter {
         return vo;
     }
 
+    /**
+     * 转换为类型TreeVo。
+     *
+     * @param type 类型
+     * @return 转换结果
+     */
     public static DictTypeTreeVO toTypeTreeVo(DictType type) {
         DictTypeTreeVO vo = new DictTypeTreeVO();
         vo.setId(type.id());
@@ -94,6 +130,12 @@ public final class DictConverter {
         return vo;
     }
 
+    /**
+     * 转换为ReadVo。
+     *
+     * @param item item
+     * @return 转换结果
+     */
     public static DictItemReadVO toReadVo(DictItem item) {
         DictItemReadVO vo = new DictItemReadVO();
         vo.setValue(item.value());

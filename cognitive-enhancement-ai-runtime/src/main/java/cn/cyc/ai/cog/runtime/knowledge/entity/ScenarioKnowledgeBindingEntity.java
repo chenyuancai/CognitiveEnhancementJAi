@@ -11,6 +11,7 @@ import java.time.Instant;
  * 场景知识绑定实体。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

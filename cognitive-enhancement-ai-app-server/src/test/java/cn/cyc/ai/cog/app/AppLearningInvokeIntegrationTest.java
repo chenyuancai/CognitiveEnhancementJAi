@@ -1,23 +1,24 @@
 package cn.cyc.ai.cog.app;
 
+import cn.cyc.ai.cog.common.jwt.SecurityConstants;
 import cn.cyc.ai.cog.core.metadata.type.CommonStatus;
 import cn.cyc.ai.cog.runtime.api.LlmHttpResponse;
 import cn.cyc.ai.cog.runtime.spi.LlmCredentialResolver;
 import cn.cyc.ai.cog.runtime.spi.LlmHttpExecutor;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.is;

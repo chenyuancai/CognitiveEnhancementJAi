@@ -7,12 +7,24 @@ import java.util.Map;
 
 /**
  * Schema DTO 与核心对象转换器。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class SchemaDtoMapper {
 
+    /**
+     * 创建SchemaDto数据访问 Mapper。
+     */
     private SchemaDtoMapper() {
     }
 
+    /**
+     * 转换为Dto。
+     *
+     * @param schemaDefinition SchemaDefinition
+     * @return 转换结果
+     */
     public static SchemaDto toDto(SchemaDefinition schemaDefinition) {
         if (schemaDefinition == null) {
             return null;
@@ -29,6 +41,12 @@ public final class SchemaDtoMapper {
         );
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param schemaDto SchemaDto
+     * @return 转换结果
+     */
     public static SchemaDefinition toDomain(SchemaDto schemaDto) {
         if (schemaDto == null) {
             return null;

@@ -7,16 +7,8 @@ import java.time.Instant;
 /**
  * 执行反馈记录。
  *
- * @param tenantCode       租户编码
- * @param feedbackId       反馈 ID
- * @param traceId          链路 TraceId
- * @param sessionId        会话 ID
- * @param rating           评分 1-5
- * @param originalAnswer   AI 原始回答
- * @param correctedAnswer  用户修正回答
- * @param comment          反馈备注
- * @param recordedAt       记录时间
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ExecutionFeedback(
         String tenantCode,

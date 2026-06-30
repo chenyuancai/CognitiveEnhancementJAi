@@ -20,6 +20,7 @@ import java.util.Map;
  * 权限点管理服务：权限树、自定义权限 CRUD。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class PermissionService {
@@ -119,6 +120,12 @@ public class PermissionService {
         permissionRepository.deleteById(id);
     }
 
+    /**
+     * 转换为实体。
+     *
+     * @param request 请求
+     * @return 转换结果
+     */
     private PermissionEntity toEntity(PermissionSaveRequest request) {
         PermissionEntity entity = new PermissionEntity();
         entity.setPermissionCode(request.getCode().trim());

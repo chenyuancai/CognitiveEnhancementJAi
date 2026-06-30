@@ -27,10 +27,12 @@ import java.util.stream.Collectors;
  * 角色管理服务：角色 CRUD、编码校验与权限点授权（按编码）。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class RoleService {
 
+    /** BUILTIN角色CODES。 */
     private static final Set<String> BUILTIN_ROLE_CODES = Set.of("ADMIN", "USER");
 
     /** 角色仓储 */
@@ -118,6 +120,12 @@ public class RoleService {
         return toResult(roleRepository.requireById(roleId));
     }
 
+    /**
+     * 执行resolve权限Ids。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     private List<Long> resolvePermissionIds(AssignPermissionRequest request) {
         if (request.getPermissionCodes() != null && !request.getPermissionCodes().isEmpty()) {
             List<PermissionEntity> permissions = permissionRepository.listByCodes(request.getPermissionCodes());
@@ -136,6 +144,12 @@ public class RoleService {
         return List.of();
     }
 
+    /**
+     * 转换为结果。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private RoleResult toResult(RoleEntity entity) {
         RoleResult result = new RoleResult();
         result.setId(entity.getId());
@@ -152,6 +166,12 @@ public class RoleService {
         return result;
     }
 
+    /**
+     * 执行resolveAvatarColor。
+     *
+     * @param roleCode 角色编码
+     * @return 执行结果
+     */
     private String resolveAvatarColor(String roleCode) {
         Map<String, String> colors = new HashMap<>();
         colors.put("ADMIN", "purple");

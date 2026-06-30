@@ -241,6 +241,17 @@ class RuntimeConversationContextManagerTest {
         public void save(ConversationSession session) {
             this.session = session;
         }
+
+        @Override
+        public List<ConversationSession> listByUserAndCapability(String userId, String capabilityCode) {
+            if (session == null || !userId.equals(session.userId())) {
+                return List.of();
+            }
+            if (capabilityCode != null && !capabilityCode.equals(session.capabilityCode())) {
+                return List.of();
+            }
+            return List.of(session);
+        }
     }
 
     private static class InMemoryMessageRepository implements ConversationMessageRepository {
@@ -255,6 +266,11 @@ class RuntimeConversationContextManagerTest {
         @Override
         public List<ConversationMessage> findBySessionId(String sessionId) {
             return List.copyOf(messages);
+        }
+
+        @Override
+        public Optional<ConversationMessage> findLatestBySessionId(String sessionId) {
+            return messages.isEmpty() ? Optional.empty() : Optional.of(messages.get(messages.size() - 1));
         }
     }
 }

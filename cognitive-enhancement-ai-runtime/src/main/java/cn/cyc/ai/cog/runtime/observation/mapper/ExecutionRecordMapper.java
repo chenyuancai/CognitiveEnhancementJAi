@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
  * 能力执行链路摘要 Mapper。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Mapper
 public interface ExecutionRecordMapper extends BaseMapper<ExecutionRecordEntity> {

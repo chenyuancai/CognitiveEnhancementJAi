@@ -18,6 +18,9 @@ import org.springframework.util.StringUtils;
  */
 /**
  * 组织仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbOrganizationRepository implements OrganizationRepository {
@@ -32,6 +35,12 @@ public class DbOrganizationRepository implements OrganizationRepository {
         this.organizationMapper = organizationMapper;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Override
     public PageResult<Organization> page(OrgPageQuery query) {
         LambdaQueryWrapper<OrganizationEntity> wrapper = new LambdaQueryWrapper<>();
@@ -47,6 +56,12 @@ public class DbOrganizationRepository implements OrganizationRepository {
                 page.getSize());
     }
 
+    /**
+     * 执行require人ID。
+     *
+     * @param orgId orgID
+     * @return 执行结果
+     */
     @Override
     public Organization requireById(Long orgId) {
         OrganizationEntity entity = organizationMapper.selectById(orgId);
@@ -56,6 +71,12 @@ public class DbOrganizationRepository implements OrganizationRepository {
         return toDomain(entity);
     }
 
+    /**
+     * 查找人账户ID。
+     *
+     * @param accountId 账户ID
+     * @return 查找结果
+     */
     @Override
     public Organization findByAccountId(Long accountId) {
         OrganizationEntity entity = organizationMapper.selectOne(new LambdaQueryWrapper<OrganizationEntity>()
@@ -64,6 +85,12 @@ public class DbOrganizationRepository implements OrganizationRepository {
         return entity == null ? null : toDomain(entity);
     }
 
+    /**
+     * 执行insert。
+     *
+     * @param organization organization
+     * @return 执行结果
+     */
     @Override
     public Organization insert(Organization organization) {
         OrganizationEntity entity = toEntity(organization);
@@ -71,6 +98,12 @@ public class DbOrganizationRepository implements OrganizationRepository {
         return toDomain(entity);
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private Organization toDomain(OrganizationEntity entity) {
         return new Organization(
                 entity.getId(),
@@ -87,6 +120,12 @@ public class DbOrganizationRepository implements OrganizationRepository {
         );
     }
 
+    /**
+     * 转换为实体。
+     *
+     * @param organization organization
+     * @return 转换结果
+     */
     private OrganizationEntity toEntity(Organization organization) {
         OrganizationEntity entity = new OrganizationEntity();
         entity.setId(organization.id());

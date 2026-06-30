@@ -24,15 +24,22 @@ import java.util.Objects;
  * Prompt 发布与灰度管理服务。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class PromptReleaseService {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(PromptReleaseService.class);
 
+    /** 提示词Template仓储。 */
     private final PromptTemplateRepository promptTemplateRepository;
+    /** releasePointer仓储。 */
     private final PromptReleasePointerRepository releasePointerRepository;
 
+    /**
+     * 创建提示词Release服务。
+     */
     public PromptReleaseService(PromptTemplateRepository promptTemplateRepository,
                                 PromptReleasePointerRepository releasePointerRepository) {
         this.promptTemplateRepository = promptTemplateRepository;
@@ -184,6 +191,13 @@ public class PromptReleaseService {
         return pointer;
     }
 
+    /**
+     * 执行resolveBaseTemplate。
+     *
+     * @param promptCode 提示词编码
+     * @param request 请求
+     * @return 执行结果
+     */
     private PromptTemplate resolveBaseTemplate(String promptCode, PromptDraftRequest request) {
         List<PromptTemplate> versions = promptTemplateRepository.listVersionsByPromptCode(promptCode);
         if (versions.isEmpty()) {
@@ -208,6 +222,13 @@ public class PromptReleaseService {
                 .orElseThrow();
     }
 
+    /**
+     * 执行resolveDraft版本号。
+     *
+     * @param promptCode 提示词编码
+     * @param requestedVersion requested版本号
+     * @return 执行结果
+     */
     private String resolveDraftVersion(String promptCode, String requestedVersion) {
         if (StringUtils.hasText(requestedVersion)) {
             promptTemplateRepository.findByPromptCodeAndVersion(promptCode, requestedVersion)
@@ -224,6 +245,12 @@ public class PromptReleaseService {
         return bumpPatchVersion(latest);
     }
 
+    /**
+     * 执行bumpPatch版本号。
+     *
+     * @param version 版本号
+     * @return 执行结果
+     */
     private String bumpPatchVersion(String version) {
         String[] parts = version.split("\\.");
         if (parts.length >= 3) {
@@ -237,18 +264,36 @@ public class PromptReleaseService {
         return version + ".1";
     }
 
+    /**
+     * 查找版本号。
+     *
+     * @param promptCode 提示词编码
+     * @param version 版本号
+     * @return 查找结果
+     */
     private PromptTemplate findVersion(String promptCode, String version) {
         return promptTemplateRepository.findByPromptCodeAndVersion(promptCode, version)
                 .orElseThrow(() -> Errors.of(PlatformErrorCode.PROMPT_NOT_FOUND,
                         "未找到 Prompt 版本: " + promptCode + "@" + version));
     }
 
+    /**
+     * 执行ensureAny版本号Exists。
+     *
+     * @param promptCode 提示词编码
+     */
     private void ensureAnyVersionExists(String promptCode) {
         if (promptTemplateRepository.listVersionsByPromptCode(promptCode).isEmpty()) {
             throw Errors.of(PlatformErrorCode.PROMPT_NOT_FOUND, "未找到 Prompt: " + promptCode);
         }
     }
 
+    /**
+     * 执行offlineCopy。
+     *
+     * @param template template
+     * @return 执行结果
+     */
     private PromptTemplate offlineCopy(PromptTemplate template) {
         return new PromptTemplate(
                 template.promptCode(),
@@ -264,6 +309,12 @@ public class PromptReleaseService {
         );
     }
 
+    /**
+     * 转换为结果。
+     *
+     * @param definition definition
+     * @return 转换结果
+     */
     private PromptResult toResult(PromptTemplate definition) {
         return new PromptResult(
                 definition.promptCode(),

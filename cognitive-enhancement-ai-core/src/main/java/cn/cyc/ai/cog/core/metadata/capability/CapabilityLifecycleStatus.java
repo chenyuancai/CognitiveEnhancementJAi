@@ -4,6 +4,7 @@ package cn.cyc.ai.cog.core.metadata.capability;
  * Capability 生命周期状态。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public enum CapabilityLifecycleStatus {
 

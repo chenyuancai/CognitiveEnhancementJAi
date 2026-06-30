@@ -20,6 +20,9 @@ import java.util.List;
 
 /**
  * C 端知识内容只读接口。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "App-知识内容", description = "已发布内容与知识包目录（按会员等级过滤）")
 @RestController
@@ -36,24 +39,46 @@ public class AppKnowledgeController {
         this.appKnowledgeService = appKnowledgeService;
     }
 
+    /**
+     * 执行分页Contents。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Operation(summary = "已发布内容分页")
     @PostMapping("/contents/page")
     public ApiResponse<PageResult<AppContentSummaryVO>> pageContents(@RequestBody ContentPageQuery query) {
         return ApiResponse.success(appKnowledgeService.pagePublishedContents(query));
     }
 
+    /**
+     * 执行内容Detail。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     @Operation(summary = "已发布内容详情")
     @GetMapping("/contents/{id}")
     public ApiResponse<AppContentDetailVO> contentDetail(@PathVariable Long id) {
         return ApiResponse.success(appKnowledgeService.getPublishedContent(id));
     }
 
+    /**
+     * 查询Packages列表。
+     * @return 结果列表
+     */
     @Operation(summary = "已启用知识包列表")
     @GetMapping("/packages")
     public ApiResponse<List<AppKnowledgePackageTreeVO>> listPackages() {
         return ApiResponse.success(appKnowledgeService.listEnabledPackages());
     }
 
+    /**
+     * 执行packageTree。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     @Operation(summary = "知识包目录树")
     @GetMapping("/packages/{id}/tree")
     public ApiResponse<AppKnowledgePackageTreeVO> packageTree(@PathVariable Long id) {

@@ -22,22 +22,39 @@ import java.util.Optional;
  * 提示词模板数据库仓储实现。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true", matchIfMissing = true)
 public class DbPromptTemplateRepository implements PromptTemplateRepository {
 
+    /** Mapper。 */
     private final PromptTemplateMapper mapper;
 
+    /**
+     * 创建Db提示词Template仓储。
+     *
+     * @param mapper Mapper
+     */
     public DbPromptTemplateRepository(PromptTemplateMapper mapper) {
         this.mapper = mapper;
     }
 
+    /**
+     * 查找人编码。
+     *
+     * @param code 编码
+     * @return 查找结果
+     */
     @Override
     public Optional<PromptTemplate> findByCode(String code) {
         return findPublishedByPromptCode(code);
     }
 
+    /**
+     * 查询All列表。
+     * @return 结果列表
+     */
     @Override
     public List<PromptTemplate> listAll() {
         QueryWrapper<PromptTemplateEntity> wrapper = new QueryWrapper<>();
@@ -49,6 +66,12 @@ public class DbPromptTemplateRepository implements PromptTemplateRepository {
                 .toList();
     }
 
+    /**
+     * 查询Versions人提示词编码列表。
+     *
+     * @param promptCode 提示词编码
+     * @return 结果列表
+     */
     @Override
     public List<PromptTemplate> listVersionsByPromptCode(String promptCode) {
         QueryWrapper<PromptTemplateEntity> wrapper = new QueryWrapper<>();
@@ -60,6 +83,12 @@ public class DbPromptTemplateRepository implements PromptTemplateRepository {
                 .toList();
     }
 
+    /**
+     * 执行save。
+     *
+     * @param definition definition
+     * @return 执行结果
+     */
     @Override
     public PromptTemplate save(PromptTemplate definition) {
         QueryWrapper<PromptTemplateEntity> wrapper = new QueryWrapper<>();
@@ -78,6 +107,12 @@ public class DbPromptTemplateRepository implements PromptTemplateRepository {
         return definition;
     }
 
+    /**
+     * 转换为Definition。
+     *
+     * @param e e
+     * @return 转换结果
+     */
     private PromptTemplate toDefinition(PromptTemplateEntity e) {
         PromptLifecycleStatus lifecycleStatus = e.getLifecycleStatus() == null
                 ? PromptLifecycleStatus.DRAFT
@@ -96,6 +131,12 @@ public class DbPromptTemplateRepository implements PromptTemplateRepository {
         );
     }
 
+    /**
+     * 转换为实体。
+     *
+     * @param d d
+     * @return 转换结果
+     */
     private PromptTemplateEntity toEntity(PromptTemplate d) {
         PromptTemplateEntity e = new PromptTemplateEntity();
         e.setTenantId(TenantContext.currentTenantId());

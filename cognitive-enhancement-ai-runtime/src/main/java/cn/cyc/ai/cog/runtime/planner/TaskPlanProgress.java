@@ -6,9 +6,13 @@ import java.util.List;
  * 任务规划步骤进度更新工具。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class TaskPlanProgress {
 
+    /**
+     * 创建TaskPlanProgress。
+     */
     private TaskPlanProgress() {
     }
 

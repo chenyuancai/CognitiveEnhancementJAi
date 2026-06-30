@@ -18,6 +18,9 @@ import java.util.List;
  */
 /**
  * 组织成员仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbOrgMemberRepository implements OrgMemberRepository {
@@ -32,6 +35,13 @@ public class DbOrgMemberRepository implements OrgMemberRepository {
         this.orgMemberMapper = orgMemberMapper;
     }
 
+    /**
+     * 执行insertOwner。
+     *
+     * @param tenantId 租户 ID
+     * @param orgId orgID
+     * @param userId 用户 ID
+     */
     @Override
     public void insertOwner(Long tenantId, Long orgId, Long userId) {
         OrgMemberEntity ownerMember = new OrgMemberEntity();
@@ -43,6 +53,12 @@ public class DbOrgMemberRepository implements OrgMemberRepository {
         orgMemberMapper.insert(ownerMember);
     }
 
+    /**
+     * 查询人OrgID列表。
+     *
+     * @param orgId orgID
+     * @return 结果列表
+     */
     @Override
     public List<OrgMember> listByOrgId(Long orgId) {
         return orgMemberMapper.selectList(new LambdaQueryWrapper<OrgMemberEntity>()
@@ -53,11 +69,24 @@ public class DbOrgMemberRepository implements OrgMemberRepository {
                 .toList();
     }
 
+    /**
+     * 执行数量ActiveMembers。
+     *
+     * @param orgId orgID
+     * @return 执行结果
+     */
     @Override
     public long countActiveMembers(Long orgId) {
         return orgMemberMapper.countActiveMembers(orgId);
     }
 
+    /**
+     * 执行exists人OrgAnd用户。
+     *
+     * @param orgId orgID
+     * @param userId 用户 ID
+     * @return 执行结果
+     */
     @Override
     public boolean existsByOrgAndUser(Long orgId, Long userId) {
         return orgMemberMapper.selectOne(new LambdaQueryWrapper<OrgMemberEntity>()
@@ -66,6 +95,14 @@ public class DbOrgMemberRepository implements OrgMemberRepository {
                 .last("LIMIT 1")) != null;
     }
 
+    /**
+     * 执行insertMember。
+     *
+     * @param tenantId 租户 ID
+     * @param orgId orgID
+     * @param request 请求
+     * @return 执行结果
+     */
     @Override
     public OrgMember insertMember(Long tenantId, Long orgId, OrgMemberSaveRequest request) {
         OrgMemberEntity member = new OrgMemberEntity();
@@ -79,6 +116,12 @@ public class DbOrgMemberRepository implements OrgMemberRepository {
         return toDomain(member);
     }
 
+    /**
+     * 删除Member。
+     *
+     * @param orgId orgID
+     * @param memberId memberID
+     */
     @Override
     public void removeMember(Long orgId, Long memberId) {
         OrgMemberEntity member = orgMemberMapper.selectById(memberId);
@@ -91,6 +134,12 @@ public class DbOrgMemberRepository implements OrgMemberRepository {
         orgMemberMapper.deleteById(memberId);
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private OrgMember toDomain(OrgMemberEntity entity) {
         return new OrgMember(
                 entity.getId(),

@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
  * <p>
  * 聚合逻辑委托 {@link UserMeContextService}，本类仅负责 VO 转换。
  * </p>
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class AppMeService {

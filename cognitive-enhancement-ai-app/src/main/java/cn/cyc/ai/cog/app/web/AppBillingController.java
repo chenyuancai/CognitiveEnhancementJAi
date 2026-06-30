@@ -28,6 +28,9 @@ import java.util.List;
 
 /**
  * C 端计费接口：可购套餐、下单与支付。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "App-计费", description = "可购套餐、下单与支付")
 @RestController

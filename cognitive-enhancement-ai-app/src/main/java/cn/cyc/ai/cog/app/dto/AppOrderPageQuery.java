@@ -6,6 +6,9 @@ import lombok.EqualsAndHashCode;
 
 /**
  * C 端订单分页查询参数。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

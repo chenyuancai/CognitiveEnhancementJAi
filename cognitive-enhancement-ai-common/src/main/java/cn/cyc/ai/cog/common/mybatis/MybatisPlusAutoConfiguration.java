@@ -12,10 +12,10 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * MyBatis-Plus 公共自动装配：分页插件 + 审计字段填充。
- *
  * <p>仅当类路径存在 MyBatis-Plus 时生效；响应式网关不引入该依赖，故不会加载。</p>
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(MybatisPlusInterceptor.class)
@@ -32,6 +32,10 @@ public class MybatisPlusAutoConfiguration {
         return interceptor;
     }
 
+    /**
+     * 执行auditMetaObject处理器。
+     * @return 执行结果
+     */
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnClass(MetaObjectHandler.class)

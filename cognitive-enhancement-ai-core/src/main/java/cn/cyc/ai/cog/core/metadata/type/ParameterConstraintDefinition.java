@@ -5,12 +5,8 @@ import java.util.Objects;
 /**
  * 执行参数约束定义，用于描述单个参数的类型与取值边界。
  *
- * @param parameterType 参数类型
- * @param required      是否必填
- * @param minimum       最小值
- * @param maximum       最大值
- * @param integerOnly   是否仅允许整数
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ParameterConstraintDefinition(
         String parameterType,

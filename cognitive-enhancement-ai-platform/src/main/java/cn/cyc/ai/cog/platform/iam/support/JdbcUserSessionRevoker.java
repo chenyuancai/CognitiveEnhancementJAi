@@ -7,6 +7,9 @@ import org.springframework.util.StringUtils;
 
 /**
  * 基于 JDBC 删除 oauth2_authorization 记录的会话吊销实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class JdbcUserSessionRevoker implements UserSessionRevoker {
@@ -21,6 +24,11 @@ public class JdbcUserSessionRevoker implements UserSessionRevoker {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    /**
+     * 执行revoke人Principal名称。
+     *
+     * @param principalName principal名称
+     */
     @Override
     public void revokeByPrincipalName(String principalName) {
         if (!StringUtils.hasText(principalName)) {

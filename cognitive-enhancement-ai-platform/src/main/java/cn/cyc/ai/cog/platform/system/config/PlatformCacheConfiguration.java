@@ -9,6 +9,9 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * 平台缓存属性注册（L1 始终可用；Redis 见 {@link PlatformCacheRedisConfiguration}）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(PlatformCacheProperties.class)

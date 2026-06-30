@@ -7,16 +7,8 @@ import java.util.Map;
 /**
  * Harness 完整执行报告。
  *
- * @param harnessId       Harness 执行唯一标识
- * @param traceId         链路追踪 ID
- * @param status          整体状态：RUNNING / PASSED / PARTIAL / FAILED
- * @param startTime       开始时间
- * @param endTime         结束时间
- * @param totalDurationMs 总耗时（毫秒）
- * @param scenario        场景摘要
- * @param steps           各步骤结果
- * @param summary         执行摘要
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record HarnessReport(
         String harnessId,
@@ -32,6 +24,9 @@ public record HarnessReport(
 
     /**
      * 场景摘要。
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     public record HarnessScenarioSummary(
             String capabilityCode,
@@ -48,6 +43,9 @@ public record HarnessReport(
 
     /**
      * 步骤报告。
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     public record HarnessStepReport(
             int sequence,
@@ -63,6 +61,9 @@ public record HarnessReport(
 
     /**
      * 执行摘要。
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     public record HarnessSummary(
             int totalSteps,

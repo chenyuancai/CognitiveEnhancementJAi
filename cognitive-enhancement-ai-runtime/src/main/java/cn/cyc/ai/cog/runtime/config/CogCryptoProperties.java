@@ -4,6 +4,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * API Key 等敏感字段加密配置。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @ConfigurationProperties(prefix = "cog.crypto")
 public class CogCryptoProperties {
@@ -18,18 +21,36 @@ public class CogCryptoProperties {
      */
     private String masterKey = "cognitive-enhancement-dev-master-key!!";
 
+    /**
+     * 判断是否为Api键Encryption是否启用。
+     * @return 是否满足条件
+     */
     public boolean isApiKeyEncryptionEnabled() {
         return apiKeyEncryptionEnabled;
     }
 
+    /**
+     * 设置Api键Encryption是否启用。
+     *
+     * @param apiKeyEncryptionEnabled api键Encryption是否启用
+     */
     public void setApiKeyEncryptionEnabled(boolean apiKeyEncryptionEnabled) {
         this.apiKeyEncryptionEnabled = apiKeyEncryptionEnabled;
     }
 
+    /**
+     * 获取Master键。
+     * @return Master键
+     */
     public String getMasterKey() {
         return masterKey;
     }
 
+    /**
+     * 设置Master键。
+     *
+     * @param masterKey master键
+     */
     public void setMasterKey(String masterKey) {
         this.masterKey = masterKey;
     }

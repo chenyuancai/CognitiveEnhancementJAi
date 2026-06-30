@@ -11,10 +11,20 @@ import reactor.core.publisher.Mono;
 
 /**
  * 剥离客户端伪造的内部身份头，避免绕过 JWT 验签直接冒充用户。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class InternalHeaderSanitizerGlobalFilter implements GlobalFilter, Ordered {
 
+    /**
+     * 执行过滤器。
+     *
+     * @param exchange exchange
+     * @param chain chain
+     * @return 执行结果
+     */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest().mutate()
@@ -30,6 +40,10 @@ public class InternalHeaderSanitizerGlobalFilter implements GlobalFilter, Ordere
         return chain.filter(exchange.mutate().request(request).build());
     }
 
+    /**
+     * 获取订单。
+     * @return 订单
+     */
     @Override
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE;

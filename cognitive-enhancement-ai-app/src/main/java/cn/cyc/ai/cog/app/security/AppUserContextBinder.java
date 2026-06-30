@@ -16,9 +16,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * 将 Bearer / 网关头 / 开发占位解析为 {@link UserContext}（仅 /api/app/**）。
- */
+
+ /**
+  * AppUserContextBinder
+  *
+  * @author cyc
+  * @date 2026/6/15 14:18
+  */
 @Component
 public class AppUserContextBinder {
 
@@ -31,16 +35,38 @@ public class AppUserContextBinder {
     /** 路径匹配器 */
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
+    /**
+     * 创建AppUserContextBinder。
+     */
     public AppUserContextBinder(AppAuthProperties appAuthProperties,
                                 ObjectProvider<AppBearerIdentityService> bearerIdentityService) {
         this.appAuthProperties = appAuthProperties;
         this.bearerIdentityService = bearerIdentityService.getIfAvailable();
     }
 
+    /**
+     * 执行supports。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
+    /**
+     * 判断是否需绑定用户上下文（C 端业务与练习 API）。
+     *
+     * @param request 请求
+     * @return 是否支持绑定
+     */
     public boolean supports(HttpServletRequest request) {
-        return pathMatcher.match("/api/app/**", request.getRequestURI());
+        String uri = request.getRequestURI();
+        // /api/practice/** 与 /api/app/** 均需用户上下文（练习域独立路径前缀）
+        return pathMatcher.match("/api/app/**", uri) || pathMatcher.match("/api/practice/**", uri);
     }
 
+    /**
+     * 执行bindIfNeeded。
+     *
+     * @param request 请求
+     */
     public void bindIfNeeded(HttpServletRequest request) {
         if (!supports(request)) {
             return;
@@ -63,11 +89,19 @@ public class AppUserContextBinder {
         }
     }
 
+    /**
+     * 执行clear。
+     */
     public void clear() {
         UserContext.clear();
         TenantContext.clear();
     }
 
+    /**
+     * 执行bindFrom网关Headers。
+     *
+     * @param request 请求
+     */
     private void bindFromGatewayHeaders(HttpServletRequest request) {
         AuthUser user = new AuthUser();
         user.setUserId(parseLong(request.getHeader(SecurityConstants.HEADER_USER_ID)));
@@ -82,6 +116,10 @@ public class AppUserContextBinder {
         bindUser(user);
     }
 
+    /**
+     * 执行devC端用户。
+     * @return 执行结果
+     */
     private AuthUser devAppUser() {
         AuthUser devUser = new AuthUser(1L, "admin", CommonConstants.DEFAULT_TENANT,
                 List.of("USER"), List.of());
@@ -89,6 +127,11 @@ public class AppUserContextBinder {
         return devUser;
     }
 
+    /**
+     * 执行bind用户。
+     *
+     * @param user 用户
+     */
     private void bindUser(AuthUser user) {
         UserContext.set(user);
         if (StringUtils.hasText(user.getTenantCode())) {
@@ -101,6 +144,12 @@ public class AppUserContextBinder {
         }
     }
 
+    /**
+     * 执行parseLong。
+     *
+     * @param value 值
+     * @return 执行结果
+     */
     private Long parseLong(String value) {
         try {
             return Long.parseLong(value);
@@ -109,6 +158,12 @@ public class AppUserContextBinder {
         }
     }
 
+    /**
+     * 执行splitHeader。
+     *
+     * @param header header
+     * @return 执行结果
+     */
     private List<String> splitHeader(String header) {
         if (!StringUtils.hasText(header)) {
             return Collections.emptyList();

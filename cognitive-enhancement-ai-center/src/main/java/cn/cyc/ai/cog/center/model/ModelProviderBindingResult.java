@@ -4,6 +4,9 @@ import cn.cyc.ai.cog.core.metadata.type.CommonStatus;
 
 /**
  * 模型与提供商绑定返回对象。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ModelProviderBindingResult(
         String providerCode,

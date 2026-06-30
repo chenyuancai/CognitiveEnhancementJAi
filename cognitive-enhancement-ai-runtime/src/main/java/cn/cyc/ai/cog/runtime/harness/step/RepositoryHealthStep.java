@@ -21,16 +21,25 @@ import java.util.Map;
  * 仓储健康检查步骤，验证各仓储可读写且场景编码存在。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class RepositoryHealthStep implements HarnessStep {
 
+    /** 能力仓储。 */
     private final CapabilityDefinitionRepository capabilityRepository;
+    /** 智能体仓储。 */
     private final AgentDefinitionRepository agentRepository;
+    /** Skill仓储。 */
     private final SkillDefinitionRepository skillRepository;
+    /** 工具仓储。 */
     private final ToolDefinitionRepository toolRepository;
+    /** 模型仓储。 */
     private final ModelDefinitionRepository modelRepository;
 
+    /**
+     * 创建RepositoryHealthStep。
+     */
     public RepositoryHealthStep(CapabilityDefinitionRepository capabilityRepository,
                                  AgentDefinitionRepository agentRepository,
                                  SkillDefinitionRepository skillRepository,
@@ -43,21 +52,39 @@ public class RepositoryHealthStep implements HarnessStep {
         this.modelRepository = modelRepository;
     }
 
+    /**
+     * 执行step编码。
+     * @return 执行结果
+     */
     @Override
     public String stepCode() {
         return "REPO_HEALTH";
     }
 
+    /**
+     * 执行step名称。
+     * @return 执行结果
+     */
     @Override
     public String stepName() {
         return "仓储健康检查";
     }
 
+    /**
+     * 执行描述。
+     * @return 执行结果
+     */
     @Override
     public String description() {
         return "验证各仓储可读写且场景编码存在";
     }
 
+    /**
+     * 执行操作。
+     *
+     * @param ctx ctx
+     * @return 执行结果
+     */
     @Override
     public HarnessStepResult run(HarnessContext ctx) {
         List<Map<String, Object>> repoResults = new ArrayList<>();
@@ -82,6 +109,10 @@ public class RepositoryHealthStep implements HarnessStep {
         );
     }
 
+    /**
+     * 执行check仓储。
+     * @return 执行结果
+     */
     private boolean checkRepository(List<Map<String, Object>> results, String repoName,
                                      MetadataRepository<?> repository) {
         long start = System.currentTimeMillis();

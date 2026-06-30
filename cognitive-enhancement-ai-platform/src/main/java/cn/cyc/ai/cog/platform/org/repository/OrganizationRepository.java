@@ -6,6 +6,9 @@ import cn.cyc.ai.cog.platform.org.dto.OrgPageQuery;
 
 /**
  * 组织仓储接口。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface OrganizationRepository {
 

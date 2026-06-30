@@ -18,6 +18,7 @@ import java.util.Objects;
  * Skill 管理服务。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class SkillAdminService extends AbstractMetadataAdminService<SkillDefinition, SkillUpsertRequest, SkillResult> {
@@ -71,6 +72,12 @@ public class SkillAdminService extends AbstractMetadataAdminService<SkillDefinit
         );
     }
 
+    /**
+     * 执行normalizeDependsOn。
+     *
+     * @param dependsOnSkillCodes dependsOnSkillCodes
+     * @return 执行结果
+     */
     private List<String> normalizeDependsOn(List<String> dependsOnSkillCodes) {
         return dependsOnSkillCodes == null ? List.of() : dependsOnSkillCodes;
     }
@@ -104,10 +111,24 @@ public class SkillAdminService extends AbstractMetadataAdminService<SkillDefinit
         return sorters;
     }
 
+    /**
+     * 执行matches。
+     *
+     * @param expected expected
+     * @param actual actual
+     * @return 执行结果
+     */
     private boolean matches(String expected, String actual) {
         return !StringUtils.hasText(expected) || expected.equals(actual);
     }
 
+    /**
+     * 执行matches。
+     *
+     * @param expected expected
+     * @param actual actual
+     * @return 执行结果
+     */
     private boolean matches(RiskLevel expected, RiskLevel actual) {
         return expected == null || expected == actual;
     }

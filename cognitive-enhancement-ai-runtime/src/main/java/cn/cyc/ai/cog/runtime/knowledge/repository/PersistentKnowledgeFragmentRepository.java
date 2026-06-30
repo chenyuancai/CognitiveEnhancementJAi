@@ -24,6 +24,7 @@ import java.util.Optional;
  * 持久化知识片段仓储。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true")
@@ -62,12 +63,23 @@ public class PersistentKnowledgeFragmentRepository implements KnowledgeFragmentR
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * 执行save。
+     *
+     * @param fragment fragment
+     */
     @Override
     public void save(KnowledgeFragment fragment) {
         knowledgeFragmentMapper.insert(toEntity(fragment));
         log.debug("持久化知识片段, fragmentId={}, knowledgeCode={}", fragment.fragmentId(), fragment.knowledgeCode());
     }
 
+    /**
+     * 查找人FragmentID。
+     *
+     * @param fragmentId fragmentID
+     * @return 查找结果
+     */
     @Override
     public Optional<KnowledgeFragment> findByFragmentId(String fragmentId) {
         LambdaQueryWrapper<KnowledgeFragmentEntity> queryWrapper = new LambdaQueryWrapper<KnowledgeFragmentEntity>()
@@ -77,6 +89,12 @@ public class PersistentKnowledgeFragmentRepository implements KnowledgeFragmentR
                 .map(this::toDomain);
     }
 
+    /**
+     * 查找人知识编码。
+     *
+     * @param knowledgeCode 知识编码
+     * @return 查找结果
+     */
     @Override
     public List<KnowledgeFragment> findByKnowledgeCode(String knowledgeCode) {
         LambdaQueryWrapper<KnowledgeFragmentEntity> queryWrapper = new LambdaQueryWrapper<KnowledgeFragmentEntity>()
@@ -89,6 +107,10 @@ public class PersistentKnowledgeFragmentRepository implements KnowledgeFragmentR
                 .toList();
     }
 
+    /**
+     * 查询All列表。
+     * @return 结果列表
+     */
     @Override
     public List<KnowledgeFragment> listAll() {
         LambdaQueryWrapper<KnowledgeFragmentEntity> queryWrapper = new LambdaQueryWrapper<KnowledgeFragmentEntity>()
@@ -100,6 +122,12 @@ public class PersistentKnowledgeFragmentRepository implements KnowledgeFragmentR
                 .toList();
     }
 
+    /**
+     * 转换为实体。
+     *
+     * @param fragment fragment
+     * @return 转换结果
+     */
     private KnowledgeFragmentEntity toEntity(KnowledgeFragment fragment) {
         KnowledgeFragmentEntity entity = new KnowledgeFragmentEntity();
         entity.setTenantId(TenantIds.resolveId(fragment.tenantCode()));
@@ -113,6 +141,12 @@ public class PersistentKnowledgeFragmentRepository implements KnowledgeFragmentR
         return entity;
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private KnowledgeFragment toDomain(KnowledgeFragmentEntity entity) {
         return new KnowledgeFragment(
                 TenantIds.toCode(entity.getTenantId()),
@@ -126,6 +160,12 @@ public class PersistentKnowledgeFragmentRepository implements KnowledgeFragmentR
         );
     }
 
+    /**
+     * 执行serializeTags。
+     *
+     * @param tags tags
+     * @return 执行结果
+     */
     private String serializeTags(List<String> tags) {
         if (tags == null || tags.isEmpty()) {
             return null;
@@ -138,6 +178,12 @@ public class PersistentKnowledgeFragmentRepository implements KnowledgeFragmentR
         }
     }
 
+    /**
+     * 执行deserializeTags。
+     *
+     * @param tagsJson tagsJSON
+     * @return 执行结果
+     */
     private List<String> deserializeTags(String tagsJson) {
         if (tagsJson == null || tagsJson.isBlank()) {
             return Collections.emptyList();

@@ -5,6 +5,12 @@ import cn.cyc.ai.cog.platform.quota.dto.QuotaMemberAllocSaveRequest;
 
 import java.util.List;
 
+/**
+ * 额度MemberAlloc仓储
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 public interface QuotaMemberAllocRepository {
 
     List<QuotaMemberAlloc> listByAccount(Long accountId);

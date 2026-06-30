@@ -17,6 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * 基于内存的执行记录仓储。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "false", matchIfMissing = true)
@@ -55,6 +56,12 @@ public class InMemoryExecutionRecordRepository implements ExecutionRecordReposit
                 .toList();
     }
 
+    /**
+     * 查找人链路ID。
+     *
+     * @param traceId 链路 Trace ID
+     * @return 查找结果
+     */
     @Override
     public Optional<ExecutionRecord> findByTraceId(String traceId) {
         return records.stream()

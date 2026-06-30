@@ -14,6 +14,9 @@ import org.springframework.util.StringUtils;
 
 /**
  * 支付渠道回调服务：验签占位 + 幂等标记已支付。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class PaymentCallbackService {
@@ -69,6 +72,12 @@ public class PaymentCallbackService {
         return orderService.markPaid(order.id(), markPaid);
     }
 
+    /**
+     * 执行normalizeChannel。
+     *
+     * @param channel channel
+     * @return 执行结果
+     */
     private String normalizeChannel(String channel) {
         if (!StringUtils.hasText(channel)) {
             throw Errors.of(PlatformErrorCode.PAYMENT_CHANNEL_EMPTY);

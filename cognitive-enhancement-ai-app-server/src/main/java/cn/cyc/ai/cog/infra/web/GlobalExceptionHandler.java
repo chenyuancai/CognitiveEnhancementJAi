@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.Hidden;
  * 统一异常转标准响应。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Hidden
 @RestControllerAdvice
@@ -30,7 +31,7 @@ public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     /**
-     * 处理业务异常（含 {@link cn.cyc.ai.cog.common.exception.BusinessException}）。
+     * 处理业务异常。
      *
      * @param exception 业务异常
      * @return 统一错误响应
@@ -62,6 +63,12 @@ public class GlobalExceptionHandler {
      * 处理常见 Web 请求参数异常。
      *
      * @param exception 请求异常
+     * @return 统一错误响应
+     */
+    /**
+     * 处理请求。
+     *
+     * @param exception 异常对象
      * @return 统一错误响应
      */
     @ExceptionHandler({

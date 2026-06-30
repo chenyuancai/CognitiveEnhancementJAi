@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * 执行循环防护配置。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 @ConfigurationProperties(prefix = "cog.runtime.loop-guard")

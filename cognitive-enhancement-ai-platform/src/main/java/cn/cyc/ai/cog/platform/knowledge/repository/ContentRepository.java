@@ -11,6 +11,12 @@ import cn.cyc.ai.cog.platform.knowledge.domain.ContentVersion;
 
 import java.util.List;
 
+/**
+ * 内容仓储
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 public interface ContentRepository {
 
     PageResult<Content> page(ContentPageQuery query);

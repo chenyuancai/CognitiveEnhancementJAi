@@ -18,18 +18,35 @@ import java.util.regex.Pattern;
 
 /**
  * 消息模板占位渲染：按 variable_schema 校验必填变量并替换 {{key}}。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class MessageTemplateRenderer {
 
+    /** PLACEHOLDER。 */
     private static final Pattern PLACEHOLDER = Pattern.compile("\\{\\{([a-zA-Z0-9_]+)}}");
 
+    /** JSON 序列化器 */
     private final ObjectMapper objectMapper;
 
+    /**
+     * 创建MessageTemplateRenderer。
+     *
+     * @param objectMapper JSON 序列化器
+     */
     public MessageTemplateRenderer(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * 执行render。
+     *
+     * @param template template
+     * @param params params
+     * @return 执行结果
+     */
     public String render(MessageTemplate template, Map<String, ?> params) {
         if (template == null) {
             throw Errors.of(PlatformErrorCode.MESSAGE_TEMPLATE_NOT_FOUND);
@@ -48,6 +65,12 @@ public class MessageTemplateRenderer {
         return buffer.toString();
     }
 
+    /**
+     * 校验参数。
+     *
+     * @param variableSchema variableSchema
+     * @param params params
+     */
     private void validateRequired(String variableSchema, Map<String, ?> params) {
         if (!StringUtils.hasText(variableSchema)) {
             return;
@@ -63,6 +86,12 @@ public class MessageTemplateRenderer {
         }
     }
 
+    /**
+     * 执行parseRequiredKeys。
+     *
+     * @param variableSchema variableSchema
+     * @return 执行结果
+     */
     private Set<String> parseRequiredKeys(String variableSchema) {
         try {
             List<Map<String, Object>> fields = objectMapper.readValue(variableSchema, new TypeReference<>() {

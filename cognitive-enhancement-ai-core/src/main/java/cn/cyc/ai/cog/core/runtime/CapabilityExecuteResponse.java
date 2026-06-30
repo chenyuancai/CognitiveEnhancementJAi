@@ -6,11 +6,8 @@ import cn.cyc.ai.cog.core.metadata.capability.CapabilityDefinition;
 /**
  * 能力执行统一响应体。
  *
- * @param traceId    当前链路标识
- * @param capability 当前能力定义
- * @param agent      当前路由到的 Agent 定义
- * @param result     统一执行结果
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record CapabilityExecuteResponse(
         String traceId,

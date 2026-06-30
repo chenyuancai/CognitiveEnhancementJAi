@@ -9,6 +9,7 @@ import java.util.Objects;
  * 模型定义对象。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ModelDefinition(
         String providerCode,
@@ -26,6 +27,9 @@ public record ModelDefinition(
         String fallbackModelCode
 ) implements MetadataDefinition {
 
+    /**
+     * 创建ModelDefinition 记录。
+     */
     public ModelDefinition(String providerCode,
                            String providerName,
                            String modelCode,
@@ -64,11 +68,19 @@ public record ModelDefinition(
         status = Objects.requireNonNull(status, "status 不能为空");
     }
 
+    /**
+     * 执行编码。
+     * @return 执行结果
+     */
     @Override
     public String code() {
         return modelCode;
     }
 
+    /**
+     * 执行名称。
+     * @return 执行结果
+     */
     @Override
     public String name() {
         return modelName;

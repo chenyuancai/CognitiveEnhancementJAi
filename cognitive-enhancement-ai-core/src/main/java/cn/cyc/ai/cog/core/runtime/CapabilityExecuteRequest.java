@@ -6,10 +6,8 @@ import java.util.Objects;
 /**
  * 能力执行入口请求。
  *
- * @param capabilityCode 能力编码
- * @param input          输入参数
- * @param parameters     执行参数
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record CapabilityExecuteRequest(
         String capabilityCode,

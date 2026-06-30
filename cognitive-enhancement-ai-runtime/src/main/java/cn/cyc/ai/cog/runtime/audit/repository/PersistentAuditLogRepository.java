@@ -22,6 +22,7 @@ import java.util.Map;
  * 基于 MyBatis Plus 的审计日志仓储。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true")
@@ -81,6 +82,12 @@ public class PersistentAuditLogRepository implements AuditLogRepository {
                 .toList();
     }
 
+    /**
+     * 转换为实体。
+     *
+     * @param record record
+     * @return 转换结果
+     */
     private AuditLogEntity toEntity(AuditLogRecord record) {
         AuditLogEntity entity = new AuditLogEntity();
         entity.setTenantId(TenantIds.resolveId(record.tenantCode()));
@@ -96,6 +103,12 @@ public class PersistentAuditLogRepository implements AuditLogRepository {
         return entity;
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private AuditLogRecord toDomain(AuditLogEntity entity) {
         return new AuditLogRecord(
                 TenantIds.toCode(entity.getTenantId()),
@@ -111,6 +124,12 @@ public class PersistentAuditLogRepository implements AuditLogRepository {
         );
     }
 
+    /**
+     * 转换为JSON。
+     *
+     * @param detail detail
+     * @return 转换结果
+     */
     private String toJson(Map<String, Object> detail) {
         if (detail == null || detail.isEmpty()) {
             return "{}";

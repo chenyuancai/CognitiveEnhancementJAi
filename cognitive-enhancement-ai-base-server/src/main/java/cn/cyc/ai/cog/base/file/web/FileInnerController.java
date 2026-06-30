@@ -29,24 +29,45 @@ import java.util.List;
 
 /**
  * 文件服务内部 API（Feign 与微服务间调用）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "基础-文件(Inner)", description = "供其他服务 Feign 调用的文件接口")
 @RestController
 @RequestMapping(BaseFileConstants.INNER_API_PREFIX)
 public class FileInnerController {
 
+    /** 文件服务。 */
     private final FileService fileService;
 
+    /**
+     * 创建文件Inner接口。
+     *
+     * @param fileService 文件服务
+     */
     public FileInnerController(FileService fileService) {
         this.fileService = fileService;
     }
 
+    /**
+     * 获取人ID。
+     *
+     * @param id 主键 ID
+     * @return 人ID
+     */
     @Operation(summary = "文件详情")
     @GetMapping("/{id}")
     public ApiResponse<FileInfoDTO> getById(@PathVariable Long id) {
         return ApiResponse.success(fileService.getById(id));
     }
 
+    /**
+     * 执行downloadBytes。
+     *
+     * @param id 主键 ID
+     * @return 统一错误响应
+     */
     @Operation(summary = "下载文件字节（Feign）")
     @GetMapping("/{id}/bytes")
     public ResponseEntity<byte[]> downloadBytes(@PathVariable Long id) {
@@ -56,12 +77,22 @@ public class FileInnerController {
                 .body(bytes);
     }
 
+    /**
+     * 查询人Ids列表。
+     *
+     * @param ids ids
+     * @return 结果列表
+     */
     @Operation(summary = "批量查询文件")
     @GetMapping("/batch")
     public ApiResponse<List<FileInfoDTO>> listByIds(@RequestParam("ids") List<Long> ids) {
         return ApiResponse.success(fileService.listByIds(ids));
     }
 
+    /**
+     * 执行upload。
+     * @return 执行结果
+     */
     @Operation(summary = "Multipart 上传")
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<FileInfoDTO> upload(@RequestPart("file") MultipartFile file,
@@ -70,18 +101,36 @@ public class FileInnerController {
         return ApiResponse.success(fileService.upload(file, tenantId, bizCode));
     }
 
+    /**
+     * 执行uploadBytes。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Operation(summary = "Base64 字节上传")
     @PostMapping("/upload-bytes")
     public ApiResponse<FileInfoDTO> uploadBytes(@Valid @RequestBody FileUploadBytesRequest request) {
         return ApiResponse.success(fileService.uploadBytes(request));
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Operation(summary = "文件分页")
     @PostMapping("/page")
     public ApiResponse<PageResult<FileInfoDTO>> page(@RequestBody FilePageQuery query) {
         return ApiResponse.success(fileService.page(query));
     }
 
+    /**
+     * 执行ensure。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Operation(summary = "确认文件")
     @PostMapping("/ensure")
     public ApiResponse<Void> ensure(@Valid @RequestBody FileEnsureRequest request) {
@@ -89,6 +138,11 @@ public class FileInnerController {
         return ApiResponse.success(null);
     }
 
+    /**
+     * 删除Item。
+     *
+     * @param id 主键 ID
+     */
     @Operation(summary = "删除文件")
     @DeleteMapping("/{id}")
     public ApiResponse<Void> delete(@PathVariable Long id) {

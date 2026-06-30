@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Runtime 限流与配额配置。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 @ConfigurationProperties(prefix = "cog.runtime.quota")

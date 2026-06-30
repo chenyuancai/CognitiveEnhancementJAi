@@ -17,14 +17,24 @@ import java.util.Optional;
  * 任务级预算控制器：基于 Agent maxCost 或请求参数限制单次执行成本。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class TaskBudgetController {
 
+    /** properties。 */
     private final TaskBudgetProperties properties;
+    /** usageProperties。 */
     private final RuntimeUsageProperties usageProperties;
+    /** remainingBudget。 */
     private final ThreadLocal<BigDecimal> remainingBudget = new ThreadLocal<>();
 
+    /**
+     * 创建TaskBudget接口。
+     *
+     * @param properties properties
+     * @param usageProperties usageProperties
+     */
     public TaskBudgetController(TaskBudgetProperties properties, RuntimeUsageProperties usageProperties) {
         this.properties = properties;
         this.usageProperties = usageProperties;
@@ -84,6 +94,11 @@ public class TaskBudgetController {
         remainingBudget.remove();
     }
 
+    /**
+     * 执行charge。
+     *
+     * @param amount amount
+     */
     private void charge(BigDecimal amount) {
         BigDecimal left = remainingBudget.get();
         if (left == null) {
@@ -98,6 +113,13 @@ public class TaskBudgetController {
         remainingBudget.set(next);
     }
 
+    /**
+     * 执行resolveBudget。
+     *
+     * @param context 上下文
+     * @param agent 智能体
+     * @return 执行结果
+     */
     private BigDecimal resolveBudget(ExecutionContext context, AgentDefinition agent) {
         Optional<BigDecimal> parameterBudget = RuntimeContextParameters.decimal(context, "taskBudgetAmount");
         if (parameterBudget.isPresent()) {

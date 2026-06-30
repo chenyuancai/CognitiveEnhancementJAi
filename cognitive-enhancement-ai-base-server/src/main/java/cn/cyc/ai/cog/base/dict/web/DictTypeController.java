@@ -24,42 +24,80 @@ import java.util.List;
 
 /**
  * 字典类型管理（字符串值）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "基础-字典类型", description = "字典类型 CRUD 与树查询")
 @RestController
 @RequestMapping("/api/base/dict/types")
 public class DictTypeController {
 
+    /** dict类型服务。 */
     private final DictTypeService dictTypeService;
 
+    /**
+     * 创建Dict类型接口。
+     *
+     * @param dictTypeService dict类型服务
+     */
     public DictTypeController(DictTypeService dictTypeService) {
         this.dictTypeService = dictTypeService;
     }
 
+    /**
+     * 执行save。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Operation(summary = "保存字典类型")
     @PostMapping("/save")
     public ApiResponse<DictTypeVO> save(@Valid @RequestBody DictTypeSaveRequest request) {
         return ApiResponse.success(dictTypeService.save(DictKindEnum.DICT.getValue(), request));
     }
 
+    /**
+     * 删除Item。
+     *
+     * @param id 主键 ID
+     */
     @Operation(summary = "删除字典类型")
     @DeleteMapping("/delete/{id}")
     public ApiResponse<Boolean> delete(@PathVariable Long id) {
         return ApiResponse.success(dictTypeService.delete(id));
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Operation(summary = "字典类型分页")
     @PostMapping("/page")
     public ApiResponse<PageResult<DictTypeVO>> page(@RequestBody DictTypePageQuery query) {
         return ApiResponse.success(dictTypeService.page(DictKindEnum.DICT.getValue(), query));
     }
 
+    /**
+     * 执行tree。
+     *
+     * @param code 编码
+     * @return 执行结果
+     */
     @Operation(summary = "字典类型树", description = "返回类型及其项的树形结构")
     @GetMapping("/tree")
     public ApiResponse<List<DictTypeTreeVO>> tree(@RequestParam(required = false) String code) {
         return ApiResponse.success(dictTypeService.tree(DictKindEnum.DICT.getValue(), code));
     }
 
+    /**
+     * 获取人编码。
+     *
+     * @param code 编码
+     * @return 人编码
+     */
     @Operation(summary = "按编码查询字典类型")
     @GetMapping("/get/{code}")
     public ApiResponse<DictTypeVO> getByCode(@PathVariable String code) {

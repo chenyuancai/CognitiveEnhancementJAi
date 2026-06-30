@@ -23,10 +23,8 @@ import java.util.function.Predicate;
 /**
  * 管理中心后台元数据 CRUD 服务骨架，统一封装列表、查询、创建、更新与初始化能力。
  *
- * @param <T> 核心定义对象
- * @param <P> 入参对象
- * @param <R> 结果对象
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public abstract class AbstractMetadataAdminService<T extends MetadataDefinition, P, R> {
 
@@ -219,6 +217,12 @@ public abstract class AbstractMetadataAdminService<T extends MetadataDefinition,
      */
     protected abstract R toResult(T definition);
 
+    /**
+     * 执行normalize查询。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     private CenterPageQuery normalizeQuery(CenterPageQuery query) {
         CenterPageQuery normalized = query == null ? new CenterPageQuery() : query;
         if (normalized.getPage() < 1) {
@@ -230,6 +234,13 @@ public abstract class AbstractMetadataAdminService<T extends MetadataDefinition,
         return normalized;
     }
 
+    /**
+     * 执行resolveComparator。
+     *
+     * @param query 查询
+     * @param sorters sorters
+     * @return 执行结果
+     */
     private Comparator<T> resolveComparator(CenterPageQuery query, Map<String, Comparator<T>> sorters) {
         String sortExpression = StringUtils.hasText(query.getSort()) ? query.getSort() : "code,asc";
         String[] parts = sortExpression.split(",");
@@ -245,6 +256,13 @@ public abstract class AbstractMetadataAdminService<T extends MetadataDefinition,
         return "desc".equals(direction) ? comparator.reversed() : comparator;
     }
 
+    /**
+     * 执行matches关键词。
+     *
+     * @param definition definition
+     * @param keyword 关键词
+     * @return 执行结果
+     */
     private boolean matchesKeyword(T definition, String keyword) {
         if (!StringUtils.hasText(keyword)) {
             return true;
@@ -254,20 +272,41 @@ public abstract class AbstractMetadataAdminService<T extends MetadataDefinition,
                 || containsIgnoreCase(definition.name(), normalizedKeyword);
     }
 
+    /**
+     * 执行matches状态。
+     * @return 执行结果
+     */
     private boolean matchesStatus(T definition,
                                   CommonStatus status,
                                   Function<T, CommonStatus> statusExtractor) {
         return status == null || status == statusExtractor.apply(definition);
     }
 
+    /**
+     * 执行containsIgnoreCase。
+     *
+     * @param value 值
+     * @param normalizedKeyword normalized关键词
+     * @return 执行结果
+     */
     private boolean containsIgnoreCase(String value, String normalizedKeyword) {
         return value != null && value.toLowerCase(Locale.ROOT).contains(normalizedKeyword);
     }
 
+    /**
+     * 执行元数据类型名称。
+     * @return 执行结果
+     */
     private String metadataTypeName() {
         return repository.getClass().getSimpleName();
     }
 
+    /**
+     * 执行record配置Change。
+     *
+     * @param action action
+     * @param definition definition
+     */
     private void recordConfigChange(String action, T definition) {
         if (auditRecorder == null) {
             return;

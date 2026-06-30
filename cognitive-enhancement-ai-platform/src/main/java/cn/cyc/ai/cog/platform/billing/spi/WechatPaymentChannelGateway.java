@@ -19,22 +19,44 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 微信支付通道：生成 APP 调起参数（canonical HMAC paySign，生产可换官方 SDK 预下单）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 @org.springframework.core.annotation.Order(10)
 public class WechatPaymentChannelGateway implements PaymentChannelGateway {
 
+    /** properties。 */
     private final PaymentCallbackProperties properties;
 
+    /**
+     * 创建WechatPaymentChannelGateway。
+     *
+     * @param properties properties
+     */
     public WechatPaymentChannelGateway(PaymentCallbackProperties properties) {
         this.properties = properties;
     }
 
+    /**
+     * 执行supports。
+     *
+     * @param channel channel
+     * @return 执行结果
+     */
     @Override
     public boolean supports(String channel) {
         return "WECHAT".equalsIgnoreCase(channel);
     }
 
+    /**
+     * 创建Prepay。
+     *
+     * @param order 订单
+     * @param request 请求
+     * @return 创建结果
+     */
     @Override
     public PaymentPrepayResult createPrepay(Order order, AppPayOrderRequest request) {
         requireWechatConfig();
@@ -69,6 +91,9 @@ public class WechatPaymentChannelGateway implements PaymentChannelGateway {
                 clientParams);
     }
 
+    /**
+     * 执行requireWechat配置。
+     */
     private void requireWechatConfig() {
         if (!StringUtils.hasText(properties.getWechatAppId())
                 || !StringUtils.hasText(properties.getWechatMchId())

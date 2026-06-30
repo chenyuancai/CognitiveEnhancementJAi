@@ -5,6 +5,12 @@ import cn.cyc.ai.cog.platform.system.domain.SecurityConfig;
 import cn.cyc.ai.cog.platform.system.dto.SecurityConfigPageQuery;
 import cn.cyc.ai.cog.platform.system.dto.SecurityConfigSaveRequest;
 
+/**
+ * Security配置仓储
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 public interface SecurityConfigRepository {
 
     PageResult<SecurityConfig> page(SecurityConfigPageQuery query);

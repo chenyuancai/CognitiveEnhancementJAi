@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
  * MyBatis Plus 配置类。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Configuration
 @MapperScan({

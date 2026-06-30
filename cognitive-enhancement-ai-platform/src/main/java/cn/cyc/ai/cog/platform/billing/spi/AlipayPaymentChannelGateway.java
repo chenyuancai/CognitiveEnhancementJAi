@@ -17,22 +17,44 @@ import java.util.TreeMap;
 
 /**
  * 支付宝通道：生成 APP orderStr（RSA2 排序串签名，生产可换官方 SDK）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 @org.springframework.core.annotation.Order(10)
 public class AlipayPaymentChannelGateway implements PaymentChannelGateway {
 
+    /** properties。 */
     private final PaymentCallbackProperties properties;
 
+    /**
+     * 创建AlipayPaymentChannelGateway。
+     *
+     * @param properties properties
+     */
     public AlipayPaymentChannelGateway(PaymentCallbackProperties properties) {
         this.properties = properties;
     }
 
+    /**
+     * 执行supports。
+     *
+     * @param channel channel
+     * @return 执行结果
+     */
     @Override
     public boolean supports(String channel) {
         return "ALIPAY".equalsIgnoreCase(channel);
     }
 
+    /**
+     * 创建Prepay。
+     *
+     * @param order 订单
+     * @param request 请求
+     * @return 创建结果
+     */
     @Override
     public PaymentPrepayResult createPrepay(Order order, AppPayOrderRequest request) {
         requireAlipayConfig();
@@ -66,6 +88,9 @@ public class AlipayPaymentChannelGateway implements PaymentChannelGateway {
                 clientParams);
     }
 
+    /**
+     * 执行requireAlipay配置。
+     */
     private void requireAlipayConfig() {
         if (!StringUtils.hasText(properties.getAlipayAppId())
                 || !StringUtils.hasText(properties.getAlipayMerchantPrivateKeyPem())) {
@@ -73,6 +98,12 @@ public class AlipayPaymentChannelGateway implements PaymentChannelGateway {
         }
     }
 
+    /**
+     * 执行formatAmountYuan。
+     *
+     * @param amountFen amountFen
+     * @return 执行结果
+     */
     private static String formatAmountYuan(Long amountFen) {
         if (amountFen == null) {
             return "0.00";

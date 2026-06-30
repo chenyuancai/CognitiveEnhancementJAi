@@ -9,13 +9,25 @@ import org.springframework.util.StringUtils;
 
 /**
  * 复合 Bearer 解析：优先 OAuth2 RS256，回退 legacy HS256。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public class CompositeBearerIdentityParser {
 
+    /** legacyParser。 */
     private final LegacyHs256BearerParser legacyParser;
+    /** fixedJwtDecoder。 */
     private final JwtDecoder fixedJwtDecoder;
+    /** jwtDecoder提供者。 */
     private final ObjectProvider<JwtDecoder> jwtDecoderProvider;
 
+    /**
+     * 创建CompositeBearerIdentityParser。
+     *
+     * @param legacyJwtSecret legacyJwtSecret
+     * @param jwtDecoder jwtDecoder
+     */
     public CompositeBearerIdentityParser(String legacyJwtSecret, JwtDecoder jwtDecoder) {
         this.legacyParser = new LegacyHs256BearerParser(legacyJwtSecret);
         this.fixedJwtDecoder = jwtDecoder;

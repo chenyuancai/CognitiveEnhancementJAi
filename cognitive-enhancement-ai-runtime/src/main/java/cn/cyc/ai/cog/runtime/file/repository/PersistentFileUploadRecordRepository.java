@@ -19,6 +19,7 @@ import java.util.Optional;
  * 持久化文件上传记录仓储。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true")
@@ -43,6 +44,11 @@ public class PersistentFileUploadRecordRepository implements FileUploadRecordRep
         this.fileUploadRecordMapper = fileUploadRecordMapper;
     }
 
+    /**
+     * 执行save。
+     *
+     * @param record record
+     */
     @Override
     public void save(FileUploadRecord record) {
         LambdaQueryWrapper<FileUploadRecordEntity> queryWrapper = new LambdaQueryWrapper<FileUploadRecordEntity>()
@@ -60,6 +66,12 @@ public class PersistentFileUploadRecordRepository implements FileUploadRecordRep
         log.debug("持久化更新文件上传记录, fileId={}, status={}", record.fileId(), record.status());
     }
 
+    /**
+     * 查找人文件ID。
+     *
+     * @param fileId 文件ID
+     * @return 查找结果
+     */
     @Override
     public Optional<FileUploadRecord> findByFileId(String fileId) {
         LambdaQueryWrapper<FileUploadRecordEntity> queryWrapper = new LambdaQueryWrapper<FileUploadRecordEntity>()
@@ -69,6 +81,12 @@ public class PersistentFileUploadRecordRepository implements FileUploadRecordRep
                 .map(this::toDomain);
     }
 
+    /**
+     * 转换为实体。
+     *
+     * @param record record
+     * @return 转换结果
+     */
     private FileUploadRecordEntity toEntity(FileUploadRecord record) {
         FileUploadRecordEntity entity = new FileUploadRecordEntity();
         entity.setTenantId(TenantIds.resolveId(record.tenantCode()));
@@ -83,6 +101,12 @@ public class PersistentFileUploadRecordRepository implements FileUploadRecordRep
         return entity;
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private FileUploadRecord toDomain(FileUploadRecordEntity entity) {
         return new FileUploadRecord(
                 TenantIds.toCode(entity.getTenantId()),

@@ -2,6 +2,9 @@ package cn.cyc.ai.cog.common.crypto;
 
 /**
  * 提供商 API Key 存储加解密。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface ApiKeyProtector {
 

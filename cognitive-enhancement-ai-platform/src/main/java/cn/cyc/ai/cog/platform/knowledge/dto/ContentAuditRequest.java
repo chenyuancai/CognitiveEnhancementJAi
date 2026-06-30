@@ -7,10 +7,12 @@ import lombok.Data;
  * 内容审核请求。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 public class ContentAuditRequest {
 
+    /** 主键 ID */
     private Long id;
 
     /** 是否通过：true 发布，false 驳回。 */

@@ -20,6 +20,7 @@ import java.util.List;
  * 基于日志的默认执行记录器。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class LoggingExecutionRecorder implements ExecutionRecorder {
@@ -101,6 +102,12 @@ public class LoggingExecutionRecorder implements ExecutionRecorder {
         return record;
     }
 
+    /**
+     * 构建输入。
+     *
+     * @param context 上下文
+     * @return 构建结果
+     */
     private ExecutionRecord.ExecutionInputDetail buildInput(ExecutionContext context) {
         if (context.request() == null) {
             return null;
@@ -111,6 +118,12 @@ public class LoggingExecutionRecorder implements ExecutionRecorder {
         );
     }
 
+    /**
+     * 构建Routing。
+     *
+     * @param context 上下文
+     * @return 构建结果
+     */
     private ExecutionRecord.ExecutionRoutingDetail buildRouting(ExecutionContext context) {
         CapabilityDefinition capability = context.capability();
         AgentDefinition agent = context.agent();
@@ -128,6 +141,12 @@ public class LoggingExecutionRecorder implements ExecutionRecorder {
         );
     }
 
+    /**
+     * 构建结果。
+     *
+     * @param result 结果
+     * @return 构建结果
+     */
     private ExecutionRecord.ExecutionResultDetail buildResult(ExecutionResult result) {
         if (result == null) {
             return null;

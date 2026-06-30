@@ -9,11 +9,25 @@ spring:
       data-locations: classpath:db/app-it-data.sql
 
 cog:
+  persistence:
+    enabled: false
   app:
     dev-auth-bypass: true
+    trust-gateway-headers: true
+    tutoring:
+      runtime-capability-code: capability.chat.generate
+      context-max-messages: 10
+      context-max-chars-per-message: 500
+  sse:
+    enabled: false
   admin:
     dev-auth-bypass: true
   billing:
     pay-callback:
       mock-secret: dev-mock-secret
       verify-signature: true
+  runtime:
+    usage:
+      account:
+        enabled: true
+        backend: admin-quota

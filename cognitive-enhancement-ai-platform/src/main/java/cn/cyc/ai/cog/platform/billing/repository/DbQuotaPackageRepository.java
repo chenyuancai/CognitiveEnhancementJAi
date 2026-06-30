@@ -21,6 +21,9 @@ import java.util.List;
  */
 /**
  * 额度包仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbQuotaPackageRepository implements QuotaPackageRepository {
@@ -35,6 +38,12 @@ public class DbQuotaPackageRepository implements QuotaPackageRepository {
         this.quotaPackageMapper = quotaPackageMapper;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Override
     public PageResult<QuotaPackage> page(PackagePageQuery query) {
         Page<QuotaPackageEntity> page = quotaPackageMapper.selectPage(
@@ -47,6 +56,12 @@ public class DbQuotaPackageRepository implements QuotaPackageRepository {
                 page.getSize());
     }
 
+    /**
+     * 查询OnSale列表。
+     *
+     * @param segment segment
+     * @return 结果列表
+     */
     @Override
     public List<QuotaPackage> listOnSale(String segment) {
         LambdaQueryWrapper<QuotaPackageEntity> wrapper = new LambdaQueryWrapper<QuotaPackageEntity>()
@@ -58,6 +73,12 @@ public class DbQuotaPackageRepository implements QuotaPackageRepository {
         return quotaPackageMapper.selectList(wrapper).stream().map(this::toDomain).toList();
     }
 
+    /**
+     * 执行require人ID。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     @Override
     public QuotaPackage requireById(Long id) {
         QuotaPackageEntity entity = quotaPackageMapper.selectById(id);
@@ -67,6 +88,13 @@ public class DbQuotaPackageRepository implements QuotaPackageRepository {
         return toDomain(entity);
     }
 
+    /**
+     * 执行save。
+     *
+     * @param id 主键 ID
+     * @param request 请求
+     * @return 执行结果
+     */
     @Override
     public QuotaPackage save(Long id, QuotaPackageSaveRequest request) {
         QuotaPackageEntity entity = id == null ? new QuotaPackageEntity() : quotaPackageMapper.selectById(id);
@@ -82,6 +110,12 @@ public class DbQuotaPackageRepository implements QuotaPackageRepository {
         return toDomain(entity);
     }
 
+    /**
+     * 执行map请求。
+     *
+     * @param entity 实体
+     * @param request 请求
+     */
     private void mapRequest(QuotaPackageEntity entity, QuotaPackageSaveRequest request) {
         entity.setPackageCode(request.getPackageCode());
         entity.setPackageName(request.getPackageName());
@@ -92,6 +126,12 @@ public class DbQuotaPackageRepository implements QuotaPackageRepository {
         entity.setStatus(request.getStatus());
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private QuotaPackage toDomain(QuotaPackageEntity entity) {
         return new QuotaPackage(
                 entity.getId(),

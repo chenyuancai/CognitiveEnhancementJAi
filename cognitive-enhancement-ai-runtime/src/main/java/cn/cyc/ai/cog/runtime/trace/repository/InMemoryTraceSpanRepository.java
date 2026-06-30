@@ -17,15 +17,23 @@ import java.util.stream.Collectors;
  * 内存 TraceSpan 仓储。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "false", matchIfMissing = true)
 public class InMemoryTraceSpanRepository implements TraceSpanRepository {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(InMemoryTraceSpanRepository.class);
 
+    /** records。 */
     private final CopyOnWriteArrayList<TraceSpan> records = new CopyOnWriteArrayList<>();
 
+    /**
+     * 执行save。
+     *
+     * @param span span
+     */
     @Override
     public void save(TraceSpan span) {
         records.add(span);
@@ -33,6 +41,10 @@ public class InMemoryTraceSpanRepository implements TraceSpanRepository {
                 span.traceId(), span.spanId(), span.spanType(), span.status());
     }
 
+    /**
+     * 查询All列表。
+     * @return 结果列表
+     */
     @Override
     public List<TraceSpan> listAll() {
         String tenantCode = TenantContext.currentTenantCode();
@@ -42,6 +54,12 @@ public class InMemoryTraceSpanRepository implements TraceSpanRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 查找人链路ID。
+     *
+     * @param traceId 链路 Trace ID
+     * @return 查找结果
+     */
     @Override
     public List<TraceSpan> findByTraceId(String traceId) {
         String tenantCode = TenantContext.currentTenantCode();

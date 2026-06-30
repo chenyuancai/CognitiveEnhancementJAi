@@ -3,6 +3,12 @@ package cn.cyc.ai.cog.admin.config;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * 管理后台认证配置属性
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 @Data
 @ConfigurationProperties(prefix = "cog.admin")
 public class AdminAuthProperties {

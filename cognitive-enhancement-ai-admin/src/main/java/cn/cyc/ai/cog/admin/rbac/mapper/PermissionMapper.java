@@ -11,6 +11,7 @@ import java.util.List;
  * 权限点 Mapper。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Mapper
 public interface PermissionMapper extends BaseMapper<PermissionEntity> {

@@ -34,6 +34,7 @@ import java.util.UUID;
  * Tool 调试调用服务。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class ToolDebugService {
@@ -123,10 +124,23 @@ public class ToolDebugService {
         }
     }
 
+    /**
+     * 判断是否为DebugConfirmed。
+     *
+     * @param request 请求
+     * @param headerDebugConfirmed headerDebugConfirmed
+     * @return 是否满足条件
+     */
     private boolean isDebugConfirmed(ToolDebugInvokeRequest request, Boolean headerDebugConfirmed) {
         return Boolean.TRUE.equals(request.debugConfirmed()) || Boolean.TRUE.equals(headerDebugConfirmed);
     }
 
+    /**
+     * 执行resolve链路ID。
+     *
+     * @param requestTraceId 请求链路ID
+     * @return 执行结果
+     */
     private String resolveTraceId(String requestTraceId) {
         if (StringUtils.hasText(requestTraceId)) {
             return requestTraceId;
@@ -137,6 +151,14 @@ public class ToolDebugService {
         return "trace-tool-debug-" + UUID.randomUUID();
     }
 
+    /**
+     * 执行debug上下文。
+     *
+     * @param traceId 链路 Trace ID
+     * @param toolCode 工具编码
+     * @param request 请求
+     * @return 执行结果
+     */
     @SuppressWarnings("unchecked")
     private ExecutionContext debugContext(String traceId, String toolCode, ToolDebugInvokeRequest request) {
         Map<String, Object> input = request.input() instanceof Map<?, ?> map
@@ -188,6 +210,15 @@ public class ToolDebugService {
         return new ExecutionContext(traceId, executeRequest, capability, agent, prompt, List.of(), Map.of());
     }
 
+    /**
+     * 执行recordAudit。
+     *
+     * @param traceId 链路 Trace ID
+     * @param toolCode 工具编码
+     * @param success 成功
+     * @param latencyMs latencyMs
+     * @param failureReason 失败原因
+     */
     private void recordAudit(String traceId, String toolCode, boolean success, long latencyMs, String failureReason) {
         try {
             auditRecorder.recordToolDebugInvocation(traceId, toolCode, success, latencyMs, failureReason);
@@ -196,6 +227,12 @@ public class ToolDebugService {
         }
     }
 
+    /**
+     * 执行elapsedMillis。
+     *
+     * @param startedAt startedAt
+     * @return 执行结果
+     */
     private long elapsedMillis(long startedAt) {
         return Math.max(0, (System.nanoTime() - startedAt) / 1_000_000);
     }

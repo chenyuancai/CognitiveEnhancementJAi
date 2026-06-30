@@ -10,18 +10,8 @@ import java.util.Map;
 /**
  * Agent 定义写入请求。
  *
- * @param agentCode         Agent 编码
- * @param agentName         Agent 名称
- * @param roleDesc          角色描述
- * @param goalDesc          目标描述
- * @param modelCode         运行模型编码
- * @param maxSteps          最大步骤数
- * @param maxCost           最大成本
- * @param timeoutMs         超时时间
- * @param allowedSkillCodes 允许使用的 Skill 编码列表
- * @param parameterConstraints Agent 运行时参数约束
- * @param status            启用状态
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record AgentUpsertRequest(
         String agentCode,

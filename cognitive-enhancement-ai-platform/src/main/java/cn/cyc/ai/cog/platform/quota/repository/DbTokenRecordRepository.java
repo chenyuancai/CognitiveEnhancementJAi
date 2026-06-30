@@ -13,6 +13,9 @@ import java.util.List;
 
 /**
  * Token 流水仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbTokenRecordRepository implements TokenRecordRepository {
@@ -27,6 +30,14 @@ public class DbTokenRecordRepository implements TokenRecordRepository {
         this.tokenRecordMapper = tokenRecordMapper;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param current current
+     * @param size 大小
+     * @param accountId 账户ID
+     * @return 执行结果
+     */
     @Override
     public PageResult<TokenRecord> page(long current, long size, Long accountId) {
         LambdaQueryWrapper<TokenRecordEntity> wrapper = new LambdaQueryWrapper<>();
@@ -39,6 +50,12 @@ public class DbTokenRecordRepository implements TokenRecordRepository {
                 page.getTotal(), page.getCurrent(), page.getSize());
     }
 
+    /**
+     * 查找人Idempotency键。
+     *
+     * @param idempotencyKey idempotency键
+     * @return 查找结果
+     */
     @Override
     public TokenRecord findByIdempotencyKey(String idempotencyKey) {
         TokenRecordEntity entity = tokenRecordMapper.selectOne(new LambdaQueryWrapper<TokenRecordEntity>()
@@ -47,6 +64,11 @@ public class DbTokenRecordRepository implements TokenRecordRepository {
         return entity == null ? null : toDomain(entity);
     }
 
+    /**
+     * 执行insert。
+     *
+     * @param record record
+     */
     @Override
     public void insert(TokenRecord record) {
         TokenRecordEntity entity = new TokenRecordEntity();
@@ -65,6 +87,10 @@ public class DbTokenRecordRepository implements TokenRecordRepository {
         tokenRecordMapper.insert(entity);
     }
 
+    /**
+     * 执行数量人租户And类型And时间Range。
+     * @return 执行结果
+     */
     @Override
     public long countByTenantAndTypeAndTimeRange(Long tenantId, String recordType,
                                                  LocalDateTime start, LocalDateTime end) {
@@ -78,6 +104,14 @@ public class DbTokenRecordRepository implements TokenRecordRepository {
         return tokenRecordMapper.selectCount(wrapper);
     }
 
+    /**
+     * 查询人租户And时间Range列表。
+     *
+     * @param tenantId 租户 ID
+     * @param start start
+     * @param end end
+     * @return 结果列表
+     */
     @Override
     public List<TokenRecord> listByTenantAndTimeRange(Long tenantId, LocalDateTime start, LocalDateTime end) {
         LambdaQueryWrapper<TokenRecordEntity> wrapper = new LambdaQueryWrapper<>();
@@ -87,6 +121,12 @@ public class DbTokenRecordRepository implements TokenRecordRepository {
         return tokenRecordMapper.selectList(wrapper).stream().map(this::toDomain).toList();
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private TokenRecord toDomain(TokenRecordEntity entity) {
         return new TokenRecord(
                 entity.getId(),

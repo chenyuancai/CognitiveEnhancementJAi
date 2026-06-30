@@ -7,6 +7,7 @@ import cn.cyc.ai.cog.runtime.api.ModelConnectivityCheckResult;
  * 模型连通性检查服务。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface ModelConnectivityCheckService {
 

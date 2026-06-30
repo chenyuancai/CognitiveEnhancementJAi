@@ -11,17 +11,27 @@ import java.util.concurrent.ConcurrentHashMap;
  * 租户内 JVM 内存模型熔断状态注册表。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class InMemoryModelCircuitBreakerRegistry {
 
+    /** clock。 */
     private final Clock clock;
     private final Map<String, CircuitBreakerEntry> entries = new ConcurrentHashMap<>();
 
+    /**
+     * 创建InMemoryModelCircuitBreakerRegistry。
+     */
     public InMemoryModelCircuitBreakerRegistry() {
         this(Clock.systemUTC());
     }
 
+    /**
+     * 创建InMemoryModelCircuitBreakerRegistry。
+     *
+     * @param clock clock
+     */
     InMemoryModelCircuitBreakerRegistry(Clock clock) {
         this.clock = clock;
     }
@@ -84,6 +94,12 @@ public class InMemoryModelCircuitBreakerRegistry {
         }
     }
 
+    /**
+     * 执行openCircuit。
+     *
+     * @param entry entry
+     * @param openDurationMs openDurationMs
+     */
     private void openCircuit(CircuitBreakerEntry entry, long openDurationMs) {
         entry.state = ModelCircuitBreakerState.OPEN;
         entry.openedAt = Instant.now(clock);
@@ -91,6 +107,12 @@ public class InMemoryModelCircuitBreakerRegistry {
         entry.consecutiveFailureCount = Math.max(entry.consecutiveFailureCount, 1);
     }
 
+    /**
+     * 执行refreshHalfOpen。
+     *
+     * @param entry entry
+     * @param openDurationMs openDurationMs
+     */
     private void refreshHalfOpen(CircuitBreakerEntry entry, long openDurationMs) {
         if (entry.state != ModelCircuitBreakerState.OPEN || entry.openedAt == null) {
             return;
@@ -102,10 +124,24 @@ public class InMemoryModelCircuitBreakerRegistry {
         }
     }
 
+    /**
+     * 执行entry。
+     *
+     * @param tenantCode 租户编码
+     * @param modelCode 模型编码
+     * @return 执行结果
+     */
     private CircuitBreakerEntry entry(String tenantCode, String modelCode) {
         return entries.computeIfAbsent(buildKey(tenantCode, modelCode), ignored -> new CircuitBreakerEntry());
     }
 
+    /**
+     * 构建键。
+     *
+     * @param tenantCode 租户编码
+     * @param modelCode 模型编码
+     * @return 构建结果
+     */
     private static String buildKey(String tenantCode, String modelCode) {
         return tenantCode + "#" + modelCode;
     }
@@ -113,9 +149,8 @@ public class InMemoryModelCircuitBreakerRegistry {
     /**
      * 熔断状态快照。
      *
-     * @param state                   状态
-     * @param consecutiveFailureCount 连续失败次数
-     * @param openedAt                打开时间
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     public record CircuitBreakerSnapshot(
             ModelCircuitBreakerState state,
@@ -124,10 +159,20 @@ public class InMemoryModelCircuitBreakerRegistry {
     ) {
     }
 
+    /**
+     * CircuitBreakerEntry
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     private static final class CircuitBreakerEntry {
+        /** 状态。 */
         private ModelCircuitBreakerState state = ModelCircuitBreakerState.CLOSED;
+        /** consecutive失败数量。 */
         private int consecutiveFailureCount;
+        /** openedAt。 */
         private Instant openedAt;
+        /** openDurationMs。 */
         private long openDurationMs;
     }
 }

@@ -10,6 +10,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * C 端 Web MVC 配置：注册鉴权拦截器与配置属性。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Configuration
 @EnableConfigurationProperties({AppAuthProperties.class, AppRateLimitProperties.class, AppReadCacheProperties.class, PaymentCallbackProperties.class})

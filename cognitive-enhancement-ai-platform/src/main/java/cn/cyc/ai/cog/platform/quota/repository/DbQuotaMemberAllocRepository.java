@@ -15,6 +15,9 @@ import java.util.List;
 
 /**
  * 成员额度分配仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbQuotaMemberAllocRepository implements QuotaMemberAllocRepository {
@@ -29,6 +32,12 @@ public class DbQuotaMemberAllocRepository implements QuotaMemberAllocRepository 
         this.quotaMemberAllocMapper = quotaMemberAllocMapper;
     }
 
+    /**
+     * 查询人账户列表。
+     *
+     * @param accountId 账户ID
+     * @return 结果列表
+     */
     @Override
     public List<QuotaMemberAlloc> listByAccount(Long accountId) {
         return quotaMemberAllocMapper.selectList(new LambdaQueryWrapper<QuotaMemberAllocEntity>()
@@ -37,6 +46,13 @@ public class DbQuotaMemberAllocRepository implements QuotaMemberAllocRepository 
                 .stream().map(this::toDomain).toList();
     }
 
+    /**
+     * 查找人账户And用户。
+     *
+     * @param accountId 账户ID
+     * @param userId 用户 ID
+     * @return 查找结果
+     */
     @Override
     public QuotaMemberAlloc findByAccountAndUser(Long accountId, Long userId) {
         QuotaMemberAllocEntity entity = quotaMemberAllocMapper.selectOne(new LambdaQueryWrapper<QuotaMemberAllocEntity>()
@@ -46,6 +62,13 @@ public class DbQuotaMemberAllocRepository implements QuotaMemberAllocRepository 
         return entity == null ? null : toDomain(entity);
     }
 
+    /**
+     * 执行allocate。
+     *
+     * @param accountId 账户ID
+     * @param request 请求
+     * @return 执行结果
+     */
     @Override
     @Transactional
     public QuotaMemberAlloc allocate(Long accountId, QuotaMemberAllocSaveRequest request) {
@@ -70,6 +93,12 @@ public class DbQuotaMemberAllocRepository implements QuotaMemberAllocRepository 
         return toDomain(existing);
     }
 
+    /**
+     * 删除Item。
+     *
+     * @param accountId 账户ID
+     * @param userId 用户 ID
+     */
     @Override
     @Transactional
     public void remove(Long accountId, Long userId) {
@@ -82,6 +111,12 @@ public class DbQuotaMemberAllocRepository implements QuotaMemberAllocRepository 
         }
     }
 
+    /**
+     * 更新UsedAmount。
+     *
+     * @param alloc alloc
+     * @return 更新结果
+     */
     @Override
     public void updateUsedAmount(QuotaMemberAlloc alloc) {
         QuotaMemberAllocEntity entity = quotaMemberAllocMapper.selectById(alloc.id());
@@ -91,6 +126,12 @@ public class DbQuotaMemberAllocRepository implements QuotaMemberAllocRepository 
         }
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private QuotaMemberAlloc toDomain(QuotaMemberAllocEntity entity) {
         return new QuotaMemberAlloc(
                 entity.getId(),
@@ -101,6 +142,12 @@ public class DbQuotaMemberAllocRepository implements QuotaMemberAllocRepository 
         );
     }
 
+    /**
+     * 执行safe。
+     *
+     * @param value 值
+     * @return 执行结果
+     */
     private long safe(Long value) {
         return value == null ? 0L : value;
     }

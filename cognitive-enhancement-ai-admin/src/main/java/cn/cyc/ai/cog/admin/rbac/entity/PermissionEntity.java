@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
  * 权限点 / 菜单实体（映射 qz_iam_permission）。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

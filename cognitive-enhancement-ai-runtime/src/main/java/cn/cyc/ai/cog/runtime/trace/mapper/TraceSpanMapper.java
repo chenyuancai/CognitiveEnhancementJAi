@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
  * TraceSpan Mapper。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Mapper
 public interface TraceSpanMapper extends BaseMapper<TraceSpanEntity> {

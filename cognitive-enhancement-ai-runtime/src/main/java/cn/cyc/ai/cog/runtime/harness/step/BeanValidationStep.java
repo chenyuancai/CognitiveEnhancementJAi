@@ -23,10 +23,12 @@ import java.util.Map;
  * Bean 装配检查步骤，验证核心 Spring Bean 已正确注册。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class BeanValidationStep implements HarnessStep {
 
+    /** application上下文。 */
     private final ApplicationContext applicationContext;
 
     private static final List<Class<?>> REQUIRED_BEANS = List.of(
@@ -40,25 +42,48 @@ public class BeanValidationStep implements HarnessStep {
             LlmGateway.class
     );
 
+    /**
+     * 创建BeanValidationStep。
+     *
+     * @param applicationContext application上下文
+     */
     public BeanValidationStep(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
 
+    /**
+     * 执行step编码。
+     * @return 执行结果
+     */
     @Override
     public String stepCode() {
         return "BEAN_VALIDATION";
     }
 
+    /**
+     * 执行step名称。
+     * @return 执行结果
+     */
     @Override
     public String stepName() {
         return "组件装配检查";
     }
 
+    /**
+     * 执行描述。
+     * @return 执行结果
+     */
     @Override
     public String description() {
         return "验证核心 Spring Bean 已正确注册";
     }
 
+    /**
+     * 执行操作。
+     *
+     * @param ctx ctx
+     * @return 执行结果
+     */
     @Override
     public HarnessStepResult run(HarnessContext ctx) {
         List<Map<String, Object>> checkedBeans = new ArrayList<>();

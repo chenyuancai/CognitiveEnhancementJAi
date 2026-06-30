@@ -12,13 +12,25 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
+/**
+ * SystemHealth管理后台接口
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 @Tag(name = "系统-健康检查", description = "管理后台健康探针")
 @RestController
 @RequestMapping("/api/admin/system")
 public class SystemHealthAdminController {
 
+    /** systemHealth服务。 */
     private final SystemHealthService systemHealthService;
 
+    /**
+     * 创建SystemHealth管理后台接口。
+     *
+     * @param systemHealthService systemHealth服务
+     */
     public SystemHealthAdminController(SystemHealthService systemHealthService) {
         this.systemHealthService = systemHealthService;
     }

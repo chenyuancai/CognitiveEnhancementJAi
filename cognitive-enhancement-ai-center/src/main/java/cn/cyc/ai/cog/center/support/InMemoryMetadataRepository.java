@@ -14,8 +14,8 @@ import java.util.Optional;
 /**
  * 通用内存元数据仓储实现，主要供配置类中的轻量 Bean 装配复用。
  *
- * @param <T> 元数据类型
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public abstract class InMemoryMetadataRepository<T extends MetadataDefinition> implements MetadataRepository<T> {
 
@@ -29,18 +29,34 @@ public abstract class InMemoryMetadataRepository<T extends MetadataDefinition> i
      */
     private final Map<String, T> storage = new LinkedHashMap<>();
 
+    /**
+     * 查找人编码。
+     *
+     * @param code 编码
+     * @return 查找结果
+     */
     @Override
     public synchronized Optional<T> findByCode(String code) {
         log.debug("顺序内存仓储按编码查询定义，repository={}, code={}", getClass().getSimpleName(), code);
         return Optional.ofNullable(storage.get(code));
     }
 
+    /**
+     * 查询All列表。
+     * @return 结果列表
+     */
     @Override
     public synchronized List<T> listAll() {
         log.debug("顺序内存仓储查询全部定义，repository={}, size={}", getClass().getSimpleName(), storage.size());
         return new ArrayList<>(storage.values());
     }
 
+    /**
+     * 执行save。
+     *
+     * @param definition definition
+     * @return 执行结果
+     */
     @Override
     public synchronized T save(T definition) {
         log.info("顺序内存仓储保存定义，repository={}, code={}", getClass().getSimpleName(), definition.code());

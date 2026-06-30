@@ -7,10 +7,8 @@ import java.util.List;
 /**
  * 本次运行使用的会话上下文快照。
  *
- * @param sessionId       会话 ID
- * @param recentMessages  最近历史消息
- * @param enabled         是否启用上下文
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ConversationContext(
         String sessionId,
@@ -22,6 +20,10 @@ public record ConversationContext(
         recentMessages = List.copyOf(recentMessages == null ? List.of() : recentMessages);
     }
 
+    /**
+     * 执行disabled。
+     * @return 执行结果
+     */
     public static ConversationContext disabled() {
         return new ConversationContext(null, List.of(), false);
     }

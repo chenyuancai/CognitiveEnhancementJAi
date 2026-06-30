@@ -6,6 +6,9 @@ import java.time.LocalDateTime;
 
 /**
  * C 端订单展示 VO。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 public class OrderVO {
@@ -45,6 +48,9 @@ public class OrderVO {
 
     /** 支付渠道 */
     private String payChannel;
+
+    /** 支付渠道展示名 */
+    private String payChannelLabel;
 
     /** 支付时间 */
     private LocalDateTime payTime;

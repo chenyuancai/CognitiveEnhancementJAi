@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 模型后台管理接口，负责处理模型定义的查询与维护请求。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "Center - Model", description = "模型元数据管理：Provider、Endpoint、降级与路由优先级")
 @RestController

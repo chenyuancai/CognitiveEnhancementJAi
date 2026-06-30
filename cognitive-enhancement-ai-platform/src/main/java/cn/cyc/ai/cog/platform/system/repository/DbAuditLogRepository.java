@@ -12,6 +12,9 @@ import org.springframework.util.StringUtils;
 
 /**
  * 审计日志仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbAuditLogRepository implements AuditLogRepository {
@@ -26,6 +29,12 @@ public class DbAuditLogRepository implements AuditLogRepository {
         this.auditLogMapper = auditLogMapper;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Override
     public PageResult<AuditLog> page(AuditLogPageQuery query) {
         LambdaQueryWrapper<AuditLogEntity> wrapper = new LambdaQueryWrapper<>();
@@ -41,6 +50,11 @@ public class DbAuditLogRepository implements AuditLogRepository {
                 page.getTotal(), page.getCurrent(), page.getSize());
     }
 
+    /**
+     * 执行append。
+     *
+     * @param log 日志记录器
+     */
     @Override
     public void append(AuditLog log) {
         AuditLogEntity entity = new AuditLogEntity();
@@ -58,6 +72,12 @@ public class DbAuditLogRepository implements AuditLogRepository {
         auditLogMapper.insert(entity);
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private AuditLog toDomain(AuditLogEntity entity) {
         return new AuditLog(
                 entity.getId(),

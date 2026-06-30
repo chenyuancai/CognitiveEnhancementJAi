@@ -7,6 +7,12 @@ import cn.cyc.ai.cog.platform.membership.dto.MembershipLevelSaveRequest;
 
 import java.util.List;
 
+/**
+ * 会员等级仓储
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 public interface MembershipLevelRepository {
 
     PageResult<MembershipLevel> page(MembershipLevelPageQuery query);

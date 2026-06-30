@@ -24,27 +24,46 @@ import java.util.Map;
  * 持久化 TraceSpan 仓储。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true")
 public class PersistentTraceSpanRepository implements TraceSpanRepository {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(PersistentTraceSpanRepository.class);
 
+    /** 链路SpanMapper。 */
     private final TraceSpanMapper traceSpanMapper;
+    /** JSON 序列化器 */
     private final ObjectMapper objectMapper;
 
+    /**
+     * 创建Persistent链路Span仓储。
+     *
+     * @param traceSpanMapper 链路SpanMapper
+     * @param objectMapper JSON 序列化器
+     */
     public PersistentTraceSpanRepository(TraceSpanMapper traceSpanMapper, ObjectMapper objectMapper) {
         this.traceSpanMapper = traceSpanMapper;
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * 执行save。
+     *
+     * @param span span
+     */
     @Override
     public void save(TraceSpan span) {
         traceSpanMapper.insert(toEntity(span));
         log.debug("持久化 TraceSpan, traceId={}, spanId={}", span.traceId(), span.spanId());
     }
 
+    /**
+     * 查询All列表。
+     * @return 结果列表
+     */
     @Override
     public List<TraceSpan> listAll() {
         LambdaQueryWrapper<TraceSpanEntity> wrapper = new LambdaQueryWrapper<TraceSpanEntity>()
@@ -54,6 +73,12 @@ public class PersistentTraceSpanRepository implements TraceSpanRepository {
         return traceSpanMapper.selectList(wrapper).stream().map(this::toDomain).toList();
     }
 
+    /**
+     * 查找人链路ID。
+     *
+     * @param traceId 链路 Trace ID
+     * @return 查找结果
+     */
     @Override
     public List<TraceSpan> findByTraceId(String traceId) {
         LambdaQueryWrapper<TraceSpanEntity> wrapper = new LambdaQueryWrapper<TraceSpanEntity>()
@@ -64,6 +89,12 @@ public class PersistentTraceSpanRepository implements TraceSpanRepository {
         return traceSpanMapper.selectList(wrapper).stream().map(this::toDomain).toList();
     }
 
+    /**
+     * 转换为实体。
+     *
+     * @param span span
+     * @return 转换结果
+     */
     private TraceSpanEntity toEntity(TraceSpan span) {
         TraceSpanEntity entity = new TraceSpanEntity();
         entity.setTenantId(TenantIds.resolveId(span.tenantCode()));
@@ -80,6 +111,12 @@ public class PersistentTraceSpanRepository implements TraceSpanRepository {
         return entity;
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private TraceSpan toDomain(TraceSpanEntity entity) {
         return new TraceSpan(
                 TenantIds.toCode(entity.getTenantId()),
@@ -96,6 +133,12 @@ public class PersistentTraceSpanRepository implements TraceSpanRepository {
         );
     }
 
+    /**
+     * 转换为JSON。
+     *
+     * @param attributes attributes
+     * @return 转换结果
+     */
     private String toJson(Map<String, Object> attributes) {
         if (attributes == null || attributes.isEmpty()) {
             return "{}";

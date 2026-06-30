@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Agent 后台管理接口。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "Center - Agent", description = "Agent 元数据管理：定义角色、目标、绑定模型与技能")
 @RestController

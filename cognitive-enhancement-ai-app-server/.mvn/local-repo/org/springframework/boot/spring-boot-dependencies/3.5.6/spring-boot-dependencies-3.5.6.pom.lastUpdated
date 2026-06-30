@@ -1,0 +1,6 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Mon Jun 29 15:25:56 CST 2026
+https\://maven.aliyun.com/repository/central/.error=Could not transfer artifact org.springframework.boot\:spring-boot-dependencies\:pom\:3.5.6 from/to aliyun-central (https\://maven.aliyun.com/repository/central)\: maven.aliyun.com\: nodename nor servname provided, or not known
+@default-aliyun-https\://maven.aliyun.com/repository/public/.lastUpdated=1782717956579
+@default-aliyun-central-https\://maven.aliyun.com/repository/central/.lastUpdated=1782717956571
+https\://maven.aliyun.com/repository/public/.error=Could not transfer artifact org.springframework.boot\:spring-boot-dependencies\:pom\:3.5.6 from/to aliyun (https\://maven.aliyun.com/repository/public)\: maven.aliyun.com

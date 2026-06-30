@@ -20,17 +20,25 @@ import java.util.Map;
  * 将 TraceSpan 以 OTLP JSON 形式导出到外部 Collector。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 @ConditionalOnProperty(prefix = "cog.runtime.trace.otel", name = "enabled", havingValue = "true")
 public class OtlpHttpTraceSpanExporter implements TraceSpanExportListener {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(OtlpHttpTraceSpanExporter.class);
 
+    /** properties。 */
     private final OpenTelemetryTraceProperties properties;
+    /** 工具HttpExecutor。 */
     private final ToolHttpExecutor toolHttpExecutor;
+    /** JSON 序列化器 */
     private final ObjectMapper objectMapper;
 
+    /**
+     * 创建OtlpHttpTraceSpanExporter。
+     */
     public OtlpHttpTraceSpanExporter(OpenTelemetryTraceProperties properties,
                                      ToolHttpExecutor toolHttpExecutor,
                                      ObjectMapper objectMapper) {
@@ -39,6 +47,11 @@ public class OtlpHttpTraceSpanExporter implements TraceSpanExportListener {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * 执行onSpanExported。
+     *
+     * @param span span
+     */
     @Override
     public void onSpanExported(TraceSpan span) {
         if (!properties.isEnabled()) {
@@ -109,6 +122,12 @@ public class OtlpHttpTraceSpanExporter implements TraceSpanExportListener {
         return attribute;
     }
 
+    /**
+     * 执行abbreviate。
+     *
+     * @param body body
+     * @return 执行结果
+     */
     private String abbreviate(String body) {
         if (body == null) {
             return "";

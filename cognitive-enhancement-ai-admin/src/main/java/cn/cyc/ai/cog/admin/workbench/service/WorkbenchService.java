@@ -35,14 +35,22 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 工作台聚合编排服务：概览、趋势、待办与 AI 看板内联。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class WorkbenchService {
 
+    /** 缓存TTLMILLIS。 */
     private static final long CACHE_TTL_MILLIS = 60_000L;
+    /** 默认TRENDDAYS。 */
     private static final int DEFAULT_TREND_DAYS = 7;
+    /** ACTIVE用户DAYS。 */
     private static final int ACTIVE_USER_DAYS = 7;
+    /** EXPIRINGMEMBERDAYS。 */
     private static final int EXPIRING_MEMBER_DAYS = 7;
+    /** PUBLISHTRENDDAYS。 */
     private static final int PUBLISH_TREND_DAYS = 30;
 
     /** 看板结果缓存 */
@@ -149,6 +157,12 @@ public class WorkbenchService {
         return buildTodo(TenantContext.currentTenantId(), aiRoutingOverviewService.build());
     }
 
+    /**
+     * 构建Dashboard。
+     *
+     * @param range range
+     * @return 构建结果
+     */
     private DashboardResult buildDashboard(DateRange range) {
         Long tenantId = TenantContext.currentTenantId();
         AiRoutingOverviewResult aiRouting = aiRoutingOverviewService.build();
@@ -171,6 +185,12 @@ public class WorkbenchService {
         return result;
     }
 
+    /**
+     * 构建Overview。
+     *
+     * @param range range
+     * @return 构建结果
+     */
     private DashboardOverview buildOverview(DateRange range) {
         Long tenantId = TenantContext.currentTenantId();
         LocalDate today = LocalDate.now();
@@ -195,6 +215,12 @@ public class WorkbenchService {
         return overview;
     }
 
+    /**
+     * 构建Trends。
+     *
+     * @param range range
+     * @return 构建结果
+     */
     private List<TrendSeries> buildTrends(DateRange range) {
         Long tenantId = TenantContext.currentTenantId();
         List<TrendSeries> trends = new ArrayList<>();
@@ -223,6 +249,13 @@ public class WorkbenchService {
         return trends;
     }
 
+    /**
+     * 构建Todo。
+     *
+     * @param tenantId 租户 ID
+     * @param aiRouting aiRouting
+     * @return 构建结果
+     */
     private DashboardTodo buildTodo(Long tenantId, AiRoutingOverviewResult aiRouting) {
         DashboardTodo todo = new DashboardTodo();
         todo.setPendingAudit(contentStatsService.countByStatus(tenantId, ContentStatus.PENDING.code()));
@@ -234,6 +267,13 @@ public class WorkbenchService {
         return todo;
     }
 
+    /**
+     * 构建AiCostTrend。
+     *
+     * @param tenantId 租户 ID
+     * @param range range
+     * @return 构建结果
+     */
     private List<DailyPoint> buildAiCostTrend(Long tenantId, DateRange range) {
         List<DailyPoint> points = new ArrayList<>();
         LocalDate cursor = range.start();
@@ -246,6 +286,14 @@ public class WorkbenchService {
         return points;
     }
 
+    /**
+     * 执行sum令牌Delta。
+     *
+     * @param tenantId 租户 ID
+     * @param start start
+     * @param end end
+     * @return 执行结果
+     */
     private long sumTokenDelta(Long tenantId, LocalDateTime start, LocalDateTime end) {
         return tokenRecordRepository.listByTenantAndTimeRange(tenantId, start, end).stream()
                 .filter(record -> "DEDUCT".equals(record.recordType()))
@@ -253,6 +301,12 @@ public class WorkbenchService {
                 .sum();
     }
 
+    /**
+     * 执行数量AiAlerts。
+     *
+     * @param aiRouting aiRouting
+     * @return 执行结果
+     */
     private long countAiAlerts(AiRoutingOverviewResult aiRouting) {
         if (aiRouting.getGovernanceStates() == null) {
             return 0;
@@ -263,6 +317,12 @@ public class WorkbenchService {
                 .count();
     }
 
+    /**
+     * 转换为等级Items。
+     *
+     * @param distribution distribution
+     * @return 转换结果
+     */
     private List<LevelCountItem> toLevelItems(Map<String, Long> distribution) {
         return distribution.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
@@ -275,6 +335,12 @@ public class WorkbenchService {
                 .toList();
     }
 
+    /**
+     * 执行resolveRange。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     private DateRange resolveRange(WorkbenchQuery query) {
         LocalDate end = LocalDate.now();
         LocalDate start = end.minusDays(DEFAULT_TREND_DAYS - 1L);
@@ -292,14 +358,32 @@ public class WorkbenchService {
         return new DateRange(start, end);
     }
 
+    /**
+     * 构建缓存键。
+     *
+     * @param range range
+     * @return 构建结果
+     */
     private String buildCacheKey(DateRange range) {
         Long tenantId = TenantContext.currentTenantId();
         return tenantId + ":" + range.start() + ":" + range.end();
     }
 
+    /**
+     * DateRange 记录
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     private record DateRange(LocalDate start, LocalDate end) {
     }
 
+    /**
+     * CacheEntry 记录
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     private record CacheEntry(DashboardResult result, long cachedAtMillis) {
 
         boolean isExpired() {

@@ -5,11 +5,8 @@ import java.util.Map;
 /**
  * SDK 能力执行结果摘要。
  *
- * @param traceId 执行链路 ID
- * @param status  执行结果状态
- * @param message 执行结果说明
- * @param output  执行输出
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record CapabilityExecutionResult(String traceId,
                                         String status,

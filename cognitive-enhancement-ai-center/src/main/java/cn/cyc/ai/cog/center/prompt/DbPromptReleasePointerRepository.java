@@ -16,17 +16,32 @@ import java.util.Optional;
 
 /**
  * Prompt 发布指针数据库仓储。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true", matchIfMissing = true)
 public class DbPromptReleasePointerRepository implements PromptReleasePointerRepository {
 
+    /** Mapper。 */
     private final PromptReleasePointerMapper mapper;
 
+    /**
+     * 创建Db提示词ReleasePointer仓储。
+     *
+     * @param mapper Mapper
+     */
     public DbPromptReleasePointerRepository(PromptReleasePointerMapper mapper) {
         this.mapper = mapper;
     }
 
+    /**
+     * 查找人提示词编码。
+     *
+     * @param promptCode 提示词编码
+     * @return 查找结果
+     */
     @Override
     public Optional<PromptReleasePointer> findByPromptCode(String promptCode) {
         QueryWrapper<PromptReleasePointerEntity> wrapper = new QueryWrapper<>();
@@ -35,6 +50,12 @@ public class DbPromptReleasePointerRepository implements PromptReleasePointerRep
         return Optional.ofNullable(mapper.selectOne(wrapper)).map(this::toDomain);
     }
 
+    /**
+     * 执行save。
+     *
+     * @param pointer pointer
+     * @return 执行结果
+     */
     @Override
     public PromptReleasePointer save(PromptReleasePointer pointer) {
         QueryWrapper<PromptReleasePointerEntity> wrapper = new QueryWrapper<>();
@@ -52,6 +73,12 @@ public class DbPromptReleasePointerRepository implements PromptReleasePointerRep
         return pointer;
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private PromptReleasePointer toDomain(PromptReleasePointerEntity entity) {
         PromptGrayRule grayRule = entity.getGrayRuleJson() == null
                 ? null
@@ -65,6 +92,12 @@ public class DbPromptReleasePointerRepository implements PromptReleasePointerRep
         );
     }
 
+    /**
+     * 转换为实体。
+     *
+     * @param pointer pointer
+     * @return 转换结果
+     */
     private PromptReleasePointerEntity toEntity(PromptReleasePointer pointer) {
         PromptReleasePointerEntity entity = new PromptReleasePointerEntity();
         entity.setTenantId(TenantIds.resolveId(pointer.tenantCode()));

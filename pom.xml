@@ -28,6 +28,8 @@
         <module>cognitive-enhancement-ai-file-storage</module>
         <module>cognitive-enhancement-ai-base-server</module>
         <module>cognitive-enhancement-ai-gateway</module>
+        <module>cognitive-enhancement-ai-sse-api</module>
+        <module>cognitive-enhancement-ai-sse-server</module>
     </modules>
 
     <properties>
@@ -67,6 +69,11 @@
             <dependency>
                 <groupId>cn.cyc.ai</groupId>
                 <artifactId>cognitive-enhancement-ai-base-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.cyc.ai</groupId>
+                <artifactId>cognitive-enhancement-ai-sse-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

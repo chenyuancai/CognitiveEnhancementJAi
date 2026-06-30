@@ -5,13 +5,8 @@ import java.math.BigDecimal;
 /**
  * 观测聚合总览摘要。
  *
- * @param totalExecutions      执行总次数
- * @param successExecutions    成功执行次数
- * @param failedExecutions     失败执行次数
- * @param totalUsageRecords    用量记录数
- * @param totalTokens          总 token 数
- * @param totalEstimatedCost   预估总成本
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ObservationStatsSummary(
         int totalExecutions,

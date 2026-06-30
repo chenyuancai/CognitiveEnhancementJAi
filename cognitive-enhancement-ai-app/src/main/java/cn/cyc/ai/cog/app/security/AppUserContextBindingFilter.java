@@ -12,11 +12,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 /**
- * C 端用户上下文绑定过滤器：仅处理 {@code /api/app/**} 路径。
- * <p>
- * 请求结束时清理 {@link cn.cyc.ai.cog.common.context.UserContext}，避免线程复用泄漏。
- * </p>
- */
+ /**
+  * <p>
+  * 请求结束时清理 {@link cn.cyc.ai.cog.common.context.UserContext}，避免线程复用泄漏。
+  * </p>
+  *
+  * @author cyc
+  * @date 2026/6/15 14:18
+  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 40)
 public class AppUserContextBindingFilter extends OncePerRequestFilter {

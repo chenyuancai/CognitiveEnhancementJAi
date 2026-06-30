@@ -14,10 +14,14 @@ import java.util.Map;
 
 /**
  * 账号域只读统计服务。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class AccountStatsService {
 
+    /** 默认ACTIVEDAYS。 */
     private static final int DEFAULT_ACTIVE_DAYS = 7;
 
     /** IAM 用户仓储 */

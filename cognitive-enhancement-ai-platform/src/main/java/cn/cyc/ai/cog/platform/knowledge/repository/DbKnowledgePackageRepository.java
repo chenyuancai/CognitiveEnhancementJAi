@@ -23,6 +23,9 @@ import java.util.List;
 
 /**
  * 知识包仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbKnowledgePackageRepository implements KnowledgePackageRepository {
@@ -43,6 +46,12 @@ public class DbKnowledgePackageRepository implements KnowledgePackageRepository 
         this.itemMapper = itemMapper;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Override
     public PageResult<KnowledgePackage> page(KnowledgePackagePageQuery query) {
         LambdaQueryWrapper<KnowledgePackageEntity> wrapper = new LambdaQueryWrapper<>();
@@ -58,11 +67,23 @@ public class DbKnowledgePackageRepository implements KnowledgePackageRepository 
                 page.getTotal(), page.getCurrent(), page.getSize());
     }
 
+    /**
+     * 查找人ID。
+     *
+     * @param id 主键 ID
+     * @return 查找结果
+     */
     @Override
     public KnowledgePackage findById(Long id) {
         return toDomain(requirePackage(id));
     }
 
+    /**
+     * 查询Items列表。
+     *
+     * @param packageId packageID
+     * @return 结果列表
+     */
     @Override
     public List<KnowledgePackageItem> listItems(Long packageId) {
         requirePackage(packageId);
@@ -72,6 +93,12 @@ public class DbKnowledgePackageRepository implements KnowledgePackageRepository 
                 .stream().map(this::toItemDomain).toList();
     }
 
+    /**
+     * 创建Item。
+     *
+     * @param request 请求
+     * @return 创建结果
+     */
     @Override
     public KnowledgePackage create(KnowledgePackageSaveRequest request) {
         KnowledgePackageEntity entity = map(request, new KnowledgePackageEntity());
@@ -79,6 +106,13 @@ public class DbKnowledgePackageRepository implements KnowledgePackageRepository 
         return toDomain(entity);
     }
 
+    /**
+     * 更新Item。
+     *
+     * @param id 主键 ID
+     * @param request 请求
+     * @return 更新结果
+     */
     @Override
     public KnowledgePackage update(Long id, KnowledgePackageSaveRequest request) {
         KnowledgePackageEntity entity = map(request, requirePackage(id));
@@ -86,6 +120,13 @@ public class DbKnowledgePackageRepository implements KnowledgePackageRepository 
         return toDomain(entity);
     }
 
+    /**
+     * 执行addItem。
+     *
+     * @param packageId packageID
+     * @param request 请求
+     * @return 执行结果
+     */
     @Override
     public KnowledgePackageItem addItem(Long packageId, KnowledgePackageItemSaveRequest request) {
         requirePackage(packageId);
@@ -99,6 +140,12 @@ public class DbKnowledgePackageRepository implements KnowledgePackageRepository 
         return toItemDomain(item);
     }
 
+    /**
+     * 删除Item。
+     *
+     * @param packageId packageID
+     * @param itemId itemID
+     */
     @Override
     public void deleteItem(Long packageId, Long itemId) {
         requirePackage(packageId);
@@ -109,6 +156,12 @@ public class DbKnowledgePackageRepository implements KnowledgePackageRepository 
         itemMapper.deleteById(itemId);
     }
 
+    /**
+     * 查询是否启用列表。
+     *
+     * @param tenantId 租户 ID
+     * @return 结果列表
+     */
     @Override
     public java.util.List<KnowledgePackage> listEnabled(Long tenantId) {
         LambdaQueryWrapper<KnowledgePackageEntity> wrapper = new LambdaQueryWrapper<>();
@@ -120,6 +173,12 @@ public class DbKnowledgePackageRepository implements KnowledgePackageRepository 
         return packageMapper.selectList(wrapper).stream().map(this::toDomain).toList();
     }
 
+    /**
+     * 执行requirePackage。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     private KnowledgePackageEntity requirePackage(Long id) {
         KnowledgePackageEntity entity = packageMapper.selectById(id);
         if (entity == null) {
@@ -128,6 +187,13 @@ public class DbKnowledgePackageRepository implements KnowledgePackageRepository 
         return entity;
     }
 
+    /**
+     * 执行map。
+     *
+     * @param request 请求
+     * @param entity 实体
+     * @return 执行结果
+     */
     private KnowledgePackageEntity map(KnowledgePackageSaveRequest request, KnowledgePackageEntity entity) {
         entity.setPackageName(request.getPackageName().trim());
         entity.setDescription(request.getDescription());
@@ -135,10 +201,22 @@ public class DbKnowledgePackageRepository implements KnowledgePackageRepository 
         return entity;
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private KnowledgePackage toDomain(KnowledgePackageEntity entity) {
         return new KnowledgePackage(entity.getId(), entity.getPackageName(), entity.getDescription(), entity.getStatus());
     }
 
+    /**
+     * 转换为ItemDomain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private KnowledgePackageItem toItemDomain(KnowledgePackageItemEntity entity) {
         return new KnowledgePackageItem(
                 entity.getId(),

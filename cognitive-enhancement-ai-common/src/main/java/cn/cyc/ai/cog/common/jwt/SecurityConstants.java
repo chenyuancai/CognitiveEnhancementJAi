@@ -2,13 +2,16 @@ package cn.cyc.ai.cog.common.jwt;
 
 /**
  * 认证与令牌相关常量（借鉴 zcloud-core-jwt / zcloud-core-secure）。
- *
  * <p>网关与各资源服务通过这些约定从 OAuth2 JWT 中解析用户上下文，并在内部请求头透传。</p>
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class SecurityConstants {
 
+    /**
+     * 创建Security常量定义。
+     */
     private SecurityConstants() {
     }
 

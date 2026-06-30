@@ -6,8 +6,10 @@ import java.util.List;
 
 /**
  * 模型管理写入请求。
- *
  * <p>优先使用 {@code providerBindings} 维护多对多关系；API Key 默认继承提供商，绑定层可覆盖。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ModelUpsertRequest(
         String providerCode,

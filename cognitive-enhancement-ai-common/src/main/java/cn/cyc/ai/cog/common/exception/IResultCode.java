@@ -4,6 +4,7 @@ package cn.cyc.ai.cog.common.exception;
  * 统一返回码契约，便于各模块定义自有错误码枚举（借鉴 zcloud-core-common）。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface IResultCode {
 

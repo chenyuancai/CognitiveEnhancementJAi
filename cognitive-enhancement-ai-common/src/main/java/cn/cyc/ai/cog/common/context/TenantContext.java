@@ -6,12 +6,18 @@ import cn.cyc.ai.cog.common.constant.CommonConstants;
  * 当前请求租户上下文持有者（ThreadLocal）。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class TenantContext {
 
+    /** 租户ID */
     private static final ThreadLocal<Long> TENANT_ID = new ThreadLocal<>();
+    /** 租户编码。 */
     private static final ThreadLocal<String> TENANT_CODE = new ThreadLocal<>();
 
+    /**
+     * 创建TenantContext。
+     */
     private TenantContext() {
     }
 
@@ -49,6 +55,9 @@ public final class TenantContext {
         return currentTenantCode();
     }
 
+    /**
+     * 执行clear。
+     */
     public static void clear() {
         TENANT_ID.remove();
         TENANT_CODE.remove();

@@ -12,6 +12,7 @@ import java.time.Instant;
  * 能力调用用量记录实体。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

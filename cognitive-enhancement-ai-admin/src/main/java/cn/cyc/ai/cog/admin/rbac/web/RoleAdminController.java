@@ -27,18 +27,29 @@ import java.util.Map;
  * 角色管理接口（对齐前端 /api/admin/roles）。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "系统设置-角色管理", description = "角色 CRUD 与权限点授权")
 @RestController
 @RequestMapping("/api/admin/roles")
 public class RoleAdminController {
 
+    /** 角色服务。 */
     private final RoleService roleService;
 
+    /**
+     * 创建角色管理后台接口。
+     *
+     * @param roleService 角色服务
+     */
     public RoleAdminController(RoleService roleService) {
         this.roleService = roleService;
     }
 
+    /**
+     * 查询Item列表。
+     * @return 结果列表
+     */
     @Operation(summary = "查询角色列表", description = "返回全部角色及权限点编码。需要 admin:role:update 权限点。")
     @RequirePermission("admin:role:update")
     @GetMapping
@@ -46,6 +57,12 @@ public class RoleAdminController {
         return ApiResponse.success(roleService.listAll());
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Operation(summary = "分页查询角色", description = "支持 keyword/status 过滤。")
     @RequirePermission("admin:role:update")
     @PostMapping("/page")
@@ -53,6 +70,12 @@ public class RoleAdminController {
         return ApiResponse.success(roleService.page(query));
     }
 
+    /**
+     * 执行detail。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     @Operation(summary = "角色详情")
     @RequirePermission("admin:role:update")
     @GetMapping("/{id}")
@@ -67,6 +90,12 @@ public class RoleAdminController {
         return ApiResponse.success(roleService.checkCode(request.getCode(), request.getExcludeId()));
     }
 
+    /**
+     * 创建Item。
+     *
+     * @param request 请求
+     * @return 创建结果
+     */
     @Operation(summary = "新增角色")
     @RequirePermission("admin:role:create")
     @PostMapping
@@ -74,6 +103,12 @@ public class RoleAdminController {
         return ApiResponse.success(roleService.create(request));
     }
 
+    /**
+     * 更新Item。
+     *
+     * @param request 请求
+     * @return 更新结果
+     */
     @Operation(summary = "编辑角色")
     @RequirePermission("admin:role:update")
     @PostMapping("/update")
@@ -81,6 +116,11 @@ public class RoleAdminController {
         return ApiResponse.success(roleService.update(request.getId(), request));
     }
 
+    /**
+     * 删除Item。
+     *
+     * @param id 主键 ID
+     */
     @Operation(summary = "删除角色")
     @RequirePermission("admin:role:delete")
     @DeleteMapping("/{id}")
@@ -89,6 +129,12 @@ public class RoleAdminController {
         return ApiResponse.success(null);
     }
 
+    /**
+     * 执行assignPermissions。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Operation(summary = "角色授权", description = "整体覆盖角色的权限点编码集合。")
     @RequirePermission("admin:role:update")
     @PostMapping("/permissions")

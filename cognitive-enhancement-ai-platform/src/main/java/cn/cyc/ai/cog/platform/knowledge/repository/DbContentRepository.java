@@ -30,6 +30,9 @@ import java.util.List;
 
 /**
  * 内容仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbContentRepository implements ContentRepository {
@@ -62,6 +65,12 @@ public class DbContentRepository implements ContentRepository {
         this.contentVersionRepository = contentVersionRepository;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Override
     public PageResult<Content> page(ContentPageQuery query) {
         LambdaQueryWrapper<ContentEntity> wrapper = new LambdaQueryWrapper<>();
@@ -81,11 +90,23 @@ public class DbContentRepository implements ContentRepository {
                 page.getTotal(), page.getCurrent(), page.getSize());
     }
 
+    /**
+     * 查找人ID。
+     *
+     * @param id 主键 ID
+     * @return 查找结果
+     */
     @Override
     public Content findById(Long id) {
         return toDomain(require(id));
     }
 
+    /**
+     * 查找Tags人内容ID。
+     *
+     * @param contentId 内容ID
+     * @return 查找结果
+     */
     @Override
     public List<ContentTag> findTagsByContentId(Long contentId) {
         require(contentId);
@@ -98,6 +119,13 @@ public class DbContentRepository implements ContentRepository {
         return contentTagMapper.selectBatchIds(tagIds).stream().map(this::toTagDomain).toList();
     }
 
+    /**
+     * 执行bindTags。
+     *
+     * @param contentId 内容ID
+     * @param request 请求
+     * @return 执行结果
+     */
     @Override
     @Transactional
     public List<ContentTag> bindTags(Long contentId, ContentTagBindRequest request) {
@@ -120,6 +148,12 @@ public class DbContentRepository implements ContentRepository {
         return findTagsByContentId(contentId);
     }
 
+    /**
+     * 创建Item。
+     *
+     * @param request 请求
+     * @return 创建结果
+     */
     @Override
     public Content create(ContentSaveRequest request) {
         ContentEntity content = new ContentEntity();
@@ -129,6 +163,13 @@ public class DbContentRepository implements ContentRepository {
         return toDomain(content);
     }
 
+    /**
+     * 创建ImportDraft。
+     *
+     * @param tenantId 租户 ID
+     * @param request 请求
+     * @return 创建结果
+     */
     @Override
     public Content createImportDraft(Long tenantId, ContentSaveRequest request) {
         ContentEntity content = new ContentEntity();
@@ -139,6 +180,13 @@ public class DbContentRepository implements ContentRepository {
         return toDomain(content);
     }
 
+    /**
+     * 更新Item。
+     *
+     * @param id 主键 ID
+     * @param request 请求
+     * @return 更新结果
+     */
     @Override
     public Content update(Long id, ContentSaveRequest request) {
         ContentEntity content = require(id);
@@ -147,6 +195,13 @@ public class DbContentRepository implements ContentRepository {
         return toDomain(content);
     }
 
+    /**
+     * 执行audit。
+     *
+     * @param id 主键 ID
+     * @param request 请求
+     * @return 执行结果
+     */
     @Override
     @Transactional
     public Content audit(Long id, ContentAuditRequest request) {
@@ -179,12 +234,25 @@ public class DbContentRepository implements ContentRepository {
         return toDomain(content);
     }
 
+    /**
+     * 查询Versions列表。
+     *
+     * @param contentId 内容ID
+     * @return 结果列表
+     */
     @Override
     public List<ContentVersion> listVersions(Long contentId) {
         require(contentId);
         return contentVersionRepository.listByContentId(contentId);
     }
 
+    /**
+     * 执行rollbackTo版本号。
+     *
+     * @param contentId 内容ID
+     * @param versionNo 版本号，每次更新递增
+     * @return 执行结果
+     */
     @Override
     @Transactional
     public Content rollbackToVersion(Long contentId, int versionNo) {
@@ -201,6 +269,12 @@ public class DbContentRepository implements ContentRepository {
         return toDomain(content);
     }
 
+    /**
+     * 执行offline。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     @Override
     public Content offline(Long id) {
         ContentEntity content = require(id);
@@ -212,6 +286,12 @@ public class DbContentRepository implements ContentRepository {
         return toDomain(content);
     }
 
+    /**
+     * 执行数量人租户。
+     *
+     * @param tenantId 租户 ID
+     * @return 执行结果
+     */
     @Override
     public long countByTenant(Long tenantId) {
         LambdaQueryWrapper<ContentEntity> wrapper = new LambdaQueryWrapper<>();
@@ -221,6 +301,13 @@ public class DbContentRepository implements ContentRepository {
         return contentMapper.selectCount(wrapper);
     }
 
+    /**
+     * 执行数量人状态。
+     *
+     * @param tenantId 租户 ID
+     * @param status 状态
+     * @return 执行结果
+     */
     @Override
     public long countByStatus(Long tenantId, String status) {
         LambdaQueryWrapper<ContentEntity> wrapper = new LambdaQueryWrapper<>();
@@ -231,6 +318,10 @@ public class DbContentRepository implements ContentRepository {
         return contentMapper.selectCount(wrapper);
     }
 
+    /**
+     * 执行数量人状态And更新时间Between。
+     * @return 执行结果
+     */
     @Override
     public long countByStatusAndUpdateTimeBetween(Long tenantId, String status,
                                                   java.time.LocalDateTime start, java.time.LocalDateTime end) {
@@ -244,6 +335,12 @@ public class DbContentRepository implements ContentRepository {
         return contentMapper.selectCount(wrapper);
     }
 
+    /**
+     * 执行applySave。
+     *
+     * @param request 请求
+     * @param content 内容
+     */
     private void applySave(ContentSaveRequest request, ContentEntity content) {
         content.setTitle(request.getTitle());
         content.setContentType(request.getType());
@@ -253,6 +350,12 @@ public class DbContentRepository implements ContentRepository {
         content.setMinLevelCode(request.getMinLevelCode());
     }
 
+    /**
+     * 执行require。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     private ContentEntity require(Long id) {
         ContentEntity content = contentMapper.selectById(id);
         if (content == null) {
@@ -261,6 +364,12 @@ public class DbContentRepository implements ContentRepository {
         return content;
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private Content toDomain(ContentEntity entity) {
         return new Content(
                 entity.getId(),
@@ -277,6 +386,12 @@ public class DbContentRepository implements ContentRepository {
         );
     }
 
+    /**
+     * 转换为标签Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private ContentTag toTagDomain(ContentTagEntity entity) {
         return new ContentTag(entity.getId(), entity.getTagName(), entity.getTagColor());
     }

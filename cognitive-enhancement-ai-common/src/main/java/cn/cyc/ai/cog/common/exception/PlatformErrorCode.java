@@ -6,6 +6,9 @@ import cn.cyc.ai.cog.api.enums.ErrorCode;
  * 平台业务错误码：映射 HTTP 级 {@link ErrorCode} + 默认中文提示。
  * <p>
  * 抛出时使用 {@link Errors#throwError(PlatformErrorCode)}。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public enum PlatformErrorCode implements IResultCode {
 
@@ -173,19 +176,35 @@ public enum PlatformErrorCode implements IResultCode {
     RUNTIME_SORT_FIELD_INVALID(ErrorCode.BAD_REQUEST, "不支持的排序字段"),
     RUNTIME_SORT_DIRECTION_INVALID(ErrorCode.BAD_REQUEST, "排序方向必须是 asc 或 desc");
 
+    /** category。 */
     private final ErrorCode category;
+    /** 消息。 */
     private final String message;
 
+    /**
+     * 创建PlatformErrorCode 枚举。
+     *
+     * @param category category
+     * @param message 消息
+     */
     PlatformErrorCode(ErrorCode category, String message) {
         this.category = category;
         this.message = message;
     }
 
+    /**
+     * 获取编码。
+     * @return 编码
+     */
     @Override
     public String getCode() {
         return category.getCode();
     }
 
+    /**
+     * 获取消息。
+     * @return 消息
+     */
     @Override
     public String getMessage() {
         return message;

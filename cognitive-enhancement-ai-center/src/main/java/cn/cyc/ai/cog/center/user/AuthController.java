@@ -16,15 +16,24 @@ import java.util.Map;
  * 认证相关 REST 接口。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "鉴权", description = "用户登录与注册，获取 JWT Token")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
+    /** 用户服务。 */
     private final UserService userService;
+    /** jwtUtil。 */
     private final JwtUtil jwtUtil;
 
+    /**
+     * 创建认证接口。
+     *
+     * @param userService 用户服务
+     * @param jwtUtil jwtUtil
+     */
     public AuthController(UserService userService, JwtUtil jwtUtil) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;

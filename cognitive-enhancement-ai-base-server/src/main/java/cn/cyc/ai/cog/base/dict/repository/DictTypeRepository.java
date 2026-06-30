@@ -10,6 +10,9 @@ import java.util.Optional;
 
 /**
  * 字典类型仓储接口。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface DictTypeRepository {
 

@@ -12,14 +12,22 @@ import org.springframework.util.StringUtils;
  * Capability 发布选版路由器，支持简版百分比灰度。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class CapabilityReleaseRouter {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(CapabilityReleaseRouter.class);
 
+    /** releasePointer仓储。 */
     private final CapabilityReleasePointerRepository releasePointerRepository;
 
+    /**
+     * 创建CapabilityReleaseRouter。
+     *
+     * @param releasePointerRepository releasePointer仓储
+     */
     public CapabilityReleaseRouter(CapabilityReleasePointerRepository releasePointerRepository) {
         this.releasePointerRepository = releasePointerRepository;
     }
@@ -38,6 +46,14 @@ public class CapabilityReleaseRouter {
                 .orElse(defaultVersion);
     }
 
+    /**
+     * 执行resolveWithPointer。
+     *
+     * @param pointer pointer
+     * @param traceId 链路 Trace ID
+     * @param defaultVersion 默认版本号
+     * @return 执行结果
+     */
     private String resolveWithPointer(CapabilityReleasePointer pointer, String traceId, String defaultVersion) {
         PromptGrayRule grayRule = pointer.grayRule();
         if (grayRule == null

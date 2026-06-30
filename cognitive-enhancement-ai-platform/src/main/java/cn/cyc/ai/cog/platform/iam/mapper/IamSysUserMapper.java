@@ -9,6 +9,12 @@ import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
+/**
+ * IamSys用户数据访问 Mapper
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 @Mapper
 public interface IamSysUserMapper extends BaseMapper<SysUserEntity> {
 

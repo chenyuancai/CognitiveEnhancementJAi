@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
  * <p>
  * 支持 OAuth2 RS256（JWK）与 legacy HS256 两种 JWT 格式。
  * </p>
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class AppBearerIdentityService {

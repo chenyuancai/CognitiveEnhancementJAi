@@ -16,6 +16,9 @@ import org.springframework.util.StringUtils;
 
 /**
  * 内容标签仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbContentTagRepository implements ContentTagRepository {
@@ -30,6 +33,12 @@ public class DbContentTagRepository implements ContentTagRepository {
         this.contentTagMapper = contentTagMapper;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Override
     public PageResult<ContentTag> page(ContentTagPageQuery query) {
         LambdaQueryWrapper<ContentTagEntity> wrapper = new LambdaQueryWrapper<>();
@@ -42,6 +51,12 @@ public class DbContentTagRepository implements ContentTagRepository {
                 page.getTotal(), page.getCurrent(), page.getSize());
     }
 
+    /**
+     * 创建Item。
+     *
+     * @param request 请求
+     * @return 创建结果
+     */
     @Override
     public ContentTag create(ContentTagSaveRequest request) {
         ContentTagEntity tag = new ContentTagEntity();
@@ -51,6 +66,13 @@ public class DbContentTagRepository implements ContentTagRepository {
         return toDomain(tag);
     }
 
+    /**
+     * 更新Item。
+     *
+     * @param id 主键 ID
+     * @param request 请求
+     * @return 更新结果
+     */
     @Override
     public ContentTag update(Long id, ContentTagSaveRequest request) {
         ContentTagEntity tag = require(id);
@@ -60,12 +82,23 @@ public class DbContentTagRepository implements ContentTagRepository {
         return toDomain(tag);
     }
 
+    /**
+     * 删除Item。
+     *
+     * @param id 主键 ID
+     */
     @Override
     public void delete(Long id) {
         require(id);
         contentTagMapper.deleteById(id);
     }
 
+    /**
+     * 执行require。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     private ContentTagEntity require(Long id) {
         ContentTagEntity tag = contentTagMapper.selectById(id);
         if (tag == null) {
@@ -74,6 +107,12 @@ public class DbContentTagRepository implements ContentTagRepository {
         return tag;
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private ContentTag toDomain(ContentTagEntity entity) {
         return new ContentTag(entity.getId(), entity.getTagName(), entity.getTagColor());
     }

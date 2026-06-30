@@ -16,6 +16,9 @@ import org.springframework.util.StringUtils;
 
 /**
  * 安全配置仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbSecurityConfigRepository implements SecurityConfigRepository {
@@ -30,6 +33,12 @@ public class DbSecurityConfigRepository implements SecurityConfigRepository {
         this.securityConfigMapper = securityConfigMapper;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Override
     public PageResult<SecurityConfig> page(SecurityConfigPageQuery query) {
         LambdaQueryWrapper<SecurityConfigEntity> wrapper = new LambdaQueryWrapper<>();
@@ -42,6 +51,13 @@ public class DbSecurityConfigRepository implements SecurityConfigRepository {
                 page.getTotal(), page.getCurrent(), page.getSize());
     }
 
+    /**
+     * 执行save。
+     *
+     * @param id 主键 ID
+     * @param request 请求
+     * @return 执行结果
+     */
     @Override
     public SecurityConfig save(Long id, SecurityConfigSaveRequest request) {
         SecurityConfigEntity entity = id == null ? new SecurityConfigEntity() : require(id);
@@ -56,6 +72,12 @@ public class DbSecurityConfigRepository implements SecurityConfigRepository {
         return toDomain(entity);
     }
 
+    /**
+     * 查找人配置键。
+     *
+     * @param configKey 配置键
+     * @return 查找结果
+     */
     @Override
     public SecurityConfig findByConfigKey(String configKey) {
         if (!StringUtils.hasText(configKey)) {
@@ -67,6 +89,12 @@ public class DbSecurityConfigRepository implements SecurityConfigRepository {
         return entity == null ? null : toDomain(entity);
     }
 
+    /**
+     * 执行require。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     private SecurityConfigEntity require(Long id) {
         SecurityConfigEntity entity = securityConfigMapper.selectById(id);
         if (entity == null) {
@@ -75,6 +103,12 @@ public class DbSecurityConfigRepository implements SecurityConfigRepository {
         return entity;
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private SecurityConfig toDomain(SecurityConfigEntity entity) {
         return new SecurityConfig(
                 entity.getId(),

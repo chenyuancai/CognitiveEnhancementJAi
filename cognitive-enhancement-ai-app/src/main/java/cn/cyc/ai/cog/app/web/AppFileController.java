@@ -16,20 +16,34 @@ import org.springframework.web.multipart.MultipartFile;
 
 /**
  * C 端文件上传（委托 base-server）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "App-文件", description = "C 端文件上传")
 @RestController
 @RequestMapping("/api/app/files")
 public class AppFileController {
 
+    /** 默认BIZ编码。 */
     private static final String DEFAULT_BIZ_CODE = "app";
 
+    /** 平台文件客户端。 */
     private final PlatformFileClient platformFileClient;
 
+    /**
+     * 创建C端文件接口。
+     *
+     * @param platformFileClient 平台文件客户端
+     */
     public AppFileController(PlatformFileClient platformFileClient) {
         this.platformFileClient = platformFileClient;
     }
 
+    /**
+     * 执行upload。
+     * @return 执行结果
+     */
     @Operation(summary = "Multipart 上传")
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<FileInfoDTO> upload(@RequestPart("file") MultipartFile file,

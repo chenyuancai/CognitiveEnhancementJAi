@@ -19,16 +19,27 @@ import java.util.Map;
 
 /**
  * AI 路由与模型治理只读聚合。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class AiRoutingOverviewService {
 
+    /** 模型运行时查询服务。 */
     private final ModelRuntimeQueryService modelRuntimeQueryService;
+    /** 模型Governance。 */
     private final DefaultModelGovernance modelGovernance;
+    /** 能力Definition仓储。 */
     private final CapabilityDefinitionRepository capabilityDefinitionRepository;
+    /** releasePointer仓储。 */
     private final CapabilityReleasePointerRepository releasePointerRepository;
+    /** 租户Binding仓储。 */
     private final CapabilityTenantBindingRepository tenantBindingRepository;
 
+    /**
+     * 创建AiRoutingOverview服务。
+     */
     public AiRoutingOverviewService(ModelRuntimeQueryService modelRuntimeQueryService,
                                     DefaultModelGovernance modelGovernance,
                                     CapabilityDefinitionRepository capabilityDefinitionRepository,
@@ -41,6 +52,10 @@ public class AiRoutingOverviewService {
         this.tenantBindingRepository = tenantBindingRepository;
     }
 
+    /**
+     * 构建Object。
+     * @return 构建结果
+     */
     public AiRoutingOverviewResult build() {
         AiRoutingOverviewResult result = new AiRoutingOverviewResult();
         result.setModelOverview(modelRuntimeQueryService.getModelStatusOverview());
@@ -49,6 +64,10 @@ public class AiRoutingOverviewService {
         return result;
     }
 
+    /**
+     * 构建能力Routes。
+     * @return 构建结果
+     */
     private List<CapabilityRoutingItem> buildCapabilityRoutes() {
         Map<String, CapabilityRoutingItem> grouped = new LinkedHashMap<>();
         for (CapabilityDefinition definition : capabilityDefinitionRepository.listAll()) {

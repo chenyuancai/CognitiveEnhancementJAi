@@ -13,6 +13,9 @@ import java.time.LocalDateTime;
 
 /**
  * 额度账户仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbQuotaAccountRepository implements QuotaAccountRepository {
@@ -27,6 +30,12 @@ public class DbQuotaAccountRepository implements QuotaAccountRepository {
         this.quotaAccountMapper = quotaAccountMapper;
     }
 
+    /**
+     * 查找人账户ID。
+     *
+     * @param accountId 账户ID
+     * @return 查找结果
+     */
     @Override
     public QuotaAccount findByAccountId(Long accountId) {
         QuotaAccountEntity entity = quotaAccountMapper.selectOne(new LambdaQueryWrapper<QuotaAccountEntity>()
@@ -35,6 +44,12 @@ public class DbQuotaAccountRepository implements QuotaAccountRepository {
         return entity == null ? null : toDomain(entity);
     }
 
+    /**
+     * 执行require人账户ID。
+     *
+     * @param accountId 账户ID
+     * @return 执行结果
+     */
     @Override
     public QuotaAccount requireByAccountId(Long accountId) {
         QuotaAccount quota = findByAccountId(accountId);
@@ -44,11 +59,26 @@ public class DbQuotaAccountRepository implements QuotaAccountRepository {
         return quota;
     }
 
+    /**
+     * 执行insertInitial。
+     *
+     * @param tenantId 租户 ID
+     * @param accountId 账户ID
+     * @param cycleTotal cycle总数
+     */
     @Override
     public void insertInitial(Long tenantId, Long accountId, long cycleTotal) {
         insertInitialWithReset(tenantId, accountId, cycleTotal, null);
     }
 
+    /**
+     * 执行insertInitialWithReset。
+     *
+     * @param tenantId 租户 ID
+     * @param accountId 账户ID
+     * @param cycleTotal cycle总数
+     * @param cycleResetAt cycleResetAt
+     */
     @Override
     public void insertInitialWithReset(Long tenantId, Long accountId, long cycleTotal, LocalDateTime cycleResetAt) {
         QuotaAccountEntity quota = new QuotaAccountEntity();
@@ -64,6 +94,12 @@ public class DbQuotaAccountRepository implements QuotaAccountRepository {
         quotaAccountMapper.insert(quota);
     }
 
+    /**
+     * 查询DueForCycleReset列表。
+     *
+     * @param now now
+     * @return 结果列表
+     */
     @Override
     public java.util.List<QuotaAccount> listDueForCycleReset(java.time.LocalDateTime now) {
         return quotaAccountMapper.selectList(new LambdaQueryWrapper<QuotaAccountEntity>()
@@ -90,6 +126,12 @@ public class DbQuotaAccountRepository implements QuotaAccountRepository {
         return quotaAccountMapper.updateById(entity);
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private QuotaAccount toDomain(QuotaAccountEntity entity) {
         return new QuotaAccount(
                 entity.getId(),
@@ -105,6 +147,12 @@ public class DbQuotaAccountRepository implements QuotaAccountRepository {
         );
     }
 
+    /**
+     * 转换为实体。
+     *
+     * @param account 账户
+     * @return 转换结果
+     */
     private QuotaAccountEntity toEntity(QuotaAccount account) {
         QuotaAccountEntity entity = new QuotaAccountEntity();
         entity.setId(account.id());

@@ -25,6 +25,9 @@ import java.time.LocalDateTime;
 
 /**
  * 退款逆向：撤销已发放权益（订阅 / 加油包）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class RefundReversalService {
@@ -137,6 +140,12 @@ public class RefundReversalService {
         return refunded;
     }
 
+    /**
+     * 执行reverseSubscription。
+     *
+     * @param order 订单
+     * @param idem idem
+     */
     private void reverseSubscription(Order order, String idem) {
         Subscription sub = subscriptionRepository.findByOrderId(order.id());
         if (sub != null) {
@@ -166,6 +175,12 @@ public class RefundReversalService {
         membershipLevelService.writeChangeLog(order.accountId(), fromLevel, free.levelCode(), "REFUND", order.orderNo());
     }
 
+    /**
+     * 执行reverse额度Package。
+     *
+     * @param order 订单
+     * @param idem idem
+     */
     private void reverseQuotaPackage(Order order, String idem) {
         if (!securityConfigService.getBoolean(BillingConfigKeys.REFUND_CLAWBACK_UNUSED, true)) {
             return;

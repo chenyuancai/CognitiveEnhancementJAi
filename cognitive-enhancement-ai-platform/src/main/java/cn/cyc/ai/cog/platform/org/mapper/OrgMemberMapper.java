@@ -5,6 +5,12 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+/**
+ * OrgMember数据访问 Mapper
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 @Mapper
 public interface OrgMemberMapper extends BaseMapper<OrgMemberEntity> {
 

@@ -34,10 +34,10 @@ import java.util.Map;
 
 /**
  * 管理中心演示数据初始化配置，在内存模式下补齐主链路演示元数据。
- *
  * <p>持久化模式下演示元数据由 Flyway {@code V3__center_metadata.sql} 负责，本配置不加载。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Configuration
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "false", matchIfMissing = true)
@@ -287,6 +287,45 @@ public class CenterDemoDataInitializer {
                         chatParameterConstraints(),
                         ExecutionMode.SYNC,
                         "agent.chat.bailian",
+                        RiskLevel.LOW,
+                        false,
+                        CommonStatus.ENABLED
+                ));
+                capabilityAdminService.seed(new CapabilityUpsertRequest(
+                        "capability.kb.summary",
+                        "知识摘要",
+                        "导入链路生成文档摘要",
+                        inputSchema(),
+                        outputSchema(),
+                        chatParameterConstraints(),
+                        ExecutionMode.SYNC,
+                        "agent.qa",
+                        RiskLevel.LOW,
+                        false,
+                        CommonStatus.ENABLED
+                ));
+                capabilityAdminService.seed(new CapabilityUpsertRequest(
+                        "capability.kb.image",
+                        "知识图片理解",
+                        "导入链路理解 Markdown 图片",
+                        inputSchema(),
+                        outputSchema(),
+                        chatParameterConstraints(),
+                        ExecutionMode.SYNC,
+                        "agent.qa",
+                        RiskLevel.LOW,
+                        false,
+                        CommonStatus.ENABLED
+                ));
+                capabilityAdminService.seed(new CapabilityUpsertRequest(
+                        "capability.kb.embedding",
+                        "知识向量化",
+                        "导入链路文本 embedding",
+                        inputSchema(),
+                        outputSchema(),
+                        chatParameterConstraints(),
+                        ExecutionMode.SYNC,
+                        "agent.qa",
                         RiskLevel.LOW,
                         false,
                         CommonStatus.ENABLED

@@ -7,6 +7,7 @@ import cn.cyc.ai.cog.core.runtime.CapabilityExecuteRequest;
  * 能力输入 Schema 校验器。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface InputSchemaValidator {
 

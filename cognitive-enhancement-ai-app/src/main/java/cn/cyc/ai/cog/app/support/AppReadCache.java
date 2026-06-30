@@ -8,10 +8,14 @@ import java.util.function.Supplier;
 
 /**
  * C 端只读数据短 TTL 缓存。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class AppReadCache {
 
+    /** properties。 */
     private final AppReadCacheProperties properties;
     private final ConcurrentHashMap<String, CacheEntry<?>> cache = new ConcurrentHashMap<>();
 
@@ -45,6 +49,12 @@ public class AppReadCache {
         return loaded;
     }
 
+    /**
+     * CacheEntry 记录
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     private record CacheEntry<T>(T value, long cachedAtMillis) {
 
         boolean isExpired(long now, int ttlSeconds) {

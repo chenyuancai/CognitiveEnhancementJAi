@@ -460,6 +460,29 @@ CREATE TABLE IF NOT EXISTS qz_kb_content_tag_rel (
     PRIMARY KEY (content_id, tag_id)
 );
 
+CREATE TABLE IF NOT EXISTS qz_kb_content_chunk (
+    id           BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id    BIGINT       NOT NULL,
+    content_id   BIGINT       NOT NULL,
+    task_code    VARCHAR(64)  NULL,
+    chunk_index  INT          NOT NULL,
+    heading_path VARCHAR(512) NULL,
+    chunk_text   CLOB         NOT NULL,
+    token_est    INT          NULL,
+    create_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS qz_kb_vector_index_record (
+    id           BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id    BIGINT       NOT NULL,
+    content_id   BIGINT       NOT NULL,
+    chunk_id     BIGINT       NOT NULL,
+    model_code   VARCHAR(128) NULL,
+    dim          INT          NOT NULL,
+    vector_json  CLOB         NOT NULL,
+    create_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS qz_kb_knowledge_package (
     id           BIGINT AUTO_INCREMENT PRIMARY KEY,
     tenant_id    BIGINT       NOT NULL DEFAULT 1,

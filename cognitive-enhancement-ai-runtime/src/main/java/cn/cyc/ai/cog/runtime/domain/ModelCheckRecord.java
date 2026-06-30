@@ -5,16 +5,8 @@ import java.time.Instant;
 /**
  * 模型连通性检查记录。
  *
- * @param traceId        链路标识
- * @param providerCode   模型提供方编码
- * @param modelCode      模型编码
- * @param reachable      是否可达
- * @param latencyMs      调用耗时
- * @param mock           是否为 mock 调用
- * @param failureReason  失败原因
- * @param answerPreview  回答预览
- * @param recordedAt     记录时间
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ModelCheckRecord(String traceId,
                                String providerCode,

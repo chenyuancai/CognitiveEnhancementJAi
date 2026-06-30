@@ -12,12 +12,22 @@ import java.util.Map;
  * Capability DTO 定义。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class CapabilityDtos {
 
+    /**
+     * 创建CapabilityDtos。
+     */
     private CapabilityDtos() {
     }
 
+    /**
+     * 创建请求
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     public record CreateRequest(
             String capabilityCode,
             String capabilityName,
@@ -33,6 +43,12 @@ public final class CapabilityDtos {
     ) {
     }
 
+    /**
+     * 更新请求
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     public record UpdateRequest(
             String capabilityName,
             String capabilityDesc,
@@ -47,6 +63,12 @@ public final class CapabilityDtos {
     ) {
     }
 
+    /**
+     * Result 记录
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     public record Result(
             String capabilityCode,
             String capabilityName,

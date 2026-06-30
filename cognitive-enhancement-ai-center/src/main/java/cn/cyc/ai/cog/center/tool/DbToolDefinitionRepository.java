@@ -22,17 +22,30 @@ import java.util.Optional;
  * 工具定义数据库仓储实现。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true", matchIfMissing = true)
 public class DbToolDefinitionRepository implements ToolDefinitionRepository {
 
+    /** Mapper。 */
     private final ToolDefinitionMapper mapper;
 
+    /**
+     * 创建Db工具Definition仓储。
+     *
+     * @param mapper Mapper
+     */
     public DbToolDefinitionRepository(ToolDefinitionMapper mapper) {
         this.mapper = mapper;
     }
 
+    /**
+     * 查找人编码。
+     *
+     * @param code 编码
+     * @return 查找结果
+     */
     @Override
     public Optional<ToolDefinition> findByCode(String code) {
         QueryWrapper<ToolDefinitionEntity> wrapper = new QueryWrapper<>();
@@ -42,6 +55,10 @@ public class DbToolDefinitionRepository implements ToolDefinitionRepository {
         return Optional.ofNullable(entity).map(this::toDefinition);
     }
 
+    /**
+     * 查询All列表。
+     * @return 结果列表
+     */
     @Override
     public List<ToolDefinition> listAll() {
         QueryWrapper<ToolDefinitionEntity> wrapper = new QueryWrapper<>();
@@ -52,6 +69,12 @@ public class DbToolDefinitionRepository implements ToolDefinitionRepository {
                 .toList();
     }
 
+    /**
+     * 执行save。
+     *
+     * @param definition definition
+     * @return 执行结果
+     */
     @Override
     public ToolDefinition save(ToolDefinition definition) {
         QueryWrapper<ToolDefinitionEntity> wrapper = new QueryWrapper<>();
@@ -69,6 +92,12 @@ public class DbToolDefinitionRepository implements ToolDefinitionRepository {
         return definition;
     }
 
+    /**
+     * 转换为Definition。
+     *
+     * @param e e
+     * @return 转换结果
+     */
     private ToolDefinition toDefinition(ToolDefinitionEntity e) {
         return new ToolDefinition(
                 e.getToolCode(),
@@ -85,6 +114,12 @@ public class DbToolDefinitionRepository implements ToolDefinitionRepository {
         );
     }
 
+    /**
+     * 转换为实体。
+     *
+     * @param d d
+     * @return 转换结果
+     */
     private ToolDefinitionEntity toEntity(ToolDefinition d) {
         ToolDefinitionEntity e = new ToolDefinitionEntity();
         e.setTenantId(TenantContext.currentTenantId());

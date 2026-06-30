@@ -21,6 +21,9 @@ import java.util.List;
 
 /**
  * 公告仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbAnnouncementRepository implements AnnouncementRepository {
@@ -41,6 +44,12 @@ public class DbAnnouncementRepository implements AnnouncementRepository {
         this.announcementAudienceSupport = announcementAudienceSupport;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Override
     public PageResult<Announcement> page(AnnouncementPageQuery query) {
         LambdaQueryWrapper<AnnouncementEntity> wrapper = new LambdaQueryWrapper<>();
@@ -56,11 +65,21 @@ public class DbAnnouncementRepository implements AnnouncementRepository {
                 page.getTotal(), page.getCurrent(), page.getSize());
     }
 
+    /**
+     * 查找人ID。
+     *
+     * @param id 主键 ID
+     * @return 查找结果
+     */
     @Override
     public Announcement findById(Long id) {
         return toDomain(require(id));
     }
 
+    /**
+     * 查询Published列表。
+     * @return 结果列表
+     */
     @Override
     public List<Announcement> listPublished() {
         return announcementMapper.selectList(new LambdaQueryWrapper<AnnouncementEntity>()
@@ -72,6 +91,12 @@ public class DbAnnouncementRepository implements AnnouncementRepository {
                 .toList();
     }
 
+    /**
+     * 查找DueScheduled。
+     *
+     * @param now now
+     * @return 查找结果
+     */
     @Override
     public List<Announcement> findDueScheduled(LocalDateTime now) {
         LocalDateTime effective = now == null ? LocalDateTime.now() : now;
@@ -84,6 +109,12 @@ public class DbAnnouncementRepository implements AnnouncementRepository {
                 .toList();
     }
 
+    /**
+     * 执行publishDue。
+     *
+     * @param now now
+     * @return 执行结果
+     */
     @Override
     public int publishDue(LocalDateTime now) {
         List<Announcement> due = findDueScheduled(now);
@@ -95,6 +126,12 @@ public class DbAnnouncementRepository implements AnnouncementRepository {
         return due.size();
     }
 
+    /**
+     * 创建Item。
+     *
+     * @param request 请求
+     * @return 创建结果
+     */
     @Override
     public Announcement create(AnnouncementSaveRequest request) {
         AnnouncementEntity entity = map(request, new AnnouncementEntity());
@@ -102,6 +139,13 @@ public class DbAnnouncementRepository implements AnnouncementRepository {
         return toDomain(entity);
     }
 
+    /**
+     * 更新Item。
+     *
+     * @param id 主键 ID
+     * @param request 请求
+     * @return 更新结果
+     */
     @Override
     public Announcement update(Long id, AnnouncementSaveRequest request) {
         AnnouncementEntity entity = map(request, require(id));
@@ -109,12 +153,24 @@ public class DbAnnouncementRepository implements AnnouncementRepository {
         return toDomain(entity);
     }
 
+    /**
+     * 删除Item。
+     *
+     * @param id 主键 ID
+     */
     @Override
     public void delete(Long id) {
         require(id);
         announcementMapper.deleteById(id);
     }
 
+    /**
+     * 执行map。
+     *
+     * @param request 请求
+     * @param entity 实体
+     * @return 执行结果
+     */
     private AnnouncementEntity map(AnnouncementSaveRequest request, AnnouncementEntity entity) {
         entity.setTitle(request.getTitle().trim());
         entity.setBody(request.getBody());
@@ -126,6 +182,12 @@ public class DbAnnouncementRepository implements AnnouncementRepository {
         return entity;
     }
 
+    /**
+     * 执行require。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     private AnnouncementEntity require(Long id) {
         AnnouncementEntity entity = announcementMapper.selectById(id);
         if (entity == null) {
@@ -134,6 +196,12 @@ public class DbAnnouncementRepository implements AnnouncementRepository {
         return entity;
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private Announcement toDomain(AnnouncementEntity entity) {
         return new Announcement(
                 entity.getId(),

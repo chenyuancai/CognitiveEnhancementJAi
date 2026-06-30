@@ -6,11 +6,8 @@ import java.util.Map;
 /**
  * 模型状态刷新请求。
  *
- * @param modelCode  单个模型编码
- * @param modelCodes 批量模型编码
- * @param prompt     检查提示词
- * @param parameters 执行参数
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ModelStatusRefreshRequest(String modelCode,
                                         List<String> modelCodes,

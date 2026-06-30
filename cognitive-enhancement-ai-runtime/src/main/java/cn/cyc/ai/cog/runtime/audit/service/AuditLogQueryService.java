@@ -14,12 +14,19 @@ import java.util.Objects;
  * 审计日志查询服务。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class AuditLogQueryService {
 
+    /** auditLog仓储。 */
     private final AuditLogRepository auditLogRepository;
 
+    /**
+     * 创建AuditLog查询服务。
+     *
+     * @param auditLogRepository auditLog仓储
+     */
     public AuditLogQueryService(AuditLogRepository auditLogRepository) {
         this.auditLogRepository = auditLogRepository;
     }
@@ -57,6 +64,12 @@ public class AuditLogQueryService {
         return new RuntimeListResult<>(filtered.size(), items);
     }
 
+    /**
+     * 执行resolveComparator。
+     *
+     * @param sort sort
+     * @return 执行结果
+     */
     private Comparator<AuditLogRecord> resolveComparator(String sort) {
         if (sort != null && sort.startsWith("recordedAt,asc")) {
             return Comparator.comparing(AuditLogRecord::recordedAt);
@@ -64,6 +77,13 @@ public class AuditLogQueryService {
         return Comparator.comparing(AuditLogRecord::recordedAt).reversed();
     }
 
+    /**
+     * 执行matches。
+     *
+     * @param actual actual
+     * @param expected expected
+     * @return 执行结果
+     */
     private boolean matches(String actual, String expected) {
         if (expected == null || expected.isBlank()) {
             return true;
@@ -71,6 +91,14 @@ public class AuditLogQueryService {
         return Objects.equals(actual, expected);
     }
 
+    /**
+     * 执行matches时间Range。
+     *
+     * @param recordedAt recordedAt
+     * @param startTime start时间
+     * @param endTime end时间
+     * @return 执行结果
+     */
     private boolean matchesTimeRange(Instant recordedAt, Instant startTime, Instant endTime) {
         if (recordedAt == null) {
             return false;

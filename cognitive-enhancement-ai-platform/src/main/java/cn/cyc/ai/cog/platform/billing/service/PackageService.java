@@ -25,6 +25,9 @@ import java.util.UUID;
 
 /**
  * 套餐与订阅查询、下单编排服务。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class PackageService {

@@ -17,24 +17,42 @@ import java.util.Set;
 
 /**
  * OpenAI-compatible 协议 Provider 处理器（OpenAI / 百炼 / 其他兼容端点）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class OpenAiCompatibleLlmProviderHandler implements LlmProviderHandler {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(OpenAiCompatibleLlmProviderHandler.class);
+    /** CHATCOMPLETIONS路径。 */
     private static final String CHAT_COMPLETIONS_PATH = "/chat/completions";
+    /** SUPPORTED提供者TYPES。 */
     private static final Set<String> SUPPORTED_PROVIDER_TYPES = Set.of("OPENAI_COMPATIBLE", "DASHSCOPE");
+    /** LEGACY提供者CODES。 */
     private static final Set<String> LEGACY_PROVIDER_CODES = Set.of("openai", "bailian", "dashscope");
 
+    /** llmCredentialResolver。 */
     private final LlmCredentialResolver llmCredentialResolver;
+    /** openAiCompatibleChat客户端。 */
     private final OpenAiCompatibleChatClient openAiCompatibleChatClient;
 
+    /**
+     * 创建OpenAiCompatibleLlm提供者处理器。
+     */
     public OpenAiCompatibleLlmProviderHandler(LlmCredentialResolver llmCredentialResolver,
                                               OpenAiCompatibleChatClient openAiCompatibleChatClient) {
         this.llmCredentialResolver = llmCredentialResolver;
         this.openAiCompatibleChatClient = openAiCompatibleChatClient;
     }
 
+    /**
+     * 执行supports。
+     *
+     * @param model 模型
+     * @return 执行结果
+     */
     @Override
     public boolean supports(ModelDefinition model) {
         if (model == null) {
@@ -47,6 +65,12 @@ public class OpenAiCompatibleLlmProviderHandler implements LlmProviderHandler {
         return LEGACY_PROVIDER_CODES.contains(model.providerCode());
     }
 
+    /**
+     * 执行generate。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Override
     public LlmInvocationResult generate(LlmInvocationRequest request) {
         String apiKey = llmCredentialResolver.resolve(request.apiKey());
@@ -71,6 +95,13 @@ public class OpenAiCompatibleLlmProviderHandler implements LlmProviderHandler {
         );
     }
 
+    /**
+     * 执行chat。
+     *
+     * @param model 模型
+     * @param request 请求
+     * @return 执行结果
+     */
     @Override
     public LlmConversationResult chat(ModelDefinition model, LlmConversationRequest request) {
         String apiKey = llmCredentialResolver.resolve(model.apiKey());

@@ -7,6 +7,9 @@ import org.springframework.stereotype.Component;
 
 /**
  * 计费生命周期定时任务：订阅过期、周期额度重置、待支付超时关闭。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class BillingLifecycleJob {

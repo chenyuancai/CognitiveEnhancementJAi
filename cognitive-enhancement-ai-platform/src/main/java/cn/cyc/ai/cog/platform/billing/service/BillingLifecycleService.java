@@ -29,11 +29,16 @@ import java.util.List;
 
 /**
  * 计费生命周期服务：订阅过期降级与周期额度重置。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class BillingLifecycleService {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(BillingLifecycleService.class);
+    /** FREE等级编码。 */
     private static final String FREE_LEVEL_CODE = "FREE";
 
     /** 订阅记录仓储 */
@@ -124,6 +129,12 @@ public class BillingLifecycleService {
         return count;
     }
 
+    /**
+     * 执行advanceTrialToFormal。
+     *
+     * @param sub sub
+     * @param now now
+     */
     private void advanceTrialToFormal(Subscription sub, LocalDateTime now) {
         SubscriptionPackage pkg = sub.packageId() == null
                 ? null : subscriptionPackageRepository.requireById(sub.packageId());
@@ -220,6 +231,11 @@ public class BillingLifecycleService {
         return count;
     }
 
+    /**
+     * 执行downgrade会员。
+     *
+     * @param accountId 账户ID
+     */
     private void downgradeMembership(Long accountId) {
         AccountMembership membership = accountMembershipRepository.findByAccountId(accountId);
         if (membership == null) {
@@ -234,6 +250,13 @@ public class BillingLifecycleService {
         membershipLevelService.writeChangeLog(accountId, from, free.levelCode(), "EXPIRE", "subscription-expired");
     }
 
+    /**
+     * 执行resolveCycle额度。
+     *
+     * @param accountId 账户ID
+     * @param now now
+     * @return 执行结果
+     */
     private long resolveCycleQuota(Long accountId, LocalDateTime now) {
         Subscription active = subscriptionRepository.findActiveValidByAccountId(accountId, now);
         if (active != null && active.packageId() != null) {

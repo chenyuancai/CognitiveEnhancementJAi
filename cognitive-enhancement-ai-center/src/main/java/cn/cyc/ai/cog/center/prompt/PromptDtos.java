@@ -7,12 +7,24 @@ import java.time.Instant;
 
 /**
  * Prompt DTO 定义。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class PromptDtos {
 
+    /**
+     * 创建PromptDtos。
+     */
     private PromptDtos() {
     }
 
+    /**
+     * 创建请求
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     public record CreateRequest(
             String promptCode,
             String promptName,
@@ -26,6 +38,12 @@ public final class PromptDtos {
     ) {
     }
 
+    /**
+     * 更新请求
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     public record UpdateRequest(
             String promptName,
             String scenarioCode,
@@ -38,6 +56,12 @@ public final class PromptDtos {
     ) {
     }
 
+    /**
+     * Result 记录
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     public record Result(
             String promptCode,
             String promptName,

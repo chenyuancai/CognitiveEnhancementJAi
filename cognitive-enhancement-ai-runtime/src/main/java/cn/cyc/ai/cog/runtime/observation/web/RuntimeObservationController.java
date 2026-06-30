@@ -31,6 +31,7 @@ import java.util.List;
  * Runtime 观测查询控制器。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "Runtime - 观测", description = "执行记录、用量、Trace Span、审计日志与统计聚合")
 @RestController
@@ -46,9 +47,14 @@ public class RuntimeObservationController {
      * 观测查询服务。
      */
     private final RuntimeObservationQueryService runtimeObservationQueryService;
+    /** 链路Span查询服务。 */
     private final TraceSpanQueryService traceSpanQueryService;
+    /** auditLog查询服务。 */
     private final AuditLogQueryService auditLogQueryService;
 
+    /**
+     * 创建运行时Observation接口。
+     */
     public RuntimeObservationController(RuntimeObservationQueryService runtimeObservationQueryService,
                                         TraceSpanQueryService traceSpanQueryService,
                                         AuditLogQueryService auditLogQueryService) {

@@ -21,6 +21,9 @@ import java.util.List;
  */
 /**
  * 订阅套餐仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbSubscriptionPackageRepository implements SubscriptionPackageRepository {
@@ -35,6 +38,12 @@ public class DbSubscriptionPackageRepository implements SubscriptionPackageRepos
         this.subscriptionPackageMapper = subscriptionPackageMapper;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Override
     public PageResult<SubscriptionPackage> page(PackagePageQuery query) {
         Page<SubscriptionPackageEntity> page = subscriptionPackageMapper.selectPage(
@@ -47,6 +56,12 @@ public class DbSubscriptionPackageRepository implements SubscriptionPackageRepos
                 page.getSize());
     }
 
+    /**
+     * 查询OnSale列表。
+     *
+     * @param segment segment
+     * @return 结果列表
+     */
     @Override
     public List<SubscriptionPackage> listOnSale(String segment) {
         LambdaQueryWrapper<SubscriptionPackageEntity> wrapper = new LambdaQueryWrapper<SubscriptionPackageEntity>()
@@ -58,6 +73,12 @@ public class DbSubscriptionPackageRepository implements SubscriptionPackageRepos
         return subscriptionPackageMapper.selectList(wrapper).stream().map(this::toDomain).toList();
     }
 
+    /**
+     * 查找人Package编码。
+     *
+     * @param packageCode package编码
+     * @return 查找结果
+     */
     @Override
     public SubscriptionPackage findByPackageCode(String packageCode) {
         if (!StringUtils.hasText(packageCode)) {
@@ -70,6 +91,12 @@ public class DbSubscriptionPackageRepository implements SubscriptionPackageRepos
         return entity == null ? null : toDomain(entity);
     }
 
+    /**
+     * 执行require人ID。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     @Override
     public SubscriptionPackage requireById(Long id) {
         SubscriptionPackageEntity entity = subscriptionPackageMapper.selectById(id);
@@ -79,6 +106,13 @@ public class DbSubscriptionPackageRepository implements SubscriptionPackageRepos
         return toDomain(entity);
     }
 
+    /**
+     * 执行save。
+     *
+     * @param id 主键 ID
+     * @param request 请求
+     * @return 执行结果
+     */
     @Override
     public SubscriptionPackage save(Long id, SubscriptionPackageSaveRequest request) {
         SubscriptionPackageEntity entity = id == null ? new SubscriptionPackageEntity() : subscriptionPackageMapper.selectById(id);
@@ -94,6 +128,12 @@ public class DbSubscriptionPackageRepository implements SubscriptionPackageRepos
         return toDomain(entity);
     }
 
+    /**
+     * 执行map请求。
+     *
+     * @param entity 实体
+     * @param request 请求
+     */
     private void mapRequest(SubscriptionPackageEntity entity, SubscriptionPackageSaveRequest request) {
         entity.setPackageCode(request.getPackageCode());
         entity.setPackageName(request.getPackageName());
@@ -112,6 +152,12 @@ public class DbSubscriptionPackageRepository implements SubscriptionPackageRepos
         entity.setSnapshotJson(request.getSnapshotJson());
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private SubscriptionPackage toDomain(SubscriptionPackageEntity entity) {
         return new SubscriptionPackage(
                 entity.getId(),

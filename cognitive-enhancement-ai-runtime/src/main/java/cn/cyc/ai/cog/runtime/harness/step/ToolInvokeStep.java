@@ -25,15 +25,23 @@ import java.util.Map;
  * Tool 调用验证步骤，验证 Tool 能被正确调用并返回结果。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class ToolInvokeStep implements HarnessStep {
 
+    /** 工具运行时。 */
     private final ToolRuntime toolRuntime;
+    /** 工具仓储。 */
     private final ToolDefinitionRepository toolRepository;
+    /** 能力仓储。 */
     private final CapabilityDefinitionRepository capabilityRepository;
+    /** 智能体仓储。 */
     private final AgentDefinitionRepository agentRepository;
 
+    /**
+     * 创建ToolInvokeStep。
+     */
     public ToolInvokeStep(ToolRuntime toolRuntime,
                           ToolDefinitionRepository toolRepository,
                           CapabilityDefinitionRepository capabilityRepository,
@@ -44,21 +52,39 @@ public class ToolInvokeStep implements HarnessStep {
         this.agentRepository = agentRepository;
     }
 
+    /**
+     * 执行step编码。
+     * @return 执行结果
+     */
     @Override
     public String stepCode() {
         return "TOOL_INVOKE";
     }
 
+    /**
+     * 执行step名称。
+     * @return 执行结果
+     */
     @Override
     public String stepName() {
         return "Tool 调用验证";
     }
 
+    /**
+     * 执行描述。
+     * @return 执行结果
+     */
     @Override
     public String description() {
         return "验证 Tool 能被正确调用并返回结果";
     }
 
+    /**
+     * 执行操作。
+     *
+     * @param ctx ctx
+     * @return 执行结果
+     */
     @Override
     public HarnessStepResult run(HarnessContext ctx) {
         HarnessScenario scenario = ctx.scenario();

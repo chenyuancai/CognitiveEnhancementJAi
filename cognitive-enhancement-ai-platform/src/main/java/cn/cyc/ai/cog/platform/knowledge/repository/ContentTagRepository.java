@@ -5,6 +5,12 @@ import cn.cyc.ai.cog.platform.knowledge.domain.ContentTag;
 import cn.cyc.ai.cog.platform.knowledge.dto.ContentTagPageQuery;
 import cn.cyc.ai.cog.platform.knowledge.dto.ContentTagSaveRequest;
 
+/**
+ * 内容标签仓储
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 public interface ContentTagRepository {
 
     PageResult<ContentTag> page(ContentTagPageQuery query);

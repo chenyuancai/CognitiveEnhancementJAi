@@ -32,6 +32,9 @@ import java.util.Map;
 
 /**
  * C 端知识内容只读服务（已发布内容 + 等级过滤）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class AppKnowledgeService {
@@ -152,6 +155,10 @@ public class AppKnowledgeService {
         return tree;
     }
 
+    /**
+     * 构建Tree。
+     * @return 构建结果
+     */
     private List<AppKnowledgeTreeItemVO> buildTree(List<KnowledgePackageItem> items, Long parentId,
                                                    String userLevel, Map<String, Integer> sortIndex,
                                                    Map<Long, String> contentMinLevel) {
@@ -163,6 +170,10 @@ public class AppKnowledgeService {
         return buildChildren(grouped, parentId, userLevel, sortIndex, contentMinLevel);
     }
 
+    /**
+     * 构建Children。
+     * @return 构建结果
+     */
     private List<AppKnowledgeTreeItemVO> buildChildren(Map<Long, List<KnowledgePackageItem>> grouped,
                                                       Long parentId, String userLevel,
                                                       Map<String, Integer> sortIndex,
@@ -202,6 +213,12 @@ public class AppKnowledgeService {
         return map;
     }
 
+    /**
+     * 转换为Package摘要。
+     *
+     * @param pkg pkg
+     * @return 转换结果
+     */
     private AppKnowledgePackageTreeVO toPackageSummary(KnowledgePackage pkg) {
         AppKnowledgePackageTreeVO vo = new AppKnowledgePackageTreeVO();
         vo.setId(pkg.id());
@@ -210,6 +227,10 @@ public class AppKnowledgeService {
         return vo;
     }
 
+    /**
+     * 转换为摘要。
+     * @return 转换结果
+     */
     private AppContentSummaryVO toSummary(Content content, String userLevel,
                                           Map<String, Integer> sortIndex, boolean hideLocked) {
         boolean canAccess = membershipLevelAccessSupport.canAccess(userLevel, content.minLevelCode(), sortIndex);
@@ -227,6 +248,10 @@ public class AppKnowledgeService {
         return vo;
     }
 
+    /**
+     * 执行resolve用户等级编码。
+     * @return 执行结果
+     */
     private String resolveUserLevelCode() {
         UserMeContext context = userMeContextService.buildForCurrentUser();
         if (context.getMembership() == null || !StringUtils.hasText(context.getMembership().getLevelCode())) {

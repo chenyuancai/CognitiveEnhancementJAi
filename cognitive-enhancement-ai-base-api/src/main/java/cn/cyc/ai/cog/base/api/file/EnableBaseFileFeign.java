@@ -10,6 +10,9 @@ import java.lang.annotation.Target;
 
 /**
  * 启用基础文件 Feign 客户端。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

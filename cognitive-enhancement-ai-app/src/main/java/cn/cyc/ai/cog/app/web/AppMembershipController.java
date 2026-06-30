@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * C 端会员接口：当前账户会员信息。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "App-会员", description = "当前账户会员信息")
 @RestController

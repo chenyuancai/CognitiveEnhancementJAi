@@ -24,31 +24,50 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * 基于 JSON 文件的模型检查记录仓储。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true")
 public class PersistentModelCheckRecordRepository implements ModelCheckRecordRepository {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(PersistentModelCheckRecordRepository.class);
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
             .findAndRegisterModules()
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
+    /** storage文件。 */
     private final Path storageFile;
 
+    /** records。 */
     private final CopyOnWriteArrayList<ModelCheckRecord> records = new CopyOnWriteArrayList<>();
 
+    /**
+     * 创建Persistent模型CheckRecord仓储。
+     *
+     * @param persistenceDir persistenceDir
+     */
     @Autowired
     public PersistentModelCheckRecordRepository(@Value("${cog.persistence.dir:data/cognitive-enhancement-ai}") String persistenceDir) {
         this(Path.of(persistenceDir));
     }
 
+    /**
+     * 创建Persistent模型CheckRecord仓储。
+     *
+     * @param persistenceDir persistenceDir
+     */
     public PersistentModelCheckRecordRepository(Path persistenceDir) {
         this.storageFile = persistenceDir.resolve("runtime-model-check-records.json");
         loadFromFile();
     }
 
+    /**
+     * 执行save。
+     *
+     * @param record record
+     */
     @Override
     public void save(ModelCheckRecord record) {
         records.add(0, record);
@@ -57,11 +76,18 @@ public class PersistentModelCheckRecordRepository implements ModelCheckRecordRep
                 record.traceId(), record.providerCode(), record.modelCode(), storageFile);
     }
 
+    /**
+     * 查询All列表。
+     * @return 结果列表
+     */
     @Override
     public List<ModelCheckRecord> listAll() {
         return new ArrayList<>(records);
     }
 
+    /**
+     * 执行loadFrom文件。
+     */
     private void loadFromFile() {
         if (!Files.exists(storageFile)) {
             return;
@@ -80,6 +106,9 @@ public class PersistentModelCheckRecordRepository implements ModelCheckRecordRep
         }
     }
 
+    /**
+     * 执行writeTo文件。
+     */
     private void writeToFile() {
         try {
             Path parent = storageFile.getParent();

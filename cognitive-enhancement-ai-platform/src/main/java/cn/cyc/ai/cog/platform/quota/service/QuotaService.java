@@ -14,15 +14,28 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 
+/**
+ * 额度服务
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 @Service
 public class QuotaService {
 
+    /** MAXRETRY。 */
     private static final int MAX_RETRY = 3;
 
+    /** 额度账户仓储。 */
     private final QuotaAccountRepository quotaAccountRepository;
+    /** 令牌Record仓储。 */
     private final TokenRecordRepository tokenRecordRepository;
+    /** 额度MemberAlloc服务。 */
     private final QuotaMemberAllocService quotaMemberAllocService;
 
+    /**
+     * 创建额度服务。
+     */
     public QuotaService(QuotaAccountRepository quotaAccountRepository,
                         TokenRecordRepository tokenRecordRepository,
                         QuotaMemberAllocService quotaMemberAllocService) {
@@ -31,34 +44,86 @@ public class QuotaService {
         this.quotaMemberAllocService = quotaMemberAllocService;
     }
 
+    /**
+     * 获取人账户ID。
+     *
+     * @param accountId 账户ID
+     * @return 人账户ID
+     */
     public QuotaAccount getByAccountId(Long accountId) {
         return quotaAccountRepository.requireByAccountId(accountId);
     }
 
+    /**
+     * 执行分页令牌Records。
+     *
+     * @param current current
+     * @param size 大小
+     * @param accountId 账户ID
+     * @return 执行结果
+     */
     public PageResult<TokenRecord> pageTokenRecords(long current, long size, Long accountId) {
         return tokenRecordRepository.page(current, size, accountId);
     }
 
+    /**
+     * 执行数量AiInvocations。
+     *
+     * @param tenantId 租户 ID
+     * @param start start
+     * @param end end
+     * @return 执行结果
+     */
     public long countAiInvocations(Long tenantId, LocalDateTime start, LocalDateTime end) {
         return tokenRecordRepository.countByTenantAndTypeAndTimeRange(tenantId, "DEDUCT", start, end);
     }
 
+    /**
+     * 执行sum令牌Delta。
+     *
+     * @param tenantId 租户 ID
+     * @param start start
+     * @param end end
+     * @return 执行结果
+     */
     public long sumTokenDelta(Long tenantId, LocalDateTime start, LocalDateTime end) {
         return tokenRecordRepository.listByTenantAndTimeRange(tenantId, start, end).stream()
                 .mapToLong(record -> record.deltaAmount() == null ? 0L : Math.abs(record.deltaAmount()))
                 .sum();
     }
 
+    /**
+     * 执行revokeCycle额度。
+     *
+     * @param accountId 账户ID
+     * @param amount amount
+     * @param idempotencyKey idempotency键
+     * @param remark remark
+     * @return 执行结果
+     */
     @Transactional
     public QuotaAccount revokeCycleQuota(Long accountId, long amount, String idempotencyKey, String remark) {
         return revokeBucket(accountId, "CYCLE", amount, idempotencyKey, remark);
     }
 
+    /**
+     * 执行revokeTopup额度。
+     *
+     * @param accountId 账户ID
+     * @param amount amount
+     * @param idempotencyKey idempotency键
+     * @param remark remark
+     * @return 执行结果
+     */
     @Transactional
     public QuotaAccount revokeTopupQuota(Long accountId, long amount, String idempotencyKey, String remark) {
         return revokeBucket(accountId, "TOPUP", amount, idempotencyKey, remark);
     }
 
+    /**
+     * 执行revokeBucket。
+     * @return 执行结果
+     */
     private QuotaAccount revokeBucket(Long accountId, String bucket, long amount,
                                       String idempotencyKey, String remark) {
         if (amount <= 0) {
@@ -78,11 +143,29 @@ public class QuotaService {
         return quota;
     }
 
+    /**
+     * 执行grantCycle额度。
+     *
+     * @param accountId 账户ID
+     * @param amount amount
+     * @param idempotencyKey idempotency键
+     * @param remark remark
+     * @return 执行结果
+     */
     @Transactional
     public QuotaAccount grantCycleQuota(Long accountId, long amount, String idempotencyKey, String remark) {
         return grantBucket(accountId, "CYCLE", amount, idempotencyKey, "GRANT", remark);
     }
 
+    /**
+     * 执行grantTopup额度。
+     *
+     * @param accountId 账户ID
+     * @param amount amount
+     * @param idempotencyKey idempotency键
+     * @param remark remark
+     * @return 执行结果
+     */
     @Transactional
     public QuotaAccount grantTopupQuota(Long accountId, long amount, String idempotencyKey, String remark) {
         return grantBucket(accountId, "TOPUP", amount, idempotencyKey, "GRANT", remark);
@@ -113,6 +196,10 @@ public class QuotaService {
         return grantCycleQuota(accountId, amount, idempotencyKey, remark);
     }
 
+    /**
+     * 执行deduct。
+     * @return 执行结果
+     */
     @Transactional
     public QuotaAccount deduct(Long accountId, long amount, String idempotencyKey,
                                Long memberUserId, String bizType, String bizId) {
@@ -157,6 +244,15 @@ public class QuotaService {
         throw Errors.of(PlatformErrorCode.QUOTA_DEDUCT_CONFLICT);
     }
 
+    /**
+     * 执行adjust。
+     *
+     * @param accountId 账户ID
+     * @param bucket bucket
+     * @param deltaAmount deltaAmount
+     * @param remark remark
+     * @return 执行结果
+     */
     @Transactional
     public QuotaAccount adjust(Long accountId, String bucket, long deltaAmount, String remark) {
         QuotaAccount quota = getByAccountId(accountId);
@@ -166,6 +262,10 @@ public class QuotaService {
         return quota;
     }
 
+    /**
+     * 执行grantBucket。
+     * @return 执行结果
+     */
     private QuotaAccount grantBucket(Long accountId, String bucket, long amount,
                                        String idempotencyKey, String recordType, String remark) {
         if (StringUtils.hasText(idempotencyKey) && tokenRecordRepository.findByIdempotencyKey(idempotencyKey) != null) {
@@ -198,6 +298,14 @@ public class QuotaService {
         return quota;
     }
 
+    /**
+     * 执行applyBucketDelta。
+     *
+     * @param quota 额度
+     * @param bucket bucket
+     * @param delta delta
+     * @return 执行结果
+     */
     private QuotaAccount applyBucketDelta(QuotaAccount quota, String bucket, long delta) {
         return switch (bucket.toUpperCase()) {
             case "CYCLE" -> new QuotaAccount(
@@ -218,6 +326,9 @@ public class QuotaService {
         };
     }
 
+    /**
+     * 执行writeRecord。
+     */
     private void writeRecord(QuotaAccount quota, String recordType, String bucket, long delta,
                              long balanceAfter, Long memberUserId, String bizType, String bizId,
                              String idempotencyKey, String customMessage) {
@@ -244,6 +355,13 @@ public class QuotaService {
         ));
     }
 
+    /**
+     * 执行bucketRemaining。
+     *
+     * @param quota 额度
+     * @param bucket bucket
+     * @return 执行结果
+     */
     private long bucketRemaining(QuotaAccount quota, String bucket) {
         return switch (bucket.toUpperCase()) {
             case "CYCLE" -> safe(quota.cycleRemaining());
@@ -253,10 +371,23 @@ public class QuotaService {
         };
     }
 
+    /**
+     * 执行balanceAfter。
+     *
+     * @param quota 额度
+     * @param bucket bucket
+     * @return 执行结果
+     */
     private long balanceAfter(QuotaAccount quota, String bucket) {
         return bucketRemaining(quota, bucket);
     }
 
+    /**
+     * 执行safe。
+     *
+     * @param value 值
+     * @return 执行结果
+     */
     private long safe(Long value) {
         return value == null ? 0L : value;
     }

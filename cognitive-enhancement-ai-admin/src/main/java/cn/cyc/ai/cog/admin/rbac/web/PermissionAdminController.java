@@ -25,6 +25,9 @@ import java.util.Map;
 
 /**
  * 权限点管理接口（对齐前端 /api/admin/permissions）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "系统设置-权限点", description = "权限树与自定义权限 CRUD")
 @RestController
@@ -47,6 +50,12 @@ public class PermissionAdminController {
         this.rbacAdminVoAssembler = rbacAdminVoAssembler;
     }
 
+    /**
+     * 执行tree。
+     *
+     * @param scope scope
+     * @return 执行结果
+     */
     @Operation(summary = "权限树", description = "按 scope/moduleKey 分组返回权限点。")
     @RequirePermission("admin:role:update")
     @GetMapping("/tree")
@@ -54,6 +63,10 @@ public class PermissionAdminController {
         return ApiResponse.success(permissionService.buildTree(scope));
     }
 
+    /**
+     * 查询All列表。
+     * @return 结果列表
+     */
     @Operation(summary = "查询全部权限点")
     @RequirePermission("admin:role:update")
     @GetMapping
@@ -62,6 +75,10 @@ public class PermissionAdminController {
                 permissionService.listAll().stream().map(rbacAdminVoAssembler::toPermissionVo).toList());
     }
 
+    /**
+     * 查询Custom列表。
+     * @return 结果列表
+     */
     @Operation(summary = "查询自定义权限点")
     @RequirePermission("admin:permission:create")
     @GetMapping("/custom")
@@ -78,6 +95,12 @@ public class PermissionAdminController {
                 request.getCode(), request.getScope(), request.getExcludeId()));
     }
 
+    /**
+     * 创建Item。
+     *
+     * @param request 请求
+     * @return 创建结果
+     */
     @Operation(summary = "新增自定义权限点")
     @RequirePermission("admin:permission:create")
     @PostMapping
@@ -85,6 +108,12 @@ public class PermissionAdminController {
         return ApiResponse.success(rbacAdminVoAssembler.toPermissionVo(permissionService.create(request)));
     }
 
+    /**
+     * 更新Item。
+     *
+     * @param request 请求
+     * @return 更新结果
+     */
     @Operation(summary = "编辑自定义权限点")
     @RequirePermission("admin:permission:update")
     @PostMapping("/update")
@@ -92,6 +121,11 @@ public class PermissionAdminController {
         return ApiResponse.success(rbacAdminVoAssembler.toPermissionVo(permissionService.update(request.getId(), request)));
     }
 
+    /**
+     * 删除Item。
+     *
+     * @param id 主键 ID
+     */
     @Operation(summary = "删除自定义权限点")
     @RequirePermission("admin:permission:delete")
     @DeleteMapping("/{id}")

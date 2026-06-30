@@ -19,6 +19,9 @@ import org.springframework.util.StringUtils;
 
 /**
  * IAM 用户仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbIamUserRepository implements IamUserRepository {
@@ -33,6 +36,12 @@ public class DbIamUserRepository implements IamUserRepository {
         this.sysUserMapper = sysUserMapper;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Override
     public PageResult<IamUser> page(UserPageQuery query) {
         LambdaQueryWrapper<SysUserEntity> wrapper = new LambdaQueryWrapper<>();
@@ -56,6 +65,12 @@ public class DbIamUserRepository implements IamUserRepository {
                 page.getSize());
     }
 
+    /**
+     * 执行require人ID。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     @Override
     public IamUser requireById(Long id) {
         SysUserEntity entity = sysUserMapper.selectById(id);
@@ -65,6 +80,15 @@ public class DbIamUserRepository implements IamUserRepository {
         return toDomain(entity);
     }
 
+    /**
+     * 更新状态。
+     *
+     * @param id 主键 ID
+     * @param status 状态
+     * @param banReason ban原因
+     * @param banUntil banUntil
+     * @return 更新结果
+     */
     @Override
     public IamUser updateStatus(Long id, String status, String banReason, java.time.LocalDateTime banUntil) {
         SysUserEntity user = sysUserMapper.selectById(id);
@@ -82,6 +106,12 @@ public class DbIamUserRepository implements IamUserRepository {
         return toDomain(user);
     }
 
+    /**
+     * 执行resolveBanIfExpired。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     @Override
     public IamUser resolveBanIfExpired(Long id) {
         SysUserEntity user = sysUserMapper.selectById(id);
@@ -100,6 +130,12 @@ public class DbIamUserRepository implements IamUserRepository {
         return toDomain(user);
     }
 
+    /**
+     * 查找人Username。
+     *
+     * @param username username
+     * @return 查找结果
+     */
     @Override
     public IamUser findByUsername(String username) {
         if (!StringUtils.hasText(username)) {
@@ -111,6 +147,10 @@ public class DbIamUserRepository implements IamUserRepository {
         return entity == null ? null : toDomain(entity);
     }
 
+    /**
+     * 执行registerCustomer。
+     * @return 执行结果
+     */
     @Override
     public IamUser registerCustomer(Long tenantId, String username, String passwordHash,
                                     String nickname, String email, String phone) {
@@ -127,6 +167,12 @@ public class DbIamUserRepository implements IamUserRepository {
         return toDomain(user);
     }
 
+    /**
+     * 执行assign角色人编码。
+     *
+     * @param userId 用户 ID
+     * @param roleCode 角色编码
+     */
     @Override
     public void assignRoleByCode(Long userId, String roleCode) {
         Long roleId = sysUserMapper.selectRoleIdByCode(roleCode);
@@ -136,12 +182,24 @@ public class DbIamUserRepository implements IamUserRepository {
         sysUserMapper.insertUserRole(userId, roleId);
     }
 
+    /**
+     * 执行existsUsername。
+     *
+     * @param username username
+     * @return 执行结果
+     */
     @Override
     public boolean existsUsername(String username) {
         return sysUserMapper.selectCount(new LambdaQueryWrapper<SysUserEntity>()
                 .eq(SysUserEntity::getUsername, username.trim())) > 0;
     }
 
+    /**
+     * 执行exists手机号。
+     *
+     * @param phone 手机号
+     * @return 执行结果
+     */
     @Override
     public boolean existsPhone(String phone) {
         if (!StringUtils.hasText(phone)) {
@@ -151,6 +209,12 @@ public class DbIamUserRepository implements IamUserRepository {
                 .eq(SysUserEntity::getPhone, phone.trim())) > 0;
     }
 
+    /**
+     * 执行exists邮箱。
+     *
+     * @param email 邮箱
+     * @return 执行结果
+     */
     @Override
     public boolean existsEmail(String email) {
         if (!StringUtils.hasText(email)) {
@@ -160,6 +224,12 @@ public class DbIamUserRepository implements IamUserRepository {
                 .eq(SysUserEntity::getEmail, email.trim())) > 0;
     }
 
+    /**
+     * 执行bindPrimary账户IfAbsent。
+     *
+     * @param userId 用户 ID
+     * @param accountId 账户ID
+     */
     @Override
     public void bindPrimaryAccountIfAbsent(Long userId, Long accountId) {
         SysUserEntity user = sysUserMapper.selectById(userId);
@@ -169,6 +239,14 @@ public class DbIamUserRepository implements IamUserRepository {
         }
     }
 
+    /**
+     * 更新租户AndPrimary账户。
+     *
+     * @param userId 用户 ID
+     * @param tenantId 租户 ID
+     * @param accountId 账户ID
+     * @return 更新结果
+     */
     @Override
     public void updateTenantAndPrimaryAccount(Long userId, Long tenantId, Long accountId) {
         SysUserEntity user = sysUserMapper.selectById(userId);
@@ -180,6 +258,12 @@ public class DbIamUserRepository implements IamUserRepository {
         sysUserMapper.updateById(user);
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private IamUser toDomain(SysUserEntity entity) {
         return new IamUser(
                 entity.getId(),
@@ -198,6 +282,14 @@ public class DbIamUserRepository implements IamUserRepository {
         );
     }
 
+    /**
+     * 执行数量Users。
+     *
+     * @param tenantId 租户 ID
+     * @param start start
+     * @param end end
+     * @return 执行结果
+     */
     @Override
     public long countUsers(Long tenantId, java.time.LocalDateTime start, java.time.LocalDateTime end) {
         LambdaQueryWrapper<SysUserEntity> wrapper = new LambdaQueryWrapper<>();
@@ -213,6 +305,14 @@ public class DbIamUserRepository implements IamUserRepository {
         return sysUserMapper.selectCount(wrapper);
     }
 
+    /**
+     * 查询UsersCreatedBetween列表。
+     *
+     * @param tenantId 租户 ID
+     * @param start start
+     * @param end end
+     * @return 结果列表
+     */
     @Override
     public java.util.List<IamUser> listUsersCreatedBetween(Long tenantId, java.time.LocalDateTime start, java.time.LocalDateTime end) {
         LambdaQueryWrapper<SysUserEntity> wrapper = new LambdaQueryWrapper<>();
@@ -224,6 +324,13 @@ public class DbIamUserRepository implements IamUserRepository {
         return sysUserMapper.selectList(wrapper).stream().map(this::toDomain).toList();
     }
 
+    /**
+     * 执行数量ActiveUsers。
+     *
+     * @param tenantId 租户 ID
+     * @param days days
+     * @return 执行结果
+     */
     @Override
     public long countActiveUsers(Long tenantId, int days) {
         java.time.LocalDateTime since = java.time.LocalDateTime.now().minusDays(Math.max(days, 1) - 1L)
@@ -236,11 +343,21 @@ public class DbIamUserRepository implements IamUserRepository {
         return sysUserMapper.selectCount(wrapper);
     }
 
+    /**
+     * 查询角色Codes列表。
+     *
+     * @param userId 用户 ID
+     * @return 结果列表
+     */
     @Override
     public java.util.List<String> listRoleCodes(Long userId) {
         return sysUserMapper.selectRoleCodes(userId);
     }
 
+    /**
+     * 执行recoverExpiredBans。
+     * @return 执行结果
+     */
     @Override
     public int recoverExpiredBans() {
         java.time.LocalDateTime now = java.time.LocalDateTime.now();

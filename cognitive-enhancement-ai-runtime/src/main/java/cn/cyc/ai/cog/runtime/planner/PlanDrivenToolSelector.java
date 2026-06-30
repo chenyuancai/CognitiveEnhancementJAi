@@ -13,6 +13,7 @@ import java.util.Optional;
  * 计划驱动 Tool 选择器：按 taskPlan 或 preferredToolCode 从可用 Tool 列表中选择。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class PlanDrivenToolSelector {
@@ -54,6 +55,13 @@ public class PlanDrivenToolSelector {
         return availableToolCodes.get(0);
     }
 
+    /**
+     * 执行selectFrom计划。
+     *
+     * @param plan 计划
+     * @param availableToolCodes available工具Codes
+     * @return 执行结果
+     */
     private Optional<String> selectFromPlan(TaskPlan plan, List<String> availableToolCodes) {
         for (TaskPlanStep step : plan.steps()) {
             if (StringUtils.hasText(step.toolCode()) && availableToolCodes.contains(step.toolCode())) {
@@ -68,6 +76,13 @@ public class PlanDrivenToolSelector {
         return Optional.empty();
     }
 
+    /**
+     * 执行containsIgnoreCase。
+     *
+     * @param source 来源
+     * @param target 目标
+     * @return 执行结果
+     */
     private boolean containsIgnoreCase(String source, String target) {
         if (!StringUtils.hasText(source) || !StringUtils.hasText(target)) {
             return false;

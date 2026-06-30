@@ -1,0 +1,5026 @@
+openapi: 3.0.3
+info:
+  title: Cognitive Enhancement JAi Backend API
+  version: 1.0.0
+  description: |
+    Cognitive Enhancement JAi 后端开放接口说明，覆盖鉴权、Center 元数据管理、
+    Runtime 能力执行、观测、模型检查、Harness 治理、管理后台 CMS/工作台与 C 端 App 接口。
+servers:
+  - url: http://localhost:8801
+    description: 本地开发环境（API 网关）
+tags:
+  - name: Auth
+    description: 登录与注册
+  - name: Users
+    description: 用户管理
+  - name: Center Metadata
+    description: Center 元数据管理
+  - name: Runtime
+    description: Runtime 能力执行
+  - name: Runtime Observations
+    description: Runtime 观测与统计
+  - name: Runtime Usage
+    description: Runtime 用量与额度账户
+  - name: Runtime Models
+    description: 模型连通性与状态
+  - name: Harness
+    description: Agent Harness 治理验证
+  - name: Admin CMS
+    description: 管理后台 CMS（RBAC、会员、计费、内容、运营、系统）
+  - name: Admin AI
+    description: AI 控制台（成本看板、路由治理）
+  - name: Admin Workbench
+    description: 管理工作台看板（概览、趋势、待办）
+  - name: App Auth
+    description: C 端鉴权与注册
+  - name: App Knowledge
+    description: C 端知识内容与知识包目录
+  - name: App Ops
+    description: C 端运营投放（Banner、公告、站内信、客服工单）
+  - name: App Billing
+    description: C 端计费（套餐、下单、预支付、支付回调）
+  - name: App Learning
+    description: C 端学习链路（评分、带学、问答）
+security:
+  - bearerAuth: []
+paths:
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: 登录并获取 JWT
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: 注册用户并返回用户信息
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisterRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/users:
+    get:
+      tags: [Users]
+      summary: 分页查询用户列表
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/users/{id}:
+    get:
+      tags: [Users]
+      summary: 查询用户详情
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/users/register:
+    post:
+      tags: [Users]
+      summary: 管理端创建用户
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisterRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/users/login:
+    post:
+      tags: [Users]
+      summary: 用户模块兼容登录入口
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/capabilities/execute:
+    post:
+      tags: [Runtime]
+      summary: 执行能力
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CapabilityExecuteRequest'
+            examples:
+              qa:
+                value:
+                  capabilityCode: capability.qa.answer
+                  input:
+                    question: 什么是 Cognitive Enhancement AI?
+                  parameters:
+                    temperature: 0.3
+                    topP: 0.5
+      responses:
+        '200':
+          description: 能力执行成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+  /api/runtime/capabilities/execute/stream:
+    post:
+      tags: [Runtime]
+      summary: 以 SSE 事件流执行能力
+      description: |
+        返回 `text/event-stream`，事件类型包括 `STARTED`、`COMPLETED`、`FAILED`。
+        当前接口复用同步执行链路，Trace、租户、限流、治理、观测和审计行为与
+        `/api/runtime/capabilities/execute` 保持一致。执行失败时 HTTP 状态仍为 200，
+        具体错误通过 `FAILED` 事件中的 `code`、`message` 和 `traceId` 传递。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CapabilityExecuteRequest'
+      responses:
+        '200':
+          description: SSE 执行事件流
+          content:
+            text/event-stream:
+              schema:
+                type: string
+              examples:
+                success:
+                  value: |
+                    event: STARTED
+                    data: {"type":"STARTED","traceId":"trace-001","capabilityCode":"capability.qa.answer","success":true,"code":"0","message":"能力执行已开始","data":null}
+
+                    event: COMPLETED
+                    data: {"type":"COMPLETED","traceId":"trace-001","capabilityCode":"capability.qa.answer","success":true,"code":"0","message":"成功","data":{}}
+                failed:
+                  value: |
+                    event: STARTED
+                    data: {"type":"STARTED","traceId":"trace-001","capabilityCode":"capability.qa.answer","success":true,"code":"0","message":"能力执行已开始","data":null}
+
+                    event: FAILED
+                    data: {"type":"FAILED","traceId":"trace-001","capabilityCode":"capability.qa.answer","success":false,"code":"A0400","message":"输入参数 question 必须是 string","data":null}
+  /api/runtime/tools/debug-invoke:
+    post:
+      tags: [Runtime Tools]
+      summary: 调试调用单个 Tool
+      description: |
+        管理台 Tool 调试入口。复用 ToolRuntime 的协议执行、Schema 校验、超时和重试逻辑，
+        但不校验 Skill 绑定关系。HIGH 风险 Tool 需要 `debugConfirmed=true` 或
+        请求头 `X-Debug-Confirmed: true`。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: X-Debug-Confirmed
+          in: header
+          required: false
+          schema:
+            type: boolean
+        - name: toolCode
+          in: path
+          required: true
+          schema:
+            type: string
+          example: tool.search
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ToolDebugInvokeRequest'
+            examples:
+              local:
+                value:
+                  input:
+                    question: Tool 调试是否可用?
+                  parameters:
+                    temperature: 0.2
+      responses:
+        '200':
+          description: Tool 调试调用成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ToolDebugInvokeResponse'
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/runtime/observations/executions:
+    get:
+      tags: [Runtime Observations]
+      summary: 分页查询执行记录
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/StartTime'
+        - $ref: '#/components/parameters/EndTime'
+        - name: traceId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: capabilityCode
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/observations/executions/{traceId}:
+    get:
+      tags: [Runtime Observations]
+      summary: 查询执行链路详情
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: traceId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/observations/usages:
+    get:
+      tags: [Runtime Observations]
+      summary: 分页查询用量记录
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/StartTime'
+        - $ref: '#/components/parameters/EndTime'
+        - name: executorType
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [LLM, TOOL]
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/observations/model-checks:
+    get:
+      tags: [Runtime Observations]
+      summary: 分页查询模型检查记录
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/StartTime'
+        - $ref: '#/components/parameters/EndTime'
+        - name: modelCode
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/observations/model-checks/latest:
+    get:
+      tags: [Runtime Observations]
+      summary: 查询指定模型最近一次检查记录
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: modelCode
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/observations/stats:
+    get:
+      tags: [Runtime Observations]
+      summary: 查询观测聚合统计
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/StartTime'
+        - $ref: '#/components/parameters/EndTime'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/observations/traces/{traceId}/spans:
+    get:
+      tags: [Runtime Observations]
+      summary: 按 traceId 查询 Trace Span 步骤树
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: traceId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trace Span 列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                          items:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/TraceSpanResult'
+        '404':
+          $ref: '#/components/responses/Error'
+  /api/runtime/observations/audit-logs:
+    get:
+      tags: [Runtime Observations]
+      summary: 分页查询审计日志
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/StartTime'
+        - $ref: '#/components/parameters/EndTime'
+        - name: traceId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: eventType
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: action
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: resourceType
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: resourceCode
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: success
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/sessions:
+    post:
+      tags: [Runtime Session]
+      summary: 创建会话
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSessionRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/sessions/{sessionId}:
+    get:
+      tags: [Runtime Session]
+      summary: 查询会话详情
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/sessions/{sessionId}/messages:
+    get:
+      tags: [Runtime Session]
+      summary: 查询会话消息列表
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/feedback:
+    get:
+      tags: [Runtime Feedback]
+      summary: 查询执行反馈
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: traceId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: sessionId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Runtime Feedback]
+      summary: 提交执行反馈
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitFeedbackRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/knowledge/fragments:
+    get:
+      tags: [Runtime Knowledge]
+      summary: 查询知识片段列表
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: knowledgeCode
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Runtime Knowledge]
+      summary: 创建知识片段
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateKnowledgeFragmentRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/knowledge/bindings:
+    get:
+      tags: [Runtime Knowledge]
+      summary: 查询场景知识绑定列表
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: scenarioCode
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Runtime Knowledge]
+      summary: 创建场景知识绑定
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateScenarioBindingRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/knowledge/retrieve:
+    get:
+      tags: [Runtime Knowledge]
+      summary: 检索知识片段
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: scenarioCode
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: query
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/files:
+    post:
+      tags: [Runtime File]
+      summary: 注册文件上传元数据
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterFileUploadRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/files/{fileId}:
+    get:
+      tags: [Runtime File]
+      summary: 查询文件上传记录
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/files/parse:
+    post:
+      tags: [Runtime File]
+      summary: 启动文件解析
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/files/{fileId}/parse-result:
+    get:
+      tags: [Runtime File]
+      summary: 查询最新文件解析结果
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/usage/account:
+    get:
+      tags: [Runtime Usage]
+      summary: 查询当前租户用量额度账户
+      description: |
+        返回当前租户额度账户；账户不存在时服务端按默认额度自动创建。
+        当额度账户启用后，能力执行前会检查余额，执行成功后按实际用量成本扣减余额。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          description: 当前租户额度账户
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/UsageAccount'
+  /api/runtime/models/check:
+    post:
+      tags: [Runtime Models]
+      summary: 执行模型连通性检查
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelConnectivityCheckRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/models/statuses:
+    get:
+      tags: [Runtime Models]
+      summary: 查询模型状态列表
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/models/overview:
+    get:
+      tags: [Runtime Models]
+      summary: 查询模型状态总览
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/runtime/models/governance:
+    get:
+      tags: [Runtime Models]
+      summary: 查询模型治理状态（熔断/降级）
+      description: |
+        返回当前租户各模型的熔断状态、连续失败次数与降级目标。
+        运行时 `DefaultModelGovernance` 在主模型熔断打开时自动路由到 `fallbackModelCode`。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          description: 治理状态列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                          items:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/ModelGovernanceStateResult'
+  /api/runtime/models/statuses/refresh:
+    post:
+      tags: [Runtime Models]
+      summary: 刷新模型状态
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelStatusRefreshRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/auth/me:
+    get:
+      tags: [Admin CMS]
+      summary: 当前登录管理员信息
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/users/{id}:
+    get:
+      tags: [Admin CMS]
+      summary: 用户详情
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/users/status:
+    put:
+      tags: [Admin CMS]
+      summary: 更新用户状态
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [ENABLED, DISABLED]
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/users/page:
+    post:
+      tags: [Admin CMS]
+      summary: 分页查询用户
+      description: 默认返回全部用户；可选 userType、keyword、status 过滤。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPageQuery'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/iam/tenants:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询租户
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Admin CMS]
+      summary: 创建租户
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/iam/tenants/{id}:
+    get:
+      tags: [Admin CMS]
+      summary: 租户详情
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    put:
+      tags: [Admin CMS]
+      summary: 更新租户
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/iam/tenants/status:
+    put:
+      tags: [Admin CMS]
+      summary: 更新租户状态
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/roles:
+    get:
+      tags: [Admin CMS]
+      summary: 角色列表（全量）
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Admin CMS]
+      summary: 创建角色
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/roles/page:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询角色
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/roles/{id}:
+    get:
+      tags: [Admin CMS]
+      summary: 角色详情
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    put:
+      tags: [Admin CMS]
+      summary: 更新角色
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    delete:
+      tags: [Admin CMS]
+      summary: 删除角色
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/roles/{id}/permissions:
+    put:
+      tags: [Admin CMS]
+      summary: 绑定角色权限
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/permissions/tree:
+    get:
+      tags: [Admin CMS]
+      summary: 权限树
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/permissions:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询权限
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Admin CMS]
+      summary: 创建权限
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/permissions/{id}:
+    put:
+      tags: [Admin CMS]
+      summary: 更新权限
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    delete:
+      tags: [Admin CMS]
+      summary: 删除权限
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/billing/orders:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询订单
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/billing/orders/{id}:
+    get:
+      tags: [Admin CMS]
+      summary: 订单详情
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/billing/orders/mark-paid:
+    post:
+      tags: [Admin CMS]
+      summary: 手动标记已支付
+      description: 仅待支付订单可操作。需要 admin:order:update 权限点。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                paidAt:
+                  type: string
+                  format: date-time
+                channel:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/billing/orders/cancel:
+    post:
+      tags: [Admin CMS]
+      summary: 取消待支付订单
+      description: 仅待支付订单可取消为 CLOSED。需要 admin:order:update 权限点。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/billing/orders/refund:
+    post:
+      tags: [Admin CMS]
+      summary: 手动退款
+      description: 仅已支付订单可操作。需要 admin:order:refund 权限点。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amountFen]
+              properties:
+                amountFen:
+                  type: integer
+                  format: int64
+                reason:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/billing/subscription-packages:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询订阅套餐
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Admin CMS]
+      summary: 创建订阅套餐
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/billing/subscription-packages/{id}:
+    put:
+      tags: [Admin CMS]
+      summary: 更新订阅套餐
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/billing/quota-packages:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询额度包
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Admin CMS]
+      summary: 创建额度包
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/billing/quota-packages/{id}:
+    put:
+      tags: [Admin CMS]
+      summary: 更新额度包
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/billing/subscriptions:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询订阅记录
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/billing/financial-records:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询资金流水
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/content/contents:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询内容
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Admin CMS]
+      summary: 创建内容草稿
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/content/contents/{id}:
+    get:
+      tags: [Admin CMS]
+      summary: 内容详情
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    put:
+      tags: [Admin CMS]
+      summary: 更新内容
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/content/contents/audit:
+    post:
+      tags: [Admin CMS]
+      summary: 内容审核（通过/驳回）
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/content/contents/{id}/offline:
+    post:
+      tags: [Admin CMS]
+      summary: 内容下线
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/content/contents/{id}/tags:
+    get:
+      tags: [Admin CMS]
+      summary: 内容已绑标签
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    put:
+      tags: [Admin CMS]
+      summary: 绑定内容标签
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/content/tags:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询内容标签
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Admin CMS]
+      summary: 创建内容标签
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/content/tags/{id}:
+    put:
+      tags: [Admin CMS]
+      summary: 更新内容标签
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    delete:
+      tags: [Admin CMS]
+      summary: 删除内容标签
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/content/knowledge-packages:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询知识包
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Admin CMS]
+      summary: 创建知识包
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/content/knowledge-packages/{id}:
+    get:
+      tags: [Admin CMS]
+      summary: 知识包详情
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    put:
+      tags: [Admin CMS]
+      summary: 更新知识包
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/content/knowledge-packages/{id}/items:
+    get:
+      tags: [Admin CMS]
+      summary: 知识包条目列表
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Admin CMS]
+      summary: 添加知识包条目
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/content/knowledge-packages/{packageId}/items/{itemId}:
+    delete:
+      tags: [Admin CMS]
+      summary: 删除知识包条目
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: packageId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/content/import-jobs:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询内容导入任务
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Admin CMS]
+      summary: 创建内容导入任务（CSV）
+      description: 请求体含 `fileContent`（Base64 或明文 CSV）与可选 `sourceContentId`。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/content/import-jobs/{id}:
+    get:
+      tags: [Admin CMS]
+      summary: 导入任务详情
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/content/contents/{id}/versions:
+    get:
+      tags: [Admin CMS]
+      summary: 内容版本历史
+      description: 审核通过发布时写入快照；需要 `admin:content:update` 权限。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 版本列表（versionNo、title、minLevelCode、operatorId、createTime）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /api/admin/content/contents/rollback:
+    post:
+      tags: [Admin CMS]
+      summary: 回滚到历史版本
+      description: 将历史版本内容回填为草稿，需重新走审核发布；需要 `admin:content:update` 权限。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [versionNo]
+              properties:
+                versionNo:
+                  type: integer
+                  description: 目标历史版本号
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/membership/members:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询会员
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/membership/members/{id}/level:
+    put:
+      tags: [Admin CMS]
+      summary: 调整会员等级
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/membership/levels:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询会员等级
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Admin CMS]
+      summary: 创建会员等级
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/membership/levels/all:
+    get:
+      tags: [Admin CMS]
+      summary: 会员等级全量列表
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/membership/levels/{id}:
+    get:
+      tags: [Admin CMS]
+      summary: 会员等级详情
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    put:
+      tags: [Admin CMS]
+      summary: 更新会员等级
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/membership/levels/grant:
+    post:
+      tags: [Admin CMS]
+      summary: 授予会员等级
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/membership/levels/change-logs:
+    get:
+      tags: [Admin CMS]
+      summary: 会员等级变更日志
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/operations/banners:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询 Banner
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Admin CMS]
+      summary: 创建 Banner
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/operations/banners/{id}:
+    get:
+      tags: [Admin CMS]
+      summary: Banner 详情
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    put:
+      tags: [Admin CMS]
+      summary: 更新 Banner
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    delete:
+      tags: [Admin CMS]
+      summary: 删除 Banner
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/operations/announcements:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询公告
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Admin CMS]
+      summary: 创建公告
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/operations/announcements/{id}:
+    get:
+      tags: [Admin CMS]
+      summary: 公告详情
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    put:
+      tags: [Admin CMS]
+      summary: 更新公告
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    delete:
+      tags: [Admin CMS]
+      summary: 删除公告
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/operations/message-templates:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询消息模板
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Admin CMS]
+      summary: 创建消息模板
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/operations/message-templates/{id}:
+    get:
+      tags: [Admin CMS]
+      summary: 消息模板详情
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    put:
+      tags: [Admin CMS]
+      summary: 更新消息模板
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    delete:
+      tags: [Admin CMS]
+      summary: 删除消息模板
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/operations/message-templates/preview:
+    post:
+      tags: [Admin CMS]
+      summary: 预览消息模板渲染结果
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/operations/dashboard:
+    get:
+      tags: [Admin CMS]
+      summary: 运营看板
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: preset
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [TODAY, LAST_7_DAYS, LAST_30_DAYS]
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/operations/message-templates/send:
+    post:
+      tags: [Admin CMS]
+      summary: 按模板发送消息
+      description: |
+        渲染模板后走对应通道（IN_APP / EMAIL / SMS）。
+        IN_APP 落库 `qz_ops_in_app_message`；EMAIL/SMS 当前为日志通道。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageTemplateSendRequest'
+      responses:
+        '200':
+          description: 发送结果
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/MessageSendResult'
+  /api/admin/operations/support-tickets:
+    get:
+      tags: [Admin CMS]
+      summary: 客服工单分页
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/operations/support-tickets/{id}:
+    get:
+      tags: [Admin CMS]
+      summary: 工单详情
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    put:
+      tags: [Admin CMS]
+      summary: 更新工单
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    delete:
+      tags: [Admin CMS]
+      summary: 删除工单
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/operations/support-tickets/status:
+    put:
+      tags: [Admin CMS]
+      summary: 更新工单状态
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/orgs:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询组织
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Admin CMS]
+      summary: 开通组织（2B/2G）
+      description: 创建独立租户 + 账户 + 组织 + 默认会员额度。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrganizationRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/orgs/{orgId}:
+    get:
+      tags: [Admin CMS]
+      summary: 组织详情
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: orgId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/orgs/departments:
+    get:
+      tags: [Admin CMS]
+      summary: 组织部门列表
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: orgId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Admin CMS]
+      summary: 新增部门
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: orgId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentSaveRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/orgs/departments/update:
+    put:
+      tags: [Admin CMS]
+      summary: 编辑部门
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: orgId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: deptId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentSaveRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    delete:
+      tags: [Admin CMS]
+      summary: 删除部门
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: orgId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: deptId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/orgs/members:
+    get:
+      tags: [Admin CMS]
+      summary: 组织成员列表
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: orgId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Admin CMS]
+      summary: 添加组织成员
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: orgId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrgMemberSaveRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/orgs/{orgId}/members/{memberId}:
+    delete:
+      tags: [Admin CMS]
+      summary: 移除组织成员
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: orgId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: memberId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/quota/accounts/{accountId}:
+    get:
+      tags: [Admin CMS]
+      summary: 账户额度概览
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/quota/accounts/adjust:
+    post:
+      tags: [Admin CMS]
+      summary: 调整账户额度
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/quota/token-records:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询 Token 用量记录
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/quota/accounts/{accountId}/member-allocs:
+    get:
+      tags: [Admin CMS]
+      summary: 成员额度分配列表
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Admin CMS]
+      summary: 设置成员额度
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuotaMemberAllocSaveRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/quota/accounts/{accountId}/member-allocs/{userId}:
+    delete:
+      tags: [Admin CMS]
+      summary: 移除成员额度分配
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/workbench:
+    get:
+      tags: [Admin Workbench]
+      summary: 角色化工作台首页（2A）
+      description: |
+        按当前用户主角色（ADMIN / OPERATOR / CONTENT / SUPPORT）返回待办、指标与快捷入口；
+        各卡片按子域权限二次过滤。需要 `workbench:view` 权限点。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          description: 角色化首页卡片
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/WorkbenchResult'
+  /api/admin/workbench/dashboard:
+    get:
+      tags: [Admin Workbench]
+      summary: 工作台看板聚合
+      description: |
+        默认近 7 日；`refresh=true` 绕过 60s 缓存。
+        需要 `workbench:view` 权限点。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: 起始日期（ISO-8601），缺省取近 7 日
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: 结束日期（ISO-8601），缺省取今日
+        - name: refresh
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: 为 true 时绕过 60s 缓存强制重算
+      responses:
+        '200':
+          description: 概览、趋势、待办与 AI 看板内联聚合
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/DashboardResult'
+  /api/admin/workbench/overview:
+    get:
+      tags: [Admin Workbench]
+      summary: 概览卡片
+      description: 需要 `workbench:view` 权限点。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          description: 用户、会员、订单、内容与 AI 消耗概览
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/DashboardOverview'
+  /api/admin/workbench/trends:
+    get:
+      tags: [Admin Workbench]
+      summary: 趋势曲线
+      description: 默认近 7 日，支持 from/to 自定义。需要 `workbench:view` 权限点。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: refresh
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: 按 metric 分组的日粒度趋势序列
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TrendSeries'
+  /api/admin/workbench/todo:
+    get:
+      tags: [Admin Workbench]
+      summary: 待办/告警
+      description: 需要 `workbench:view` 权限点。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          description: 待审核、待支付、导入失败、即将到期会员与 AI 告警汇总
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/DashboardTodo'
+  /api/base/dict/types/page:
+    post:
+      tags: [Base Dict]
+      summary: 分页查询字典类型（base-server）
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/base/dict/{code}/items:
+    get:
+      tags: [Base Dict]
+      summary: 按编码读取启用字典项（base-server）
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/system/audit-logs:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询审计日志
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/system/security-configs:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询安全配置
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Admin CMS]
+      summary: 创建安全配置
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/system/security-configs/{id}:
+    put:
+      tags: [Admin CMS]
+      summary: 更新安全配置
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/system/features:
+    get:
+      tags: [Admin CMS]
+      summary: 分页查询功能开关
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [Admin CMS]
+      summary: 创建功能开关
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/system/features/{id}:
+    put:
+      tags: [Admin CMS]
+      summary: 更新功能开关
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/system/health:
+    get:
+      tags: [Admin CMS]
+      summary: 系统健康检查
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/system/health/refresh:
+    post:
+      tags: [Admin CMS]
+      summary: 刷新系统健康检查
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/ai/cost-dashboard:
+    get:
+      tags: [Admin AI]
+      summary: AI 成本看板
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: preset
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [TODAY, LAST_7_DAYS, LAST_30_DAYS]
+      responses:
+        '200':
+          description: Token 消耗趋势与能力调用分布
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /api/admin/ai/routing-overview:
+    get:
+      tags: [Admin AI]
+      summary: AI 路由治理总览
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          description: 模型状态、熔断治理与 Capability 灰度路由摘要
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AiRoutingOverviewResult'
+  /api/admin/harness/run:
+    post:
+      tags: [Harness]
+      summary: 启动 Harness 验证
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HarnessRunRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/harness/reports:
+    get:
+      tags: [Harness]
+      summary: 查询 Harness 报告列表
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [PASSED, FAILED, RUNNING, CANCELLED]
+        - name: startFrom
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: startTo
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/harness/reports/{harnessId}:
+    get:
+      tags: [Harness]
+      summary: 查询 Harness 报告详情
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: harnessId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/harness/reports/latest:
+    get:
+      tags: [Harness]
+      summary: 查询最近一次 Harness 报告
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/admin/harness/scenario-templates:
+    get:
+      tags: [Harness]
+      summary: 查询 Harness 场景模板
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/center/model-providers/page:
+    post:
+      tags: [Center Metadata]
+      summary: 分页查询模型提供商
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelProviderPageQuery'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/center/model-providers/all:
+    get:
+      tags: [Center Metadata]
+      summary: 查询全部启用的模型提供商
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/center/model-providers/{providerCode}:
+    get:
+      tags: [Center Metadata]
+      summary: 模型提供商详情
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: providerCode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/center/model-providers:
+    post:
+      tags: [Center Metadata]
+      summary: 创建模型提供商
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelProviderUpsertRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/center/model-providers/update:
+    post:
+      tags: [Center Metadata]
+      summary: 更新模型提供商
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelProviderUpsertRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/center/models:
+    $ref: '#/components/pathItems/MetadataCollection'
+  /api/center/models/{code}:
+    $ref: '#/components/pathItems/MetadataItem'
+  /api/center/prompts:
+    $ref: '#/components/pathItems/MetadataCollection'
+  /api/center/prompts/{code}:
+    $ref: '#/components/pathItems/MetadataItem'
+  /api/center/prompts/{code}/versions:
+    get:
+      tags: [Center Metadata]
+      summary: 查询 Prompt 版本列表
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+          example: prompt.qa.default
+      responses:
+        '200':
+          description: 版本列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PromptResult'
+        '404':
+          $ref: '#/components/responses/Error'
+  /api/center/prompts/drafts:
+    post:
+      tags: [Center Metadata]
+      summary: 创建 Prompt 草稿新版本
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromptDraftRequest'
+      responses:
+        '200':
+          description: 草稿创建成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PromptResult'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/center/prompts/publish:
+    post:
+      tags: [Center Metadata]
+      summary: 发布 Prompt 指定版本
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromptPublishRequest'
+      responses:
+        '200':
+          description: 发布成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PromptResult'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/center/prompts/offline:
+    post:
+      tags: [Center Metadata]
+      summary: 下线 Prompt 指定版本
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromptOfflineRequest'
+      responses:
+        '200':
+          description: 下线成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PromptResult'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/center/prompts/gray:
+    put:
+      tags: [Center Metadata]
+      summary: 配置 Prompt 灰度规则
+      description: |
+        按租户维护发布指针。运行时 `PromptReleaseRouter` 基于 traceId 哈希百分比
+        在 baselineVersion 与 candidateVersion 之间选版。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromptGrayRequest'
+      responses:
+        '200':
+          description: 灰度配置成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PromptReleasePointer'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/center/tools:
+    $ref: '#/components/pathItems/MetadataCollection'
+  /api/center/tools/{code}:
+    $ref: '#/components/pathItems/MetadataItem'
+  /api/center/skills:
+    $ref: '#/components/pathItems/MetadataCollection'
+  /api/center/skills/{code}:
+    $ref: '#/components/pathItems/MetadataItem'
+  /api/center/agents:
+    $ref: '#/components/pathItems/MetadataCollection'
+  /api/center/agents/{code}:
+    $ref: '#/components/pathItems/MetadataItem'
+  /api/center/capabilities:
+    $ref: '#/components/pathItems/MetadataCollection'
+  /api/center/capabilities/{code}:
+    $ref: '#/components/pathItems/MetadataItem'
+  /api/center/capabilities/{code}/versions:
+    get:
+      tags: [Center Metadata]
+      summary: 查询 Capability 版本列表
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+          example: capability.qa.answer
+      responses:
+        '200':
+          description: 版本列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/CapabilityResult'
+        '404':
+          $ref: '#/components/responses/Error'
+  /api/center/capabilities/drafts:
+    post:
+      tags: [Center Metadata]
+      summary: 创建 Capability 草稿新版本
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CapabilityDraftRequest'
+      responses:
+        '200':
+          description: 草稿创建成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CapabilityResult'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/center/capabilities/publish:
+    post:
+      tags: [Center Metadata]
+      summary: 发布 Capability 指定版本
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CapabilityPublishRequest'
+      responses:
+        '200':
+          description: 发布成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CapabilityResult'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/center/capabilities/gray:
+    put:
+      tags: [Center Metadata]
+      summary: 配置 Capability 灰度规则
+      description: |
+        按租户维护发布指针。运行时 `CapabilityReleaseRouter` 基于 traceId 哈希百分比
+        在 baselineVersion 与 candidateVersion 之间选版。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CapabilityGrayRequest'
+      responses:
+        '200':
+          description: 灰度配置成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CapabilityReleasePointer'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/center/capabilities/tenants/configure:
+    put:
+      tags: [Center Metadata]
+      summary: 配置 Capability 租户启停
+      description: |
+        租户显式停用后，运行时调用该 capability 返回 `CAPABILITY_DISABLED`（HTTP 409）。
+        未配置绑定时默认允许调用。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tenantCode
+          in: path
+          required: true
+          schema:
+            type: string
+          example: tenant-b
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CapabilityTenantBindingRequest'
+      responses:
+        '200':
+          description: 租户启停配置成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CapabilityTenantBinding'
+        '404':
+          $ref: '#/components/responses/Error'
+  /api/app/auth/register:
+    post:
+      tags: [App Auth]
+      summary: C 端用户注册
+      description: 支持 USERNAME/PHONE/EMAIL 三种方式，由安全配置开关控制。
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisterRequest'
+      responses:
+        '200':
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AppRegisterResponse'
+  /api/app/auth/me:
+    get:
+      tags: [App Auth]
+      summary: 当前用户上下文
+      description: 返回账户、会员与额度摘要。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/app/knowledge/contents:
+    get:
+      tags: [App Knowledge]
+      summary: 已发布内容分页
+      description: 按当前会员等级过滤可见内容与锁定状态。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - name: keyword
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 内容摘要分页列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PageResultAppContentSummary'
+  /api/app/knowledge/contents/{id}:
+    get:
+      tags: [App Knowledge]
+      summary: 已发布内容详情
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 内容详情（低等级时正文锁定）
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AppContentDetailVO'
+  /api/app/knowledge/packages:
+    get:
+      tags: [App Knowledge]
+      summary: 已启用知识包列表
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          description: 知识包目录摘要
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/AppKnowledgePackageTreeVO'
+  /api/app/knowledge/packages/{id}/tree:
+    get:
+      tags: [App Knowledge]
+      summary: 知识包目录树
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 知识包完整目录树（含锁定状态）
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AppKnowledgePackageTreeVO'
+  /api/app/ops/banners:
+    get:
+      tags: [App Ops]
+      summary: 生效 Banner 列表
+      description: 按展示位与生效时间过滤，默认 `position=HOME_TOP`。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: position
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 展示位字典码，缺省 HOME_TOP
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/app/ops/announcements:
+    get:
+      tags: [App Ops]
+      summary: 已发布公告列表
+      description: 仅返回 `PUBLISHED` 状态公告；定时发布由 admin-server `AnnouncementScheduleJob` 推进。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/app/ops/in-app-messages:
+    get:
+      tags: [App Ops]
+      summary: 我的站内信
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: read
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: 按已读状态过滤
+      responses:
+        '200':
+          description: 站内信列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/AppInAppMessageVO'
+  /api/app/ops/in-app-messages/{id}/read:
+    put:
+      tags: [App Ops]
+      summary: 标记站内信已读
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 已读后的消息
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AppInAppMessageVO'
+  /api/app/ops/support-tickets:
+    get:
+      tags: [App Ops]
+      summary: 我的工单分页
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [App Ops]
+      summary: 提交客服工单
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppSupportTicketCreateRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/app/ops/support-tickets/{id}:
+    get:
+      tags: [App Ops]
+      summary: 工单详情（仅本人）
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/app/billing/subscription-packages:
+    get:
+      tags: [App Billing]
+      summary: 在售订阅套餐
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: segment
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/app/billing/quota-packages:
+    get:
+      tags: [App Billing]
+      summary: 在售额度包
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: segment
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/app/billing/orders:
+    get:
+      tags: [App Billing]
+      summary: 我的订单分页
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    post:
+      tags: [App Billing]
+      summary: 创建订单
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/app/billing/orders/{id}:
+    get:
+      tags: [App Billing]
+      summary: 订单详情
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+  /api/app/billing/orders/pay:
+    post:
+      tags: [App Billing]
+      summary: 发起支付（预下单）
+      description: |
+        返回渠道客户端调起参数 `clientParams`，订单保持 `PENDING`。
+        支付成功后由渠道回调 `POST /api/app/billing/pay-callback` 触发履约。
+        通道：`MOCK`（默认）/ `WECHAT` / `ALIPAY`。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppPayOrderRequest'
+      responses:
+        '200':
+          description: 预支付参数
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AppPayOrderResultVO'
+  /api/app/billing/pay-callback:
+    post:
+      tags: [App Billing]
+      summary: 支付结果回调
+      description: |
+        渠道服务器通知；网关白名单路径，无需 Bearer。
+        - MOCK：`signature` 与 `cog.billing.pay-callback.mock-secret` 一致
+        - WECHAT：需 `timestamp` + `nonce` + RSA 签名（V3 风格消息体）
+        - ALIPAY：RSA2 排序串验签
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+        - name: channel
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [MOCK, WECHAT, ALIPAY]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentCallbackRequest'
+      responses:
+        '200':
+          description: 履约后订单
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: OrderVO
+                        additionalProperties: true
+  /api/app/learning/modes:
+    get:
+      tags: [App Learning]
+      summary: 可用学习模式
+      description: 按会员权益返回 SCORING / TUTORING / QA 是否可用。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      responses:
+        '200':
+          description: 学习模式列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AppLearningModesVO'
+  /api/app/learning/invoke:
+    post:
+      tags: [App Learning]
+      summary: 调用学习 AI 能力
+      description: mode=SCORING|TUTORING|QA，委托 Runtime 执行对应 Capability。
+      parameters:
+        - $ref: '#/components/parameters/TenantCodeHeader'
+        - $ref: '#/components/parameters/TraceIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppLearningInvokeRequest'
+      responses:
+        '200':
+          description: 能力执行结果（与 Runtime 同步执行语义一致）
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        additionalProperties: true
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    TenantCodeHeader:
+      name: X-Tenant-Code
+      in: header
+      required: false
+      description: 租户编码，缺省为 default。
+      schema:
+        type: string
+        default: default
+    TraceIdHeader:
+      name: X-Trace-Id
+      in: header
+      required: false
+      description: 调用链路 ID；未传入时服务端生成并回传。
+      schema:
+        type: string
+    Page:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    Size:
+      name: size
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    Sort:
+      name: sort
+      in: query
+      required: false
+      schema:
+        type: string
+        example: recordedAt,desc
+    StartTime:
+      name: startTime
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+    EndTime:
+      name: endTime
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+  pathItems:
+    MetadataCollection:
+      get:
+        tags: [Center Metadata]
+        summary: 查询元数据列表
+        parameters:
+          - $ref: '#/components/parameters/TenantCodeHeader'
+          - $ref: '#/components/parameters/TraceIdHeader'
+          - $ref: '#/components/parameters/Page'
+          - $ref: '#/components/parameters/Size'
+          - $ref: '#/components/parameters/Sort'
+          - name: keyword
+            in: query
+            required: false
+            description: 模糊匹配资源编码和名称。
+            schema:
+              type: string
+          - name: status
+            in: query
+            required: false
+            schema:
+              type: string
+              enum: [ENABLED, DISABLED]
+        responses:
+          '200':
+            description: 元数据分页列表
+            content:
+              application/json:
+                schema:
+                  allOf:
+                    - $ref: '#/components/schemas/ApiResponse'
+                    - type: object
+                      properties:
+                        data:
+                          $ref: '#/components/schemas/CenterPageResult'
+      post:
+        tags: [Center Metadata]
+        summary: 创建元数据
+        parameters:
+          - $ref: '#/components/parameters/TenantCodeHeader'
+          - $ref: '#/components/parameters/TraceIdHeader'
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+        responses:
+          '200':
+            $ref: '#/components/responses/Success'
+    MetadataItem:
+      get:
+        tags: [Center Metadata]
+        summary: 查询元数据详情
+        parameters:
+          - $ref: '#/components/parameters/TenantCodeHeader'
+          - $ref: '#/components/parameters/TraceIdHeader'
+          - name: code
+            in: path
+            required: true
+            schema:
+              type: string
+        responses:
+          '200':
+            $ref: '#/components/responses/Success'
+      put:
+        tags: [Center Metadata]
+        summary: 更新元数据
+        parameters:
+          - $ref: '#/components/parameters/TenantCodeHeader'
+          - $ref: '#/components/parameters/TraceIdHeader'
+          - name: code
+            in: path
+            required: true
+            schema:
+              type: string
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+        responses:
+          '200':
+            $ref: '#/components/responses/Success'
+  responses:
+    Success:
+      description: 统一成功响应
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+    Error:
+      description: 统一错误响应
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        code:
+          type: string
+          nullable: true
+        message:
+          type: string
+          nullable: true
+        data:
+          nullable: true
+        traceId:
+          type: string
+          nullable: true
+    CenterPageResult:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 42
+        items:
+          type: array
+          items:
+            type: object
+        page:
+          type: integer
+          example: 1
+        size:
+          type: integer
+          example: 20
+        totalPages:
+          type: integer
+          example: 3
+        hasNext:
+          type: boolean
+          example: true
+    UserLoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          format: password
+    UserRegisterRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          format: password
+        displayName:
+          type: string
+        roleCodes:
+          type: array
+          items:
+            type: string
+    CapabilityExecuteRequest:
+      type: object
+      required: [capabilityCode, input]
+      properties:
+        capabilityCode:
+          type: string
+        input:
+          type: object
+          additionalProperties: true
+        parameters:
+          type: object
+          additionalProperties: true
+          description: |
+            运行时扩展参数。ReAct 多轮 Tool：`reactEnabled`（默认 true）、`reactMaxIterations`（默认 5）。
+    CapabilityExecutionStreamEvent:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [STARTED, COMPLETED, FAILED]
+        traceId:
+          type: string
+        capabilityCode:
+          type: string
+        success:
+          type: boolean
+        code:
+          type: string
+          example: A0400
+        message:
+          type: string
+        data:
+          nullable: true
+    CapabilityLifecycleStatus:
+      type: string
+      enum: [DRAFT, PUBLISHED, OFFLINE]
+    CapabilityResult:
+      type: object
+      properties:
+        capabilityCode:
+          type: string
+        capabilityName:
+          type: string
+        capabilityDesc:
+          type: string
+        inputSchema:
+          type: object
+          nullable: true
+        outputSchema:
+          type: object
+          nullable: true
+        parameterConstraints:
+          type: object
+          additionalProperties: true
+        executeMode:
+          type: string
+        boundAgentCode:
+          type: string
+        riskLevel:
+          type: string
+        needHumanConfirm:
+          type: boolean
+        status:
+          type: string
+          enum: [ENABLED, DISABLED]
+        version:
+          type: string
+        lifecycleStatus:
+          $ref: '#/components/schemas/CapabilityLifecycleStatus'
+        publishedAt:
+          type: string
+          format: date-time
+          nullable: true
+    CapabilityDraftRequest:
+      type: object
+      properties:
+        version:
+          type: string
+          description: 新版本号；为空时自动 patch 递增
+        capabilityName:
+          type: string
+        capabilityDesc:
+          type: string
+        inputSchema:
+          type: object
+          nullable: true
+        outputSchema:
+          type: object
+          nullable: true
+        parameterConstraints:
+          type: object
+          additionalProperties: true
+        executeMode:
+          type: string
+        boundAgentCode:
+          type: string
+        riskLevel:
+          type: string
+        needHumanConfirm:
+          type: boolean
+    CapabilityPublishRequest:
+      type: object
+      required: [version]
+      properties:
+        version:
+          type: string
+    CapabilityGrayRequest:
+      type: object
+      required: [grayRule]
+      properties:
+        grayRule:
+          $ref: '#/components/schemas/PromptGrayRule'
+    CapabilityReleasePointer:
+      type: object
+      properties:
+        tenantCode:
+          type: string
+        capabilityCode:
+          type: string
+        baselineVersion:
+          type: string
+        candidateVersion:
+          type: string
+          nullable: true
+        grayRule:
+          $ref: '#/components/schemas/PromptGrayRule'
+    CapabilityTenantBindingRequest:
+      type: object
+      required: [enabled]
+      properties:
+        enabled:
+          type: boolean
+    CapabilityTenantBinding:
+      type: object
+      properties:
+        tenantCode:
+          type: string
+        capabilityCode:
+          type: string
+        enabled:
+          type: boolean
+    PromptLifecycleStatus:
+      type: string
+      enum: [DRAFT, PUBLISHED, OFFLINE]
+    PromptResult:
+      type: object
+      properties:
+        promptCode:
+          type: string
+        promptName:
+          type: string
+        scenarioCode:
+          type: string
+        version:
+          type: string
+        templateContent:
+          type: string
+        variableSchema:
+          type: object
+          nullable: true
+        outputSchema:
+          type: object
+          nullable: true
+        status:
+          type: string
+          enum: [ENABLED, DISABLED]
+        lifecycleStatus:
+          $ref: '#/components/schemas/PromptLifecycleStatus'
+        publishedAt:
+          type: string
+          format: date-time
+          nullable: true
+    PromptDraftRequest:
+      type: object
+      properties:
+        version:
+          type: string
+          description: 新版本号；为空时自动递增 patch
+        promptName:
+          type: string
+        scenarioCode:
+          type: string
+        templateContent:
+          type: string
+        variableSchema:
+          type: object
+          nullable: true
+        outputSchema:
+          type: object
+          nullable: true
+    PromptPublishRequest:
+      type: object
+      required: [version]
+      properties:
+        version:
+          type: string
+    PromptOfflineRequest:
+      type: object
+      required: [version]
+      properties:
+        version:
+          type: string
+    PromptGrayRule:
+      type: object
+      properties:
+        strategy:
+          type: string
+          default: PERCENTAGE
+        baselineVersion:
+          type: string
+        candidateVersion:
+          type: string
+        percentage:
+          type: integer
+          minimum: 0
+          maximum: 100
+        hashKey:
+          type: string
+          default: traceId
+    PromptGrayRequest:
+      type: object
+      required: [grayRule]
+      properties:
+        grayRule:
+          $ref: '#/components/schemas/PromptGrayRule'
+    PromptReleasePointer:
+      type: object
+      properties:
+        tenantCode:
+          type: string
+        promptCode:
+          type: string
+        baselineVersion:
+          type: string
+        candidateVersion:
+          type: string
+          nullable: true
+        grayRule:
+          $ref: '#/components/schemas/PromptGrayRule'
+    ToolDebugInvokeRequest:
+      type: object
+      required: [input]
+      properties:
+        input:
+          description: Tool 输入，按 Tool requestSchema 校验
+          nullable: true
+        parameters:
+          type: object
+          additionalProperties: true
+        traceId:
+          type: string
+          nullable: true
+        debugConfirmed:
+          type: boolean
+          default: false
+    ToolDebugInvokeResponse:
+      type: object
+      properties:
+        traceId:
+          type: string
+        toolCode:
+          type: string
+          example: tool.search
+        protocolType:
+          type: string
+          enum: [JAVA_LOCAL, HTTP, MCP]
+        riskLevel:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+        mock:
+          type: boolean
+        latencyMs:
+          type: integer
+          format: int64
+        invocationResult:
+          $ref: '#/components/schemas/ToolInvocationResult'
+    ToolInvocationResult:
+      type: object
+      properties:
+        executorType:
+          type: string
+          example: TOOL
+        toolCode:
+          type: string
+          example: tool.search
+        protocolType:
+          type: string
+        permissionScope:
+          type: string
+        riskLevel:
+          type: string
+        input:
+          nullable: true
+        parameters:
+          type: object
+          additionalProperties: true
+        toolPayload:
+          nullable: true
+        mock:
+          type: boolean
+    UsageAccount:
+      type: object
+      properties:
+        tenantCode:
+          type: string
+          example: default
+        balanceAmount:
+          type: number
+          format: double
+          example: 99.999220
+        usedAmount:
+          type: number
+          format: double
+          example: 0.000780
+        enabled:
+          type: boolean
+          example: true
+        updatedAt:
+          type: string
+          format: date-time
+    ModelGovernanceStateResult:
+      type: object
+      properties:
+        tenantCode:
+          type: string
+        modelCode:
+          type: string
+        fallbackModelCode:
+          type: string
+          nullable: true
+        circuitState:
+          type: string
+          enum: [CLOSED, OPEN, HALF_OPEN]
+        consecutiveFailureCount:
+          type: integer
+        openedAt:
+          type: string
+          format: date-time
+          nullable: true
+    TraceSpanResult:
+      type: object
+      properties:
+        tenantCode:
+          type: string
+        traceId:
+          type: string
+        spanId:
+          type: string
+        parentSpanId:
+          type: string
+          nullable: true
+        spanType:
+          type: string
+          enum: [CAPABILITY, AGENT, TOOL, LLM, POLICY, QUOTA]
+        spanName:
+          type: string
+        status:
+          type: string
+          enum: [RUNNING, SUCCESS, FAILED]
+        latencyMs:
+          type: integer
+          format: int64
+        attributes:
+          type: object
+          additionalProperties: true
+        errorStack:
+          type: string
+          nullable: true
+        recordedAt:
+          type: string
+          format: date-time
+    AuditLogRecordResult:
+      type: object
+      properties:
+        tenantCode:
+          type: string
+        traceId:
+          type: string
+        eventType:
+          type: string
+        action:
+          type: string
+          description: 审计动作，失败且携带异常时为 RUNTIME_FAILURE
+          enum: [EXECUTE_SUCCESS, EXECUTE_FAILURE, RUNTIME_FAILURE, SEED, DEBUG_INVOKE]
+        resourceType:
+          type: string
+        resourceCode:
+          type: string
+        operator:
+          type: string
+        success:
+          type: boolean
+        detail:
+          type: object
+          additionalProperties: true
+        recordedAt:
+          type: string
+          format: date-time
+    CreateSessionRequest:
+      type: object
+      required: [userId, capabilityCode]
+      properties:
+        userId:
+          type: string
+        capabilityCode:
+          type: string
+        title:
+          type: string
+    SubmitFeedbackRequest:
+      type: object
+      required: [traceId]
+      properties:
+        traceId:
+          type: string
+        sessionId:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        originalAnswer:
+          type: string
+        correctedAnswer:
+          type: string
+        comment:
+          type: string
+    CreateKnowledgeFragmentRequest:
+      type: object
+      required: [knowledgeCode, title, content]
+      properties:
+        knowledgeCode:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [ENABLED, DISABLED]
+    CreateScenarioBindingRequest:
+      type: object
+      required: [scenarioCode, knowledgeCode]
+      properties:
+        scenarioCode:
+          type: string
+        knowledgeCode:
+          type: string
+        priority:
+          type: integer
+          default: 0
+        enabled:
+          type: boolean
+          default: true
+    RegisterFileUploadRequest:
+      type: object
+      required: [fileName, contentType, sizeBytes, storagePath]
+      properties:
+        fileName:
+          type: string
+        contentType:
+          type: string
+        sizeBytes:
+          type: integer
+          format: int64
+        storagePath:
+          type: string
+        checksum:
+          type: string
+    ModelProviderPageQuery:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int64
+          default: 1
+        size:
+          type: integer
+          format: int64
+          default: 20
+        sort:
+          type: string
+        keyword:
+          type: string
+        status:
+          type: string
+          enum: [ENABLED, DISABLED, DRAFT]
+        providerType:
+          type: string
+    ModelProviderUpsertRequest:
+      type: object
+      required: [providerCode, providerName, providerType, status, apiKey]
+      properties:
+        providerCode:
+          type: string
+        providerName:
+          type: string
+        providerType:
+          type: string
+        defaultEndpoint:
+          type: string
+        apiKey:
+          type: string
+          writeOnly: true
+          description: 提供商 API Key；入库 AES-GCM 加密（enc:v1: 前缀）；响应不回显明文
+        description:
+          type: string
+        status:
+          type: string
+          enum: [ENABLED, DISABLED, DRAFT]
+    ModelProviderResult:
+      type: object
+      properties:
+        providerCode:
+          type: string
+        providerName:
+          type: string
+        providerType:
+          type: string
+        defaultEndpoint:
+          type: string
+        apiKeyConfigured:
+          type: boolean
+        apiKeyMask:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [ENABLED, DISABLED, DRAFT]
+    ModelProviderBindingRequest:
+      type: object
+      required: [providerCode]
+      properties:
+        providerCode:
+          type: string
+        endpoint:
+          type: string
+        apiKey:
+          type: string
+          writeOnly: true
+          description: 绑定级 API Key 覆盖；未填则继承提供商默认 Key
+        routePriority:
+          type: integer
+        status:
+          type: string
+          enum: [ENABLED, DISABLED, DRAFT]
+    ModelProviderBindingResult:
+      type: object
+      properties:
+        providerCode:
+          type: string
+        providerName:
+          type: string
+        providerType:
+          type: string
+        endpoint:
+          type: string
+        apiKeyConfigured:
+          type: boolean
+        apiKeyMask:
+          type: string
+        routePriority:
+          type: integer
+        status:
+          type: string
+          enum: [ENABLED, DISABLED, DRAFT]
+    ModelConnectivityCheckRequest:
+      type: object
+      required: [modelCode]
+      properties:
+        modelCode:
+          type: string
+        prompt:
+          type: string
+    ModelStatusRefreshRequest:
+      type: object
+      properties:
+        modelCode:
+          type: string
+        force:
+          type: boolean
+          default: false
+    HarnessRunRequest:
+      type: object
+      properties:
+        scenario:
+          type: object
+          additionalProperties: true
+    AiRoutingOverviewResult:
+      type: object
+      properties:
+        modelOverview:
+          type: object
+          additionalProperties: true
+        governanceStates:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelGovernanceStateResult'
+        capabilityRoutes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CapabilityRoutingItem'
+    CapabilityRoutingItem:
+      type: object
+      properties:
+        capabilityCode:
+          type: string
+        publishedVersion:
+          type: string
+        baselineVersion:
+          type: string
+        candidateVersion:
+          type: string
+        grayEnabled:
+          type: boolean
+        tenantEnabled:
+          type: boolean
+    UserPageQuery:
+      type: object
+      properties:
+        current:
+          type: integer
+          format: int64
+          default: 1
+        size:
+          type: integer
+          format: int64
+          default: 10
+        keyword:
+          type: string
+          description: 用户名/昵称/邮箱模糊搜索
+        status:
+          type: string
+          enum: [ENABLED, DISABLED, BANNED]
+        userType:
+          type: string
+          enum: [ADMIN, CUSTOMER]
+          description: 不传则查询全部用户类型
+        levelCode:
+          type: string
+          description: 按会员等级过滤（预留）
+    DashboardResult:
+      type: object
+      properties:
+        range:
+          $ref: '#/components/schemas/DateRangeVO'
+        overview:
+          $ref: '#/components/schemas/DashboardOverview'
+        trends:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrendSeries'
+        todo:
+          $ref: '#/components/schemas/DashboardTodo'
+        aiCost:
+          type: object
+          additionalProperties: true
+        aiRouting:
+          $ref: '#/components/schemas/AiRoutingOverviewResult'
+    WorkbenchResult:
+      type: object
+      description: 角色化工作台首页（2A）
+      properties:
+        role:
+          type: string
+          enum: [ADMIN, OPERATOR, CONTENT, SUPPORT]
+        todos:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkbenchTodoItem'
+        metrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkbenchMetricCard'
+        quickEntries:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkbenchQuickEntry'
+    WorkbenchTodoItem:
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        count:
+          type: integer
+          format: int64
+        link:
+          type: string
+    WorkbenchMetricCard:
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        value:
+          type: integer
+          format: int64
+        unit:
+          type: string
+        trend:
+          type: string
+    WorkbenchQuickEntry:
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        link:
+          type: string
+        permission:
+          type: string
+    DateRangeVO:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+    DashboardOverview:
+      type: object
+      properties:
+        userTotal:
+          type: integer
+          format: int64
+        userTodayNew:
+          type: integer
+          format: int64
+        activeUsers:
+          type: integer
+          format: int64
+        paidMembers:
+          type: integer
+          format: int64
+        memberLevelDist:
+          type: array
+          items:
+            $ref: '#/components/schemas/LevelCountItem'
+        revenueToday:
+          type: integer
+          format: int64
+        revenueMonth:
+          type: integer
+          format: int64
+        orderTotal:
+          type: integer
+          format: int64
+        orderPending:
+          type: integer
+          format: int64
+        contentTotal:
+          type: integer
+          format: int64
+        contentPending:
+          type: integer
+          format: int64
+        aiTokenToday:
+          type: integer
+          format: int64
+        aiCostToday:
+          type: integer
+          format: int64
+    LevelCountItem:
+      type: object
+      properties:
+        level:
+          type: string
+        count:
+          type: integer
+          format: int64
+    DashboardTodo:
+      type: object
+      properties:
+        pendingAudit:
+          type: integer
+          format: int64
+        pendingOrder:
+          type: integer
+          format: int64
+        failedImport:
+          type: integer
+          format: int64
+        expiringMembers:
+          type: integer
+          format: int64
+        aiAlerts:
+          type: integer
+          format: int64
+    TrendSeries:
+      type: object
+      properties:
+        metric:
+          type: string
+        points:
+          type: array
+          items:
+            $ref: '#/components/schemas/DailyPoint'
+    DailyPoint:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        value:
+          type: integer
+          format: int64
+    AppRegisterResponse:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+        username:
+          type: string
+        nickname:
+          type: string
+    PageResultAppContentSummary:
+      type: object
+      properties:
+        total:
+          type: integer
+          format: int64
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppContentSummaryVO'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalPages:
+          type: integer
+        hasNext:
+          type: boolean
+    AppContentSummaryVO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        contentType:
+          type: string
+        author:
+          type: string
+        summary:
+          type: string
+        minLevelCode:
+          type: string
+        locked:
+          type: boolean
+    AppContentDetailVO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        contentType:
+          type: string
+        author:
+          type: string
+        summary:
+          type: string
+        body:
+          type: string
+        minLevelCode:
+          type: string
+        locked:
+          type: boolean
+        upgradeHint:
+          type: string
+    AppKnowledgePackageTreeVO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        packageName:
+          type: string
+        description:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppKnowledgeTreeItemVO'
+    AppKnowledgeTreeItemVO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        contentId:
+          type: integer
+          format: int64
+        locked:
+          type: boolean
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppKnowledgeTreeItemVO'
+    AppLearningModesVO:
+      type: object
+      properties:
+        modes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppLearningModeItemVO'
+    AppLearningModeItemVO:
+      type: object
+      properties:
+        mode:
+          type: string
+          enum: [SCORING, TUTORING, QA]
+        capabilityCode:
+          type: string
+        enabled:
+          type: boolean
+        reason:
+          type: string
+    AppLearningInvokeRequest:
+      type: object
+      required: [mode]
+      properties:
+        mode:
+          type: string
+          enum: [SCORING, TUTORING, QA]
+        input:
+          type: object
+          additionalProperties: true
+        parameters:
+          type: object
+          additionalProperties: true
+    AppPayOrderRequest:
+      type: object
+      properties:
+        payChannel:
+          type: string
+          enum: [MOCK, WECHAT, ALIPAY]
+          description: 缺省 MOCK
+        remark:
+          type: string
+    AppPayOrderResultVO:
+      type: object
+      properties:
+        orderId:
+          type: integer
+          format: int64
+        orderNo:
+          type: string
+        payChannel:
+          type: string
+        status:
+          type: string
+          description: 预下单后仍为 PENDING
+        amountFen:
+          type: integer
+          format: int64
+        currency:
+          type: string
+        prepayId:
+          type: string
+        clientParams:
+          type: object
+          additionalProperties:
+            type: string
+          description: 客户端调起支付参数
+    PaymentCallbackRequest:
+      type: object
+      required: [orderNo]
+      properties:
+        orderNo:
+          type: string
+        amountFen:
+          type: integer
+          format: int64
+        transactionId:
+          type: string
+        signature:
+          type: string
+        remark:
+          type: string
+        timestamp:
+          type: string
+          description: WECHAT 回调验签时间戳
+        nonce:
+          type: string
+          description: WECHAT 回调验签随机串
+    CreateOrderRequest:
+      type: object
+      required: [accountId, packageId, orderType]
+      properties:
+        accountId:
+          type: integer
+          format: int64
+        packageId:
+          type: integer
+          format: int64
+        orderType:
+          type: string
+          enum: [SUBSCRIPTION, QUOTA]
+        idempotencyKey:
+          type: string
+    MessageTemplateSendRequest:
+      type: object
+      required: [recipient]
+      properties:
+        recipient:
+          type: string
+        params:
+          type: object
+          additionalProperties: true
+    MessageSendResult:
+      type: object
+      properties:
+        accepted:
+          type: boolean
+        channel:
+          type: string
+        messageId:
+          type: string
+        detail:
+          type: string
+    AppInAppMessageVO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        templateCode:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        read:
+          type: boolean
+        createTime:
+          type: string
+          format: date-time
+    AppSupportTicketCreateRequest:
+      type: object
+      required: [title, body]
+      properties:
+        title:
+          type: string
+        body:
+          type: string
+        category:
+          type: string
+        priority:
+          type: string
+    CreateOrganizationRequest:
+      type: object
+      required: [orgName, segment, ownerUserId]
+      properties:
+        orgName:
+          type: string
+        segment:
+          type: string
+          description: 2B / 2G
+        ownerUserId:
+          type: integer
+          format: int64
+        unifiedSocialCode:
+          type: string
+        seatLimit:
+          type: integer
+        contactName:
+          type: string
+        contactPhone:
+          type: string
+    DepartmentSaveRequest:
+      type: object
+      required: [deptName]
+      properties:
+        parentId:
+          type: integer
+          format: int64
+          default: 0
+        deptName:
+          type: string
+        sortNo:
+          type: integer
+    OrgMemberSaveRequest:
+      type: object
+      required: [userId]
+      properties:
+        userId:
+          type: integer
+          format: int64
+        deptId:
+          type: integer
+          format: int64
+        orgRole:
+          type: string
+          enum: [OWNER, ADMIN, MEMBER]
+    QuotaMemberAllocSaveRequest:
+      type: object
+      required: [userId, allocatedAmount]
+      properties:
+        userId:
+          type: integer
+          format: int64
+        allocatedAmount:
+          type: integer
+          format: int64
+          minimum: 1

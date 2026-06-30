@@ -2,6 +2,9 @@ package cn.cyc.ai.cog.common.spi;
 
 /**
  * 用户注册后自动开通商业账户（由 admin 模块实现，center 注册流程可选注入）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface AccountProvisioner {
 

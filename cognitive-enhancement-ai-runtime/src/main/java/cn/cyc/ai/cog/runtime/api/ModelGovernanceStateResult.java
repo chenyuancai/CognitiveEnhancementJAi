@@ -7,13 +7,8 @@ import java.time.Instant;
 /**
  * 模型治理状态查询结果。
  *
- * @param tenantCode              租户编码
- * @param modelCode               模型编码
- * @param fallbackModelCode       降级模型编码
- * @param circuitState            熔断状态
- * @param consecutiveFailureCount 连续失败次数
- * @param openedAt                熔断打开时间
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ModelGovernanceStateResult(
         String tenantCode,

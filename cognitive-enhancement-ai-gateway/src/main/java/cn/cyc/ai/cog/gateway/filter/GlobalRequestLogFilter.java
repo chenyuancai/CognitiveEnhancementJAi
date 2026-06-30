@@ -30,8 +30,10 @@ import java.util.stream.Collectors;
 
 /**
  * 网关请求入参日志：打印方法、路径、Query、请求头与请求体（借鉴 zcloud GlobalRequestLogFilter）。
- *
  * <p>敏感头（Authorization/Cookie）脱敏；multipart/二进制请求体跳过打印。</p>
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Slf4j
 @Component
@@ -49,9 +51,18 @@ public class GlobalRequestLogFilter implements GlobalFilter, Ordered {
             HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH, HttpMethod.DELETE
     );
 
+    /** logProperties。 */
     private final GatewayLogProperties logProperties;
+    /** 路径Matcher。 */
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
+    /**
+     * 执行过滤器。
+     *
+     * @param exchange exchange
+     * @param chain chain
+     * @return 执行结果
+     */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
@@ -78,6 +89,10 @@ public class GlobalRequestLogFilter implements GlobalFilter, Ordered {
                     logRequest(request, body);
 
                     ServerHttpRequestDecorator decorator = new ServerHttpRequestDecorator(request) {
+                        /**
+                         * 获取Body。
+                         * @return Body
+                         */
                         @Override
                         public Flux<DataBuffer> getBody() {
                             if (bytes.length == 0) {
@@ -90,6 +105,12 @@ public class GlobalRequestLogFilter implements GlobalFilter, Ordered {
                 });
     }
 
+    /**
+     * 执行log请求。
+     *
+     * @param request 请求
+     * @param body body
+     */
     private void logRequest(ServerHttpRequest request, String body) {
         StringBuilder logBuilder = new StringBuilder(512);
         logBuilder.append("\n================ Gateway Request Start ================\n");
@@ -114,12 +135,24 @@ public class GlobalRequestLogFilter implements GlobalFilter, Ordered {
         log.info(logBuilder.toString());
     }
 
+    /**
+     * 执行format查询Params。
+     *
+     * @param queryParams 查询Params
+     * @return 执行结果
+     */
     private String formatQueryParams(Map<String, List<String>> queryParams) {
         return queryParams.entrySet().stream()
                 .map(entry -> entry.getKey() + "=" + String.join(",", entry.getValue()))
                 .collect(Collectors.joining("&"));
     }
 
+    /**
+     * 执行shouldReadBody。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     private boolean shouldReadBody(ServerHttpRequest request) {
         if (!BODY_METHODS.contains(request.getMethod())) {
             return false;
@@ -141,6 +174,12 @@ public class GlobalRequestLogFilter implements GlobalFilter, Ordered {
                 && contentType.getSubtype().endsWith("+json");
     }
 
+    /**
+     * 判断是否为Excluded。
+     *
+     * @param path 路径
+     * @return 是否满足条件
+     */
     private boolean isExcluded(String path) {
         for (String pattern : logProperties.getExcludePaths()) {
             if (pathMatcher.match(pattern, path)) {
@@ -150,11 +189,23 @@ public class GlobalRequestLogFilter implements GlobalFilter, Ordered {
         return false;
     }
 
+    /**
+     * 判断是否为SensitiveHeader。
+     *
+     * @param headerName header名称
+     * @return 是否满足条件
+     */
     private boolean isSensitiveHeader(String headerName) {
         return SENSITIVE_HEADERS.contains(headerName.toLowerCase())
                 || SecurityConstants.AUTHORIZATION_HEADER.equalsIgnoreCase(headerName);
     }
 
+    /**
+     * 执行maskSensitive值。
+     *
+     * @param values values
+     * @return 执行结果
+     */
     private String maskSensitiveValue(List<String> values) {
         if (values == null || values.isEmpty()) {
             return "***";
@@ -172,6 +223,12 @@ public class GlobalRequestLogFilter implements GlobalFilter, Ordered {
         return value.substring(0, 4) + "***" + value.substring(value.length() - 4);
     }
 
+    /**
+     * 执行truncate。
+     *
+     * @param body body
+     * @return 执行结果
+     */
     private String truncate(String body) {
         int max = Math.max(logProperties.getMaxBodyLength(), 0);
         if (body.length() <= max) {
@@ -180,6 +237,10 @@ public class GlobalRequestLogFilter implements GlobalFilter, Ordered {
         return body.substring(0, max) + "...(truncated)";
     }
 
+    /**
+     * 获取订单。
+     * @return 订单
+     */
     @Override
     public int getOrder() {
         // 紧随内部头清洗之后，尽早记录客户端原始入参

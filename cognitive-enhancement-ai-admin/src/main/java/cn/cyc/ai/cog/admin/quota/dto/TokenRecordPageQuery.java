@@ -6,10 +6,14 @@ import lombok.EqualsAndHashCode;
 
 /**
  * Token 流水分页查询参数。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class TokenRecordPageQuery extends PageQuery {
 
+    /** 账户ID */
     private Long accountId;
 }

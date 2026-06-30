@@ -8,15 +8,8 @@ import java.util.List;
 /**
  * 知识片段。
  *
- * @param tenantCode    租户编码
- * @param fragmentId    片段 ID
- * @param knowledgeCode 知识库编码
- * @param title         标题
- * @param content       内容
- * @param tags          标签列表
- * @param status        状态
- * @param recordedAt    记录时间
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record KnowledgeFragment(
         String tenantCode,

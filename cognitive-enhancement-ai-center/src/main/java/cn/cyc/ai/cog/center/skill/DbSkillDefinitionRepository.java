@@ -19,17 +19,30 @@ import java.util.Optional;
  * 技能定义数据库仓储实现。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true", matchIfMissing = true)
 public class DbSkillDefinitionRepository implements SkillDefinitionRepository {
 
+    /** Mapper。 */
     private final SkillDefinitionMapper mapper;
 
+    /**
+     * 创建DbSkillDefinition仓储。
+     *
+     * @param mapper Mapper
+     */
     public DbSkillDefinitionRepository(SkillDefinitionMapper mapper) {
         this.mapper = mapper;
     }
 
+    /**
+     * 查找人编码。
+     *
+     * @param code 编码
+     * @return 查找结果
+     */
     @Override
     public Optional<SkillDefinition> findByCode(String code) {
         QueryWrapper<SkillDefinitionEntity> wrapper = new QueryWrapper<>();
@@ -39,6 +52,10 @@ public class DbSkillDefinitionRepository implements SkillDefinitionRepository {
         return Optional.ofNullable(entity).map(this::toDefinition);
     }
 
+    /**
+     * 查询All列表。
+     * @return 结果列表
+     */
     @Override
     public List<SkillDefinition> listAll() {
         QueryWrapper<SkillDefinitionEntity> wrapper = new QueryWrapper<>();
@@ -49,6 +66,12 @@ public class DbSkillDefinitionRepository implements SkillDefinitionRepository {
                 .toList();
     }
 
+    /**
+     * 执行save。
+     *
+     * @param definition definition
+     * @return 执行结果
+     */
     @Override
     public SkillDefinition save(SkillDefinition definition) {
         QueryWrapper<SkillDefinitionEntity> wrapper = new QueryWrapper<>();
@@ -66,6 +89,12 @@ public class DbSkillDefinitionRepository implements SkillDefinitionRepository {
         return definition;
     }
 
+    /**
+     * 转换为Definition。
+     *
+     * @param e e
+     * @return 转换结果
+     */
     private SkillDefinition toDefinition(SkillDefinitionEntity e) {
         List<String> toolCodes = mapper.selectToolCodes(e.getSkillCode());
         return new SkillDefinition(
@@ -82,6 +111,12 @@ public class DbSkillDefinitionRepository implements SkillDefinitionRepository {
         );
     }
 
+    /**
+     * 转换为实体。
+     *
+     * @param d d
+     * @return 转换结果
+     */
     private SkillDefinitionEntity toEntity(SkillDefinition d) {
         SkillDefinitionEntity e = new SkillDefinitionEntity();
         e.setTenantId(TenantContext.currentTenantId());

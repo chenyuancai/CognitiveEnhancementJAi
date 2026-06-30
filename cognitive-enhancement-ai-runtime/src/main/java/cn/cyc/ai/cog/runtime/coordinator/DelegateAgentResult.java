@@ -5,10 +5,8 @@ import java.util.Map;
 /**
  * 子 Agent 委派执行结果。
  *
- * @param agentCode 子 Agent 编码
- * @param status    执行状态
- * @param output    输出摘要
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record DelegateAgentResult(String agentCode, String status, Map<String, Object> output) {
 }

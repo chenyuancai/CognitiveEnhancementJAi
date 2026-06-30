@@ -7,6 +7,7 @@ import cn.cyc.ai.cog.core.trace.TraceContext;
  * Runtime 统一响应工厂。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class RuntimeResponses {
 

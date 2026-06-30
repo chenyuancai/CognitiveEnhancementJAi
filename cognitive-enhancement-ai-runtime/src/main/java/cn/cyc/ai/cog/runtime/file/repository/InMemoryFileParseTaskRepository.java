@@ -15,6 +15,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * 内存文件解析任务仓储。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "false", matchIfMissing = true)
@@ -25,11 +26,22 @@ public class InMemoryFileParseTaskRepository implements FileParseTaskRepository 
      */
     private final CopyOnWriteArrayList<FileParseTask> tasks = new CopyOnWriteArrayList<>();
 
+    /**
+     * 执行save。
+     *
+     * @param task task
+     */
     @Override
     public void save(FileParseTask task) {
         tasks.add(task);
     }
 
+    /**
+     * 查找LatestSucceeded人文件ID。
+     *
+     * @param fileId 文件ID
+     * @return 查找结果
+     */
     @Override
     public Optional<FileParseTask> findLatestSucceededByFileId(String fileId) {
         String tenantCode = TenantContext.currentTenantCode();

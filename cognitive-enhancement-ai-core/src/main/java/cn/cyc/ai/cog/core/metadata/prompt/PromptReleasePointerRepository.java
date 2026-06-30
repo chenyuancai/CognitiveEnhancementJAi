@@ -6,6 +6,7 @@ import java.util.Optional;
  * Prompt 发布指针仓储接口。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface PromptReleasePointerRepository {
 

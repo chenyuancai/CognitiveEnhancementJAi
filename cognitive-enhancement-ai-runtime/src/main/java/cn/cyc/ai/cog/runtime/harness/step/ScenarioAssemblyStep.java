@@ -26,16 +26,25 @@ import java.util.Map;
  * 场景装配解析步骤，将前端编码解析为运行时对象并验证链路一致性。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class ScenarioAssemblyStep implements HarnessStep {
 
+    /** 智能体仓储。 */
     private final AgentDefinitionRepository agentRepository;
+    /** 能力仓储。 */
     private final CapabilityDefinitionRepository capabilityRepository;
+    /** Skill仓储。 */
     private final SkillDefinitionRepository skillRepository;
+    /** 工具仓储。 */
     private final ToolDefinitionRepository toolRepository;
+    /** 模型仓储。 */
     private final ModelDefinitionRepository modelRepository;
 
+    /**
+     * 创建ScenarioAssemblyStep。
+     */
     public ScenarioAssemblyStep(AgentDefinitionRepository agentRepository,
                                  CapabilityDefinitionRepository capabilityRepository,
                                  SkillDefinitionRepository skillRepository,
@@ -48,21 +57,39 @@ public class ScenarioAssemblyStep implements HarnessStep {
         this.modelRepository = modelRepository;
     }
 
+    /**
+     * 执行step编码。
+     * @return 执行结果
+     */
     @Override
     public String stepCode() {
         return "SCENARIO_ASSEMBLY";
     }
 
+    /**
+     * 执行step名称。
+     * @return 执行结果
+     */
     @Override
     public String stepName() {
         return "场景装配解析";
     }
 
+    /**
+     * 执行描述。
+     * @return 执行结果
+     */
     @Override
     public String description() {
         return "将前端编码解析为运行时对象并验证链路一致性";
     }
 
+    /**
+     * 执行操作。
+     *
+     * @param ctx ctx
+     * @return 执行结果
+     */
     @Override
     public HarnessStepResult run(HarnessContext ctx) {
         HarnessScenario scenario = ctx.scenario();
@@ -101,6 +128,13 @@ public class ScenarioAssemblyStep implements HarnessStep {
         }
     }
 
+    /**
+     * 执行resolve能力。
+     *
+     * @param scenario scenario
+     * @param agent 智能体
+     * @return 执行结果
+     */
     private CapabilityDefinition resolveCapability(HarnessScenario scenario, AgentDefinition agent) {
         if (scenario.capabilityCode() != null) {
             return capabilityRepository.findByCode(scenario.capabilityCode())
@@ -109,6 +143,13 @@ public class ScenarioAssemblyStep implements HarnessStep {
         return null;
     }
 
+    /**
+     * 执行resolveSkills。
+     *
+     * @param scenario scenario
+     * @param agent 智能体
+     * @return 执行结果
+     */
     private List<SkillDefinition> resolveSkills(HarnessScenario scenario, AgentDefinition agent) {
         List<String> codes = scenario.skillCodes() != null ? scenario.skillCodes() : agent.allowedSkillCodes();
         List<SkillDefinition> result = new ArrayList<>();
@@ -118,6 +159,13 @@ public class ScenarioAssemblyStep implements HarnessStep {
         return result;
     }
 
+    /**
+     * 执行resolveTools。
+     *
+     * @param scenario scenario
+     * @param skills skills
+     * @return 执行结果
+     */
     private List<ToolDefinition> resolveTools(HarnessScenario scenario, List<SkillDefinition> skills) {
         List<String> codes = scenario.toolCodes();
         if (codes == null) {
@@ -133,6 +181,13 @@ public class ScenarioAssemblyStep implements HarnessStep {
         return result;
     }
 
+    /**
+     * 执行resolve模型。
+     *
+     * @param scenario scenario
+     * @param agent 智能体
+     * @return 执行结果
+     */
     private ModelDefinition resolveModel(HarnessScenario scenario, AgentDefinition agent) {
         String modelCode = scenario.modelCode() != null ? scenario.modelCode() : agent.modelCode();
         return modelRepository.findByCode(modelCode)

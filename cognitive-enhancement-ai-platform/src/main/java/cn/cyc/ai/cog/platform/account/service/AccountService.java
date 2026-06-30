@@ -26,16 +26,26 @@ import java.util.UUID;
 
 /**
  * 商业账户编排：2C 个人开户、2B/2G 组织开户。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class AccountService implements AccountProvisioner {
 
+    /** 账户INDIVIDUAL。 */
     private static final String ACCOUNT_INDIVIDUAL = "INDIVIDUAL";
+    /** 账户ENTERPRISE。 */
     private static final String ACCOUNT_ENTERPRISE = "ENTERPRISE";
+    /** 账户GOVERNMENT。 */
     private static final String ACCOUNT_GOVERNMENT = "GOVERNMENT";
+    /** SEGMENT2C。 */
     private static final String SEGMENT_2C = "2C";
+    /** SEGMENT2B。 */
     private static final String SEGMENT_2B = "2B";
+    /** SEGMENT2G。 */
     private static final String SEGMENT_2G = "2G";
+    /** ORG默认CYCLEMULTIPLIER。 */
     private static final long ORG_DEFAULT_CYCLE_MULTIPLIER = 10L;
 
     /** 商业账户仓储 */
@@ -196,6 +206,12 @@ public class AccountService implements AccountProvisioner {
         return accountRepository.requireById(accountId);
     }
 
+    /**
+     * 执行init会员。
+     *
+     * @param account 账户
+     * @param level 等级
+     */
     private void initMembership(Account account, MembershipLevel level) {
         accountMembershipRepository.grantInitial(
                 account.tenantId(),
@@ -205,6 +221,12 @@ public class AccountService implements AccountProvisioner {
                 "DEFAULT");
     }
 
+    /**
+     * 执行normalizeSegment。
+     *
+     * @param segment segment
+     * @return 执行结果
+     */
     private String normalizeSegment(String segment) {
         if (!StringUtils.hasText(segment)) {
             return SEGMENT_2B;
@@ -212,6 +234,12 @@ public class AccountService implements AccountProvisioner {
         return segment.toUpperCase(Locale.ROOT);
     }
 
+    /**
+     * 执行generate租户编码。
+     *
+     * @param orgName org名称
+     * @return 执行结果
+     */
     private String generateTenantCode(String orgName) {
         String slug = orgName.replaceAll("[^a-zA-Z0-9]", "").toLowerCase(Locale.ROOT);
         if (!StringUtils.hasText(slug)) {

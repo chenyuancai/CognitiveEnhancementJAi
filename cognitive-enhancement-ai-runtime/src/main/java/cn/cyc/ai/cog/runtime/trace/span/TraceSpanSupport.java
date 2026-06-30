@@ -8,11 +8,16 @@ import java.util.UUID;
  * TraceSpan 工具方法。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class TraceSpanSupport {
 
+    /** MAXSTACKLENGTH。 */
     private static final int MAX_STACK_LENGTH = 4096;
 
+    /**
+     * 创建链路Span支持工具。
+     */
     private TraceSpanSupport() {
     }
 

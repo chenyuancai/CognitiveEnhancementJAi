@@ -7,16 +7,31 @@ import org.springframework.stereotype.Component;
 
 /**
  * 解析登录接口签发的 HS256 JWT，委托 common 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class LegacyJwtIdentityParser {
 
+    /** delegate。 */
     private final LegacyHs256BearerParser delegate;
 
+    /**
+     * 创建LegacyJwtIdentityParser。
+     *
+     * @param properties properties
+     */
     public LegacyJwtIdentityParser(GatewayJwtProperties properties) {
         this.delegate = new LegacyHs256BearerParser(properties.getSecret());
     }
 
+    /**
+     * 执行parseBearer。
+     *
+     * @param authorizationHeader authorizationHeader
+     * @return 执行结果
+     */
     public AuthUser parseBearer(String authorizationHeader) {
         return delegate.parseBearer(authorizationHeader);
     }

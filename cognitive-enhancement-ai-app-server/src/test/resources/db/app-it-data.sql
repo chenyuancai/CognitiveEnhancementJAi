@@ -79,7 +79,8 @@ INSERT INTO qz_iam_permission (id, permission_code, alias_code, permission_name,
 INSERT INTO qz_iam_role_permission (role_id, permission_id) VALUES (1, 1), (1, 2), (1, 3), (1, 4);
 
 INSERT INTO qz_kb_content (id, tenant_id, title, content_type, author, status, summary, body, min_level_code, current_version, published_at) VALUES
-    (1, 1, 'Phase3 测试文章', 'ARTICLE', '系统', 'PUBLISHED', '面向新用户的平台入门说明', '正文内容', 'FREE', 1, CURRENT_TIMESTAMP);
+    (1, 1, 'Phase3 测试文章', 'ARTICLE', '系统', 'PUBLISHED', '面向新用户的平台入门说明', '正文内容', 'FREE', 1, CURRENT_TIMESTAMP),
+    (2, 1, 'PRO 专属文章', 'ARTICLE', '系统', 'PUBLISHED', '仅 PRO 可读', 'PRO 正文', 'PRO', 1, CURRENT_TIMESTAMP);
 
 INSERT INTO qz_kb_content_tag (id, tenant_id, tag_name, tag_color) VALUES
     (1, 1, '入门', '#409EFF');

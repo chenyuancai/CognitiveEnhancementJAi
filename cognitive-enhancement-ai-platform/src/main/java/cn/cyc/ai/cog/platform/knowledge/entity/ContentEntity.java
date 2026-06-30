@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
  * 内容实体（映射 qz_kb_content）。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

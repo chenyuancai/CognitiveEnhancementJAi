@@ -12,10 +12,17 @@ import java.util.Optional;
  * 规则型任务规划器：基于用户输入生成固定三步规划。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class RuleBasedTaskPlanner implements TaskPlanner {
 
+    /**
+     * 执行计划。
+     *
+     * @param context 上下文
+     * @return 执行结果
+     */
     @Override
     public Optional<TaskPlan> plan(ExecutionContext context) {
         if (!RuntimeContextParameters.flag(context, "planningEnabled")) {
@@ -32,6 +39,12 @@ public class RuleBasedTaskPlanner implements TaskPlanner {
         ));
     }
 
+    /**
+     * 执行resolveGoal。
+     *
+     * @param context 上下文
+     * @return 执行结果
+     */
     private String resolveGoal(ExecutionContext context) {
         Map<String, Object> input = context.request().input();
         Object question = input.get("question");

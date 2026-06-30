@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
  * 审计日志 Mapper。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Mapper
 public interface AuditLogMapper extends BaseMapper<AuditLogEntity> {

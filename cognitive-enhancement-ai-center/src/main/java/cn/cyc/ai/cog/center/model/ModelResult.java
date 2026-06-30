@@ -6,8 +6,10 @@ import java.util.List;
 
 /**
  * 模型管理返回对象。
- *
  * <p>{@code providers} 为全部绑定；{@code providerCode} 等字段为首选路由镜像，兼容旧前端。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ModelResult(
         String providerCode,

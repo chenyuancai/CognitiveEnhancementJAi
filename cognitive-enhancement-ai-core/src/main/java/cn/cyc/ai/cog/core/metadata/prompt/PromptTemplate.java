@@ -9,6 +9,9 @@ import java.util.Objects;
 
 /**
  * Prompt 模板定义对象。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record PromptTemplate(
         String promptCode,
@@ -53,11 +56,19 @@ public record PromptTemplate(
                 status, publishedAt, null);
     }
 
+    /**
+     * 执行编码。
+     * @return 执行结果
+     */
     @Override
     public String code() {
         return promptCode;
     }
 
+    /**
+     * 执行名称。
+     * @return 执行结果
+     */
     @Override
     public String name() {
         return promptName;

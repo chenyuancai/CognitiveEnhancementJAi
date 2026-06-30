@@ -6,11 +6,8 @@ import java.util.Map;
 /**
  * LLM HTTP 请求对象。
  *
- * @param url     请求地址
- * @param headers 请求头
- * @param body    请求体
- * @param timeout 请求超时时间
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record LlmHttpRequest(String url,
                              Map<String, String> headers,

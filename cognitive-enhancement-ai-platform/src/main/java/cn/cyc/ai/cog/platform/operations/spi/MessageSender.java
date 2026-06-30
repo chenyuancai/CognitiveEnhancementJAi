@@ -5,6 +5,9 @@ import cn.cyc.ai.cog.platform.operations.dto.MessageSendResult;
 
 /**
  * 消息触达 SPI：SMS / EMAIL / IN_APP 等通道由实现类对接第三方。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface MessageSender {
 

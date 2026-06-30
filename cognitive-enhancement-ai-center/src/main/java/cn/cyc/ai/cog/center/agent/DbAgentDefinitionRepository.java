@@ -20,17 +20,30 @@ import java.util.Optional;
  * Agent 定义数据库仓储实现。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true", matchIfMissing = true)
 public class DbAgentDefinitionRepository implements AgentDefinitionRepository {
 
+    /** Mapper。 */
     private final AgentDefinitionMapper mapper;
 
+    /**
+     * 创建Db智能体Definition仓储。
+     *
+     * @param mapper Mapper
+     */
     public DbAgentDefinitionRepository(AgentDefinitionMapper mapper) {
         this.mapper = mapper;
     }
 
+    /**
+     * 查找人编码。
+     *
+     * @param code 编码
+     * @return 查找结果
+     */
     @Override
     public Optional<AgentDefinition> findByCode(String code) {
         QueryWrapper<AgentDefinitionEntity> wrapper = new QueryWrapper<>();
@@ -40,6 +53,10 @@ public class DbAgentDefinitionRepository implements AgentDefinitionRepository {
         return Optional.ofNullable(entity).map(this::toDefinition);
     }
 
+    /**
+     * 查询All列表。
+     * @return 结果列表
+     */
     @Override
     public List<AgentDefinition> listAll() {
         QueryWrapper<AgentDefinitionEntity> wrapper = new QueryWrapper<>();
@@ -50,6 +67,12 @@ public class DbAgentDefinitionRepository implements AgentDefinitionRepository {
                 .toList();
     }
 
+    /**
+     * 执行save。
+     *
+     * @param definition definition
+     * @return 执行结果
+     */
     @Override
     public AgentDefinition save(AgentDefinition definition) {
         QueryWrapper<AgentDefinitionEntity> wrapper = new QueryWrapper<>();
@@ -67,6 +90,12 @@ public class DbAgentDefinitionRepository implements AgentDefinitionRepository {
         return definition;
     }
 
+    /**
+     * 转换为Definition。
+     *
+     * @param e e
+     * @return 转换结果
+     */
     private AgentDefinition toDefinition(AgentDefinitionEntity e) {
         List<String> skillCodes = mapper.selectSkillCodes(e.getAgentCode());
         return new AgentDefinition(
@@ -84,6 +113,12 @@ public class DbAgentDefinitionRepository implements AgentDefinitionRepository {
         );
     }
 
+    /**
+     * 转换为实体。
+     *
+     * @param d d
+     * @return 转换结果
+     */
     private AgentDefinitionEntity toEntity(AgentDefinition d) {
         AgentDefinitionEntity e = new AgentDefinitionEntity();
         e.setTenantId(TenantContext.currentTenantId());

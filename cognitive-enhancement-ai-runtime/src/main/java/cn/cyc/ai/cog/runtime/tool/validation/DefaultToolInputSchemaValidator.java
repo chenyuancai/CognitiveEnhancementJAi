@@ -15,15 +15,23 @@ import java.util.Map;
  * 默认 Tool 入参 Schema 校验器，执行前拦截非法参数。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class DefaultToolInputSchemaValidator implements ToolInputSchemaValidator {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(DefaultToolInputSchemaValidator.class);
 
     private static final SchemaValueValidator VALUE_VALIDATOR =
             new SchemaValueValidator("input", "Tool 输入参数", false);
 
+    /**
+     * 校验参数。
+     *
+     * @param input 输入
+     * @param tool 工具
+     */
     @Override
     public void validate(Object input, ToolDefinition tool) {
         SchemaDefinition schema = tool.requestSchema();

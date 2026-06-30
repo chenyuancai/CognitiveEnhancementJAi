@@ -19,25 +19,52 @@ import java.util.UUID;
  * 基于 HTTP JSON-RPC 的外部 MCP Server 客户端。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public class HttpMcpToolClient implements McpToolClient {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(HttpMcpToolClient.class);
 
+    /** 工具HttpExecutor。 */
     private final ToolHttpExecutor toolHttpExecutor;
+    /** JSON 序列化器 */
     private final ObjectMapper objectMapper;
+    /** 默认Timeout。 */
     private final Duration defaultTimeout;
 
+    /**
+     * 创建HttpMcp工具客户端。
+     *
+     * @param toolHttpExecutor 工具HttpExecutor
+     * @param objectMapper JSON 序列化器
+     */
     public HttpMcpToolClient(ToolHttpExecutor toolHttpExecutor, ObjectMapper objectMapper) {
         this(toolHttpExecutor, objectMapper, Duration.ofSeconds(30));
     }
 
+    /**
+     * 创建HttpMcp工具客户端。
+     *
+     * @param toolHttpExecutor 工具HttpExecutor
+     * @param objectMapper JSON 序列化器
+     * @param defaultTimeout 默认Timeout
+     */
     public HttpMcpToolClient(ToolHttpExecutor toolHttpExecutor, ObjectMapper objectMapper, Duration defaultTimeout) {
         this.toolHttpExecutor = toolHttpExecutor;
         this.objectMapper = objectMapper;
         this.defaultTimeout = defaultTimeout;
     }
 
+    /**
+     * 执行call工具。
+     *
+     * @param serverRef serverRef
+     * @param toolName 工具名称
+     * @param arguments arguments
+     * @param parameters parameters
+     * @return 执行结果
+     */
     @Override
     public Object callTool(String serverRef, String toolName, Object arguments, Map<String, Object> parameters) {
         if (!isHttpServer(serverRef)) {
@@ -67,6 +94,13 @@ public class HttpMcpToolClient implements McpToolClient {
         return normalized.startsWith("http://") || normalized.startsWith("https://");
     }
 
+    /**
+     * 构建请求Body。
+     *
+     * @param toolName 工具名称
+     * @param arguments arguments
+     * @return 构建结果
+     */
     private String buildRequestBody(String toolName, Object arguments) {
         try {
             Map<String, Object> params = new LinkedHashMap<>();
@@ -84,6 +118,12 @@ public class HttpMcpToolClient implements McpToolClient {
         }
     }
 
+    /**
+     * 执行normalizeArguments。
+     *
+     * @param arguments arguments
+     * @return 执行结果
+     */
     private Object normalizeArguments(Object arguments) {
         if (arguments == null) {
             return Map.of();
@@ -94,6 +134,14 @@ public class HttpMcpToolClient implements McpToolClient {
         return Map.of("input", arguments);
     }
 
+    /**
+     * 执行parse响应。
+     *
+     * @param serverRef serverRef
+     * @param toolName 工具名称
+     * @param body body
+     * @return 执行结果
+     */
     private Object parseResponse(String serverRef, String toolName, String body) {
         if (body == null || body.isBlank()) {
             throw new BusinessException("CONFLICT", "MCP Tool 响应为空");
@@ -123,6 +171,12 @@ public class HttpMcpToolClient implements McpToolClient {
         }
     }
 
+    /**
+     * 执行abbreviate。
+     *
+     * @param body body
+     * @return 执行结果
+     */
     private String abbreviate(String body) {
         if (body == null) {
             return "";

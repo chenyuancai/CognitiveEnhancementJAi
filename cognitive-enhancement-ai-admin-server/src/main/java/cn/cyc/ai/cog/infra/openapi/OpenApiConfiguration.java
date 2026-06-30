@@ -8,10 +8,7 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.models.GroupedOpenApi;
-import org.springdoc.core.properties.SwaggerUiConfigParameters;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,26 +17,18 @@ import java.util.List;
 /**
  * OpenAPI / Knife4j 文档配置。
  *
+ * <p>独立进程（base-server、sse-server）的分组通过 {@code springdoc.swagger-ui.urls} 注册，
+ * 并由网关将 {@code /v3/api-docs/base}、{@code /v3/api-docs/sse} 转发到对应服务。</p>
+ *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Configuration
 public class OpenApiConfiguration {
 
+    /** 网关地址。 */
     @Value("${cog.openapi.gateway-url:http://localhost:8801}")
     private String gatewayUrl;
-
-    @Value("${cog.openapi.base-docs-url:/v3/api-docs/base}")
-    private String baseDocsUrl;
-
-    /**
-     * 将 base-server（8805）OpenAPI 分组注册到统一 doc.html 下拉列表。
-     * 经网关访问时，{@code cog.openapi.base-docs-url} 由网关转发至 base-server。
-     */
-    @Bean
-    ApplicationRunner registerExternalOpenApiGroups(ObjectProvider<SwaggerUiConfigParameters> swaggerUiConfigParameters) {
-        return args -> swaggerUiConfigParameters.ifAvailable(
-                parameters -> parameters.addGroup("base", baseDocsUrl));
-    }
 
     /**
      * 全局 OpenAPI 元信息与 JWT 鉴权声明。

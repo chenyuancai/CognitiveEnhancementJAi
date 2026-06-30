@@ -6,6 +6,9 @@ import java.time.LocalDateTime;
 
 /**
  * 当前用户商业上下文快照（C 端 / Admin 共用聚合结果，不含 RBAC 菜单）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 public class UserMeContext {
@@ -30,6 +33,9 @@ public class UserMeContext {
 
     /**
      * 用户摘要。
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     @Data
     public static class UserSnapshot {
@@ -43,6 +49,9 @@ public class UserMeContext {
         /** 昵称 */
         private String nickname;
 
+        /** 邮箱 */
+        private String email;
+
         /** 头像 URL */
         private String avatarUrl;
 
@@ -52,6 +61,9 @@ public class UserMeContext {
 
     /**
      * 商业账户摘要。
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     @Data
     public static class AccountSnapshot {
@@ -71,6 +83,9 @@ public class UserMeContext {
 
     /**
      * 组织摘要。
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     @Data
     public static class OrganizationSnapshot {
@@ -87,6 +102,9 @@ public class UserMeContext {
 
     /**
      * 会员摘要。
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     @Data
     public static class MembershipSnapshot {
@@ -103,6 +121,9 @@ public class UserMeContext {
 
     /**
      * 额度摘要。
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     @Data
     public static class QuotaSnapshot {

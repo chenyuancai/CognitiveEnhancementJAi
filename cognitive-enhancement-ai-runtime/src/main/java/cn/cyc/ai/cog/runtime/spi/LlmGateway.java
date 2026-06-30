@@ -10,6 +10,7 @@ import cn.cyc.ai.cog.core.runtime.ExecutionContext;
  * LLM 调用网关预留接口。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface LlmGateway {
 

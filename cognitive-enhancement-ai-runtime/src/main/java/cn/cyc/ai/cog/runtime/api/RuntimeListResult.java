@@ -5,14 +5,8 @@ import java.util.List;
 /**
  * Runtime 通用列表返回对象。
  *
- * @param total      总量
- * @param items      当前页列表项
- * @param page       当前页码，从 1 开始
- * @param size       每页数量
- * @param totalPages 总页数
- * @param hasNext    是否存在下一页
- * @param <T>        列表项类型
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record RuntimeListResult<T>(int total,
                                    List<T> items,

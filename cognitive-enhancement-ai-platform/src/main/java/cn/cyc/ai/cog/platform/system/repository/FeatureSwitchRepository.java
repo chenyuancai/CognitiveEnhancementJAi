@@ -5,6 +5,12 @@ import cn.cyc.ai.cog.platform.system.domain.FeatureSwitch;
 import cn.cyc.ai.cog.platform.system.dto.FeatureSwitchPageQuery;
 import cn.cyc.ai.cog.platform.system.dto.FeatureSwitchSaveRequest;
 
+/**
+ * FeatureSwitch仓储
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 public interface FeatureSwitchRepository {
 
     PageResult<FeatureSwitch> page(FeatureSwitchPageQuery query);

@@ -21,9 +21,15 @@ import java.util.stream.Collectors;
 
 /**
  * 支付签名/验签工具：微信 V3 风格消息体、支付宝 RSA2 排序串。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class PaymentSignatureSupport {
 
+    /**
+     * 创建支付Signature支持工具。
+     */
     private PaymentSignatureSupport() {
     }
 
@@ -62,6 +68,13 @@ public final class PaymentSignatureSupport {
                 .collect(Collectors.joining("&"));
     }
 
+    /**
+     * 执行hmacSha256Hex。
+     *
+     * @param payload payload
+     * @param secret secret
+     * @return 执行结果
+     */
     public static String hmacSha256Hex(String payload, String secret) {
         try {
             Mac mac = Mac.getInstance("HmacSHA256");
@@ -72,6 +85,13 @@ public final class PaymentSignatureSupport {
         }
     }
 
+    /**
+     * 执行rsaSignSha256Base64。
+     *
+     * @param payload payload
+     * @param privateKeyPem private键Pem
+     * @return 执行结果
+     */
     public static String rsaSignSha256Base64(String payload, String privateKeyPem) {
         try {
             PrivateKey privateKey = loadRsaPrivateKey(privateKeyPem);
@@ -86,6 +106,13 @@ public final class PaymentSignatureSupport {
         }
     }
 
+    /**
+     * 执行rsaVerifySha256。
+     *
+     * @param payload payload
+     * @param signatureBase64 signatureBase64
+     * @param publicKeyPem public键Pem
+     */
     public static void rsaVerifySha256(String payload, String signatureBase64, String publicKeyPem) {
         try {
             PublicKey publicKey = loadRsaPublicKey(publicKeyPem);
@@ -103,6 +130,12 @@ public final class PaymentSignatureSupport {
         }
     }
 
+    /**
+     * 执行loadRsaPublic键。
+     *
+     * @param pem pem
+     * @return 执行结果
+     */
     public static PublicKey loadRsaPublicKey(String pem) throws Exception {
         String normalized = pem
                 .replace("-----BEGIN PUBLIC KEY-----", "")
@@ -112,6 +145,12 @@ public final class PaymentSignatureSupport {
         return KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(decoded));
     }
 
+    /**
+     * 执行loadRsaPrivate键。
+     *
+     * @param pem pem
+     * @return 执行结果
+     */
     private static PrivateKey loadRsaPrivateKey(String pem) throws Exception {
         String normalized = pem
                 .replace("-----BEGIN PRIVATE KEY-----", "")

@@ -32,6 +32,7 @@ import java.util.Map;
  * 默认能力运行时实现。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class DefaultCapabilityRuntime implements CapabilityRuntime {
@@ -86,6 +87,7 @@ public class DefaultCapabilityRuntime implements CapabilityRuntime {
      */
     private final AuditRecorder auditRecorder;
 
+    /** 链路SpanRecorder。 */
     private final TraceSpanRecorder traceSpanRecorder;
 
     /**
@@ -188,6 +190,12 @@ public class DefaultCapabilityRuntime implements CapabilityRuntime {
         }
     }
 
+    /**
+     * 执行record运行时Invocation。
+     *
+     * @param context 上下文
+     * @param result 结果
+     */
     private void recordRuntimeInvocation(ExecutionContext context, ExecutionResult result) {
         try {
             auditRecorder.recordRuntimeInvocation(context, result);
@@ -197,6 +205,13 @@ public class DefaultCapabilityRuntime implements CapabilityRuntime {
         }
     }
 
+    /**
+     * 执行record运行时失败。
+     *
+     * @param context 上下文
+     * @param failureReason 失败原因
+     * @param cause cause
+     */
     private void recordRuntimeFailure(ExecutionContext context, String failureReason, Throwable cause) {
         try {
             auditRecorder.recordRuntimeFailure(context, failureReason, cause);

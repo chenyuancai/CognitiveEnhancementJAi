@@ -17,6 +17,9 @@ import java.util.List;
  */
 /**
  * 组织部门仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbOrgDepartmentRepository implements OrgDepartmentRepository {
@@ -31,6 +34,12 @@ public class DbOrgDepartmentRepository implements OrgDepartmentRepository {
         this.departmentMapper = departmentMapper;
     }
 
+    /**
+     * 查询人OrgID列表。
+     *
+     * @param orgId orgID
+     * @return 结果列表
+     */
     @Override
     public List<OrgDepartment> listByOrgId(Long orgId) {
         return departmentMapper.selectList(new LambdaQueryWrapper<OrgDepartmentEntity>()
@@ -42,6 +51,14 @@ public class DbOrgDepartmentRepository implements OrgDepartmentRepository {
                 .toList();
     }
 
+    /**
+     * 执行insert。
+     *
+     * @param tenantId 租户 ID
+     * @param orgId orgID
+     * @param request 请求
+     * @return 执行结果
+     */
     @Override
     public OrgDepartment insert(Long tenantId, Long orgId, DepartmentSaveRequest request) {
         OrgDepartmentEntity dept = new OrgDepartmentEntity();
@@ -54,6 +71,14 @@ public class DbOrgDepartmentRepository implements OrgDepartmentRepository {
         return toDomain(dept);
     }
 
+    /**
+     * 更新Item。
+     *
+     * @param orgId orgID
+     * @param deptId deptID
+     * @param request 请求
+     * @return 更新结果
+     */
     @Override
     public OrgDepartment update(Long orgId, Long deptId, DepartmentSaveRequest request) {
         OrgDepartmentEntity dept = requireDepartment(orgId, deptId);
@@ -66,12 +91,25 @@ public class DbOrgDepartmentRepository implements OrgDepartmentRepository {
         return toDomain(dept);
     }
 
+    /**
+     * 删除Item。
+     *
+     * @param orgId orgID
+     * @param deptId deptID
+     */
     @Override
     public void delete(Long orgId, Long deptId) {
         OrgDepartmentEntity dept = requireDepartment(orgId, deptId);
         departmentMapper.deleteById(dept.getId());
     }
 
+    /**
+     * 执行requireDepartment。
+     *
+     * @param orgId orgID
+     * @param deptId deptID
+     * @return 执行结果
+     */
     private OrgDepartmentEntity requireDepartment(Long orgId, Long deptId) {
         OrgDepartmentEntity dept = departmentMapper.selectById(deptId);
         if (dept == null || !orgId.equals(dept.getOrgId())) {
@@ -80,6 +118,12 @@ public class DbOrgDepartmentRepository implements OrgDepartmentRepository {
         return dept;
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private OrgDepartment toDomain(OrgDepartmentEntity entity) {
         return new OrgDepartment(
                 entity.getId(),

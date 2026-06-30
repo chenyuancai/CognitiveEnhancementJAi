@@ -6,6 +6,7 @@ import cn.cyc.ai.cog.api.enums.ErrorCode;
  * 业务异常：携带统一返回码，供全局异常处理器转换为 {@code ApiResponse}。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public class ServiceException extends RuntimeException {
 
@@ -17,6 +18,11 @@ public class ServiceException extends RuntimeException {
     /** HTTP 级错误分类。 */
     private final ErrorCode category;
 
+    /**
+     * 创建服务异常。
+     *
+     * @param message 消息
+     */
     public ServiceException(String message) {
         this(PlatformErrorCode.BUSINESS_ERROR, message);
     }
@@ -31,34 +37,64 @@ public class ServiceException extends RuntimeException {
         this.category = resolveLegacyCategory(code);
     }
 
+    /**
+     * 创建服务异常。
+     *
+     * @param errorCode 错误编码
+     */
     public ServiceException(PlatformErrorCode errorCode) {
         super(errorCode.getMessage());
         this.code = errorCode.getCode();
         this.category = errorCode.getCategory();
     }
 
+    /**
+     * 创建服务异常。
+     *
+     * @param errorCode 错误编码
+     * @param message 消息
+     */
     public ServiceException(PlatformErrorCode errorCode, String message) {
         super(message);
         this.code = errorCode.getCode();
         this.category = errorCode.getCategory();
     }
 
+    /**
+     * 创建服务异常。
+     *
+     * @param resultCode 结果编码
+     */
     public ServiceException(IResultCode resultCode) {
         super(resultCode.getMessage());
         this.code = resultCode.getCode();
         this.category = resolveLegacyCategory(resultCode.getCode());
     }
 
+    /**
+     * 创建服务异常。
+     *
+     * @param resultCode 结果编码
+     * @param message 消息
+     */
     public ServiceException(IResultCode resultCode, String message) {
         super(message);
         this.code = resultCode.getCode();
         this.category = resolveLegacyCategory(resultCode.getCode());
     }
 
+    /**
+     * 获取编码。
+     * @return 编码
+     */
     public String getCode() {
         return code;
     }
 
+    /**
+     * 获取Category。
+     * @return Category
+     */
     public ErrorCode getCategory() {
         return category;
     }
@@ -84,6 +120,12 @@ public class ServiceException extends RuntimeException {
         }
     }
 
+    /**
+     * 执行resolveLegacyCategory。
+     *
+     * @param code 编码
+     * @return 执行结果
+     */
     private static ErrorCode resolveLegacyCategory(String code) {
         if (code == null) {
             return ErrorCode.BUSINESS_ERROR;

@@ -32,18 +32,31 @@ import java.util.List;
  * 内容管理接口（内容-内容列表/审核）。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "内容-内容管理", description = "内容草稿、列表、审核、上下线")
 @RestController
 @RequestMapping("/api/admin/content/contents")
 public class ContentAdminController {
 
+    /** 内容服务。 */
     private final ContentService contentService;
 
+    /**
+     * 创建内容管理后台接口。
+     *
+     * @param contentService 内容服务
+     */
     public ContentAdminController(ContentService contentService) {
         this.contentService = contentService;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Operation(summary = "分页查询内容", description = "支持 keyword/type/status 过滤。需要 admin:content:update 权限点。")
     @RequirePermission("admin:content:update")
     @PostMapping("/page")
@@ -51,6 +64,12 @@ public class ContentAdminController {
         return ApiResponse.success(contentService.page(query).map(this::toVo));
     }
 
+    /**
+     * 执行detail。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     @Operation(summary = "内容详情")
     @RequirePermission("admin:content:update")
     @GetMapping("/{id}")
@@ -58,6 +77,12 @@ public class ContentAdminController {
         return ApiResponse.success(toVo(contentService.detail(id)));
     }
 
+    /**
+     * 创建Item。
+     *
+     * @param request 请求
+     * @return 创建结果
+     */
     @Operation(summary = "新增内容", description = "创建后进入待审核。")
     @RequirePermission("admin:content:update")
     @PostMapping
@@ -65,6 +90,12 @@ public class ContentAdminController {
         return ApiResponse.success(toVo(contentService.create(request)));
     }
 
+    /**
+     * 更新Item。
+     *
+     * @param request 请求
+     * @return 更新结果
+     */
     @Operation(summary = "编辑内容")
     @RequirePermission("admin:content:update")
     @PostMapping("/update")
@@ -72,6 +103,12 @@ public class ContentAdminController {
         return ApiResponse.success(toVo(contentService.update(request.getId(), request)));
     }
 
+    /**
+     * 执行audit。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Operation(summary = "审核内容", description = "通过则发布，否则驳回。")
     @RequirePermission("admin:content:audit")
     @PostMapping("/audit")
@@ -79,6 +116,12 @@ public class ContentAdminController {
         return ApiResponse.success(toVo(contentService.audit(request.getId(), request)));
     }
 
+    /**
+     * 执行tags。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     @Operation(summary = "内容关联标签")
     @RequirePermission("admin:content:update")
     @GetMapping("/{id}/tags")
@@ -86,6 +129,12 @@ public class ContentAdminController {
         return ApiResponse.success(contentService.listTags(id).stream().map(this::toTagVo).toList());
     }
 
+    /**
+     * 执行bindTags。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Operation(summary = "绑定内容标签")
     @RequirePermission("admin:content:update")
     @PostMapping("/tags")
@@ -93,6 +142,12 @@ public class ContentAdminController {
         return ApiResponse.success(contentService.bindTags(request.getContentId(), request).stream().map(this::toTagVo).toList());
     }
 
+    /**
+     * 执行offline。
+     *
+     * @param command command
+     * @return 执行结果
+     */
     @Operation(summary = "下线内容", description = "仅已发布内容可下线。")
     @RequirePermission("admin:content:audit")
     @PostMapping("/offline")
@@ -100,6 +155,12 @@ public class ContentAdminController {
         return ApiResponse.success(toVo(contentService.offline(command.id())));
     }
 
+    /**
+     * 执行versions。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     @Operation(summary = "内容版本历史")
     @RequirePermission("admin:content:update")
     @GetMapping("/{id}/versions")
@@ -107,6 +168,12 @@ public class ContentAdminController {
         return ApiResponse.success(contentService.listVersions(id).stream().map(this::toVersionVo).toList());
     }
 
+    /**
+     * 执行rollback。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Operation(summary = "回滚到历史版本", description = "将历史版本内容回填为草稿，需重新走审核发布。")
     @RequirePermission("admin:content:update")
     @PostMapping("/rollback")
@@ -114,6 +181,12 @@ public class ContentAdminController {
         return ApiResponse.success(toVo(contentService.rollback(request.getId(), request)));
     }
 
+    /**
+     * 转换为Vo。
+     *
+     * @param content 内容
+     * @return 转换结果
+     */
     private ContentVO toVo(Content content) {
         ContentVO vo = new ContentVO();
         vo.setId(content.id());
@@ -130,6 +203,12 @@ public class ContentAdminController {
         return vo;
     }
 
+    /**
+     * 转换为版本号Vo。
+     *
+     * @param version 版本号
+     * @return 转换结果
+     */
     private ContentVersionVO toVersionVo(ContentVersion version) {
         ContentVersionVO vo = new ContentVersionVO();
         vo.setVersionNo(version.versionNo());
@@ -140,6 +219,12 @@ public class ContentAdminController {
         return vo;
     }
 
+    /**
+     * 转换为标签Vo。
+     *
+     * @param tag 标签
+     * @return 转换结果
+     */
     private ContentTagVO toTagVo(ContentTag tag) {
         ContentTagVO vo = new ContentTagVO();
         vo.setId(tag.id());

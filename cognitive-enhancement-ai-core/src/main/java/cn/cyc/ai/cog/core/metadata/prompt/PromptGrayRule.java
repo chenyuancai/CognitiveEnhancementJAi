@@ -3,12 +3,8 @@ package cn.cyc.ai.cog.core.metadata.prompt;
 /**
  * Prompt 灰度规则（简版百分比策略）。
  *
- * @param strategy         策略类型，默认 PERCENTAGE
- * @param baselineVersion  基线版本
- * @param candidateVersion 候选版本
- * @param percentage       候选流量百分比 0~100
- * @param hashKey          哈希键来源，默认 traceId
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record PromptGrayRule(
         String strategy,
@@ -18,6 +14,7 @@ public record PromptGrayRule(
         String hashKey
 ) {
 
+    /** 策略PERCENTAGE。 */
     public static final String STRATEGY_PERCENTAGE = "PERCENTAGE";
 
     public PromptGrayRule {

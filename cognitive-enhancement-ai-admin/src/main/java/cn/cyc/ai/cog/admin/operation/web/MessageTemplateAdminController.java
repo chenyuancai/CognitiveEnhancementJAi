@@ -23,17 +23,35 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 消息Template管理后台接口
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 @Tag(name = "运营-消息模板", description = "消息/通知模板管理")
 @RestController
 @RequestMapping("/api/admin/operations/message-templates")
 public class MessageTemplateAdminController {
 
+    /** 消息Template服务。 */
     private final MessageTemplateService messageTemplateService;
 
+    /**
+     * 创建消息Template管理后台接口。
+     *
+     * @param messageTemplateService 消息Template服务
+     */
     public MessageTemplateAdminController(MessageTemplateService messageTemplateService) {
         this.messageTemplateService = messageTemplateService;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Operation(summary = "消息模板分页")
     @RequirePermission("admin:banner:update")
     @PostMapping("/page")
@@ -41,6 +59,12 @@ public class MessageTemplateAdminController {
         return ApiResponse.success(messageTemplateService.page(query).map(this::toVo));
     }
 
+    /**
+     * 执行detail。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     @Operation(summary = "消息模板详情")
     @RequirePermission("admin:banner:update")
     @GetMapping("/{id}")
@@ -48,6 +72,12 @@ public class MessageTemplateAdminController {
         return ApiResponse.success(toVo(messageTemplateService.detail(id)));
     }
 
+    /**
+     * 创建Item。
+     *
+     * @param request 请求
+     * @return 创建结果
+     */
     @Operation(summary = "新增消息模板")
     @RequirePermission("admin:banner:create")
     @PostMapping
@@ -55,6 +85,12 @@ public class MessageTemplateAdminController {
         return ApiResponse.success(toVo(messageTemplateService.create(request)));
     }
 
+    /**
+     * 更新Item。
+     *
+     * @param request 请求
+     * @return 更新结果
+     */
     @Operation(summary = "编辑消息模板")
     @RequirePermission("admin:banner:update")
     @PostMapping("/update")
@@ -62,6 +98,11 @@ public class MessageTemplateAdminController {
         return ApiResponse.success(toVo(messageTemplateService.update(request.getId(), request)));
     }
 
+    /**
+     * 删除Item。
+     *
+     * @param id 主键 ID
+     */
     @Operation(summary = "删除消息模板")
     @RequirePermission("admin:banner:delete")
     @DeleteMapping("/{id}")
@@ -70,6 +111,12 @@ public class MessageTemplateAdminController {
         return ApiResponse.success(null);
     }
 
+    /**
+     * 执行preview。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Operation(summary = "渲染预览", description = "按 variable_schema 校验变量并替换占位符。")
     @RequirePermission("admin:banner:update")
     @PostMapping("/preview")
@@ -78,6 +125,12 @@ public class MessageTemplateAdminController {
         return ApiResponse.success(messageTemplateService.preview(body.getId(), body));
     }
 
+    /**
+     * 执行send。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Operation(summary = "发送消息", description = "按模板渲染后走对应通道（IN_APP/EMAIL/SMS）。")
     @RequirePermission("admin:banner:update")
     @PostMapping("/send")
@@ -86,6 +139,12 @@ public class MessageTemplateAdminController {
                 request.getId(), request.getRecipient(), request.getParams()));
     }
 
+    /**
+     * 转换为Vo。
+     *
+     * @param template template
+     * @return 转换结果
+     */
     private MessageTemplateVO toVo(MessageTemplate template) {
         MessageTemplateVO vo = new MessageTemplateVO();
         vo.setId(template.id());

@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
  * 内存知识片段仓储。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "false", matchIfMissing = true)
@@ -26,11 +27,22 @@ public class InMemoryKnowledgeFragmentRepository implements KnowledgeFragmentRep
      */
     private final CopyOnWriteArrayList<KnowledgeFragment> fragments = new CopyOnWriteArrayList<>();
 
+    /**
+     * 执行save。
+     *
+     * @param fragment fragment
+     */
     @Override
     public void save(KnowledgeFragment fragment) {
         fragments.add(fragment);
     }
 
+    /**
+     * 查找人FragmentID。
+     *
+     * @param fragmentId fragmentID
+     * @return 查找结果
+     */
     @Override
     public Optional<KnowledgeFragment> findByFragmentId(String fragmentId) {
         String tenantCode = TenantContext.currentTenantCode();
@@ -40,6 +52,12 @@ public class InMemoryKnowledgeFragmentRepository implements KnowledgeFragmentRep
                 .findFirst();
     }
 
+    /**
+     * 查找人知识编码。
+     *
+     * @param knowledgeCode 知识编码
+     * @return 查找结果
+     */
     @Override
     public List<KnowledgeFragment> findByKnowledgeCode(String knowledgeCode) {
         String tenantCode = TenantContext.currentTenantCode();
@@ -50,6 +68,10 @@ public class InMemoryKnowledgeFragmentRepository implements KnowledgeFragmentRep
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 查询All列表。
+     * @return 结果列表
+     */
     @Override
     public List<KnowledgeFragment> listAll() {
         String tenantCode = TenantContext.currentTenantCode();

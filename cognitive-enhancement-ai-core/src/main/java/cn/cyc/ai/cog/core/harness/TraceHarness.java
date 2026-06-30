@@ -4,17 +4,16 @@ import java.util.Map;
 
 /**
  * 链路治理器，负责执行链路的信息收集与传播。
- *
  * <p>一期的职责：
  * <ul>
- *   <li>为每次执行生成/复用 TraceId</li>
- *   <li>收集执行路径上的关键节点信息</li>
- *   <li>支持自定义标签注入</li>
+ * <li>为每次执行生成/复用 TraceId</li>
+ * <li>收集执行路径上的关键节点信息</li>
+ * <li>支持自定义标签注入</li>
  * </ul>
- *
  * <p>二期可扩展：分布式链路追踪对接（OpenTelemetry）、链路可视化。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface TraceHarness {
 
@@ -48,9 +47,8 @@ public interface TraceHarness {
     /**
      * 链路上下文。
      *
-     * @param traceId     链路标识
-     * @param labels      链路标签
-     * @param startTimeMs 开始时间戳
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     record TraceHarnessContext(String traceId, Map<String, String> labels, long startTimeMs) {
     }
@@ -58,10 +56,8 @@ public interface TraceHarness {
     /**
      * 链路报告。
      *
-     * @param traceId    链路标识
-     * @param durationMs 链路耗时
-     * @param labels     链路标签
-     * @param path       执行路径
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     record TraceReport(String traceId, long durationMs, Map<String, String> labels, Map<String, Object> path) {
     }

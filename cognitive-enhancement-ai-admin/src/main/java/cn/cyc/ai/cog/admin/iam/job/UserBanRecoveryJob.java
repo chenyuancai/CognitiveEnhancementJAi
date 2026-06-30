@@ -9,10 +9,14 @@ import org.springframework.stereotype.Component;
 
 /**
  * 封禁到期自动恢复兜底定时任务（主路径为登录/鉴权触发）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class UserBanRecoveryJob {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(UserBanRecoveryJob.class);
 
     /** IAM 用户仓储 */

@@ -7,6 +7,7 @@ import cn.cyc.ai.cog.runtime.api.ToolHttpResponse;
  * HTTP Tool 执行 SPI。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface ToolHttpExecutor {
 

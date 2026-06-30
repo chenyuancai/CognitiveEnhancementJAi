@@ -34,13 +34,19 @@ import java.util.Set;
  * 再委托 {@link OAuth2TokenGenerator} 生成访问/刷新令牌并持久化授权。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public class OAuth2ResourceOwnerPasswordAuthenticationProvider implements AuthenticationProvider {
 
+    /** authenticationManager。 */
     private final AuthenticationManager authenticationManager;
+    /** authorization服务。 */
     private final OAuth2AuthorizationService authorizationService;
     private final OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator;
 
+    /**
+     * 创建OAuth2ResourceOwner密码Authentication提供者。
+     */
     public OAuth2ResourceOwnerPasswordAuthenticationProvider(AuthenticationManager authenticationManager,
                                                              OAuth2AuthorizationService authorizationService,
                                                              OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator) {
@@ -49,6 +55,12 @@ public class OAuth2ResourceOwnerPasswordAuthenticationProvider implements Authen
         this.tokenGenerator = tokenGenerator;
     }
 
+    /**
+     * 执行authenticate。
+     *
+     * @param authentication authentication
+     * @return 执行结果
+     */
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         OAuth2ResourceOwnerPasswordAuthenticationToken passwordAuthentication =
@@ -135,11 +147,23 @@ public class OAuth2ResourceOwnerPasswordAuthenticationProvider implements Authen
                 accessToken, refreshToken, Collections.emptyMap());
     }
 
+    /**
+     * 执行supports。
+     *
+     * @param authentication authentication
+     * @return 执行结果
+     */
     @Override
     public boolean supports(Class<?> authentication) {
         return OAuth2ResourceOwnerPasswordAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
+    /**
+     * 获取Authenticated客户端ElseThrowInvalid客户端。
+     *
+     * @param authentication authentication
+     * @return Authenticated客户端ElseThrowInvalid客户端
+     */
     private OAuth2ClientAuthenticationToken getAuthenticatedClientElseThrowInvalidClient(Authentication authentication) {
         if (authentication.getPrincipal() instanceof OAuth2ClientAuthenticationToken clientPrincipal
                 && clientPrincipal.isAuthenticated()) {

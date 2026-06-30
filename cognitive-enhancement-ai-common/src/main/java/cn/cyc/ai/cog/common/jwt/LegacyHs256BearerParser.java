@@ -13,11 +13,20 @@ import java.util.List;
 
 /**
  * 解析 legacy HS256 Bearer JWT（与 runtime {@code JwtUtil} 对齐）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public class LegacyHs256BearerParser {
 
+    /** 键。 */
     private final SecretKey key;
 
+    /**
+     * 创建LegacyHs256BearerParser。
+     *
+     * @param secret secret
+     */
     public LegacyHs256BearerParser(String secret) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
@@ -48,6 +57,12 @@ public class LegacyHs256BearerParser {
         }
     }
 
+    /**
+     * 执行readString列表。
+     *
+     * @param value 值
+     * @return 执行结果
+     */
     @SuppressWarnings("unchecked")
     private List<String> readStringList(Object value) {
         if (value instanceof List<?> list) {

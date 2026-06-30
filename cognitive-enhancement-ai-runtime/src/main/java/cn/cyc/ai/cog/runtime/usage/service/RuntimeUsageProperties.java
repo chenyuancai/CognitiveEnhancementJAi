@@ -9,6 +9,7 @@ import java.math.BigDecimal;
  * Runtime 用量与额度配置。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 @ConfigurationProperties(prefix = "cog.runtime.usage")
@@ -26,6 +27,9 @@ public class RuntimeUsageProperties {
 
     /**
      * 额度账户配置。
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     @Data
     public static class Account {
@@ -53,6 +57,9 @@ public class RuntimeUsageProperties {
 
     /**
      * 成本计算配置。
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     @Data
     public static class Cost {

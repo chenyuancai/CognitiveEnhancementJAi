@@ -14,6 +14,7 @@ import java.util.Map;
  * 演示用搜索 Tool 本地处理器。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class DemoSearchLocalToolHandler implements LocalToolHandler {

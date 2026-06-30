@@ -7,9 +7,15 @@ import java.math.RoundingMode;
 
 /**
  * 操作记录中文说明生成器（审计、额度流水、会员变更、资金流水）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class OperationRecordMessages {
 
+    /**
+     * 创建OperationRecordMessages。
+     */
     private OperationRecordMessages() {
     }
 
@@ -77,6 +83,14 @@ public final class OperationRecordMessages {
         };
     }
 
+    /**
+     * 执行deduct消息。
+     *
+     * @param bucketLabel bucketLabel
+     * @param amount amount
+     * @param bizType biz类型
+     * @return 执行结果
+     */
     private static String deductMessage(String bucketLabel, long amount, String bizType) {
         if ("AI_INVOKE".equals(bizType) || "RUNTIME".equals(bizType)) {
             return "AI 调用扣减" + bucketLabel + "额度 " + amount + " Token";
@@ -87,6 +101,12 @@ public final class OperationRecordMessages {
         return "扣减" + bucketLabel + "额度 " + amount + " Token";
     }
 
+    /**
+     * 执行bucketLabel。
+     *
+     * @param bucket bucket
+     * @return 执行结果
+     */
     private static String bucketLabel(String bucket) {
         if (!StringUtils.hasText(bucket)) {
             return "";
@@ -99,6 +119,12 @@ public final class OperationRecordMessages {
         };
     }
 
+    /**
+     * 执行humanizeResource。
+     *
+     * @param resourceType resource类型
+     * @return 执行结果
+     */
     private static String humanizeResource(String resourceType) {
         if (!StringUtils.hasText(resourceType)) {
             return "资源";
@@ -123,10 +149,22 @@ public final class OperationRecordMessages {
         };
     }
 
+    /**
+     * 执行signed。
+     *
+     * @param delta delta
+     * @return 执行结果
+     */
     private static String signed(long delta) {
         return delta > 0 ? "+" + delta : String.valueOf(delta);
     }
 
+    /**
+     * 执行fenToYuan。
+     *
+     * @param amountFen amountFen
+     * @return 执行结果
+     */
     private static String fenToYuan(Long amountFen) {
         if (amountFen == null) {
             return "0.00";

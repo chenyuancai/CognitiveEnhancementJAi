@@ -16,14 +16,26 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Redis L2 实现（需 StringRedisTemplate）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public class RedisPlatformCacheSupport implements PlatformRedisCacheSupport {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(RedisPlatformCacheSupport.class);
 
+    /** redisTemplate。 */
     private final StringRedisTemplate redisTemplate;
+    /** 缓存ObjectMapper。 */
     private final ObjectMapper cacheObjectMapper;
 
+    /**
+     * 创建Redis平台缓存支持工具。
+     *
+     * @param redisTemplate redisTemplate
+     * @param objectMapper JSON 序列化器
+     */
     public RedisPlatformCacheSupport(StringRedisTemplate redisTemplate, ObjectMapper objectMapper) {
         this.redisTemplate = redisTemplate;
         this.cacheObjectMapper = objectMapper.copy();
@@ -33,6 +45,13 @@ public class RedisPlatformCacheSupport implements PlatformRedisCacheSupport {
         this.cacheObjectMapper.activateDefaultTyping(validator, ObjectMapper.DefaultTyping.NON_FINAL);
     }
 
+    /**
+     * 执行get。
+     *
+     * @param redisKey redis键
+     * @param type 类型
+     * @return 执行结果
+     */
     @Override
     public <T> Optional<T> get(String redisKey, Class<T> type) {
         try {
@@ -48,6 +67,13 @@ public class RedisPlatformCacheSupport implements PlatformRedisCacheSupport {
         }
     }
 
+    /**
+     * 执行put。
+     *
+     * @param redisKey redis键
+     * @param value 值
+     * @param ttl ttl
+     */
     @Override
     public <T> void put(String redisKey, T value, Duration ttl) {
         try {
@@ -58,11 +84,21 @@ public class RedisPlatformCacheSupport implements PlatformRedisCacheSupport {
         }
     }
 
+    /**
+     * 删除Item。
+     *
+     * @param redisKey redis键
+     */
     @Override
     public void delete(String redisKey) {
         redisTemplate.delete(redisKey);
     }
 
+    /**
+     * 删除人Prefix。
+     *
+     * @param redisKeyPrefix redis键Prefix
+     */
     @Override
     public void deleteByPrefix(String redisKeyPrefix) {
         String pattern = redisKeyPrefix + "*";
@@ -81,6 +117,12 @@ public class RedisPlatformCacheSupport implements PlatformRedisCacheSupport {
         }
     }
 
+    /**
+     * 执行publishInvalidation。
+     *
+     * @param channel channel
+     * @param payload payload
+     */
     @Override
     public void publishInvalidation(String channel, String payload) {
         try {

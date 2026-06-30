@@ -16,20 +16,34 @@ import java.time.LocalDateTime;
 
 /**
  * C 端开户礼包：FREE 会员身份 + 首月 cycle 额度。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class MembershipOnboardingService {
 
+    /** SEGMENT2C。 */
     private static final String SEGMENT_2C = "2C";
+    /** ONBOARDINGIDEMPREFIX。 */
     private static final String ONBOARDING_IDEM_PREFIX = "onboarding:free:";
 
+    /** 会员等级仓储。 */
     private final MembershipLevelRepository membershipLevelRepository;
+    /** 账户会员仓储。 */
     private final AccountMembershipRepository accountMembershipRepository;
+    /** 会员等级服务。 */
     private final MembershipLevelService membershipLevelService;
+    /** 会员权益支持。 */
     private final MembershipBenefitSupport membershipBenefitSupport;
+    /** 额度服务。 */
     private final QuotaService quotaService;
+    /** freeSubscription服务。 */
     private final FreeSubscriptionService freeSubscriptionService;
 
+    /**
+     * 创建会员Onboarding服务。
+     */
     public MembershipOnboardingService(MembershipLevelRepository membershipLevelRepository,
                                        AccountMembershipRepository accountMembershipRepository,
                                        MembershipLevelService membershipLevelService,
@@ -77,6 +91,12 @@ public class MembershipOnboardingService {
                 "注册开通 Free 月额度");
     }
 
+    /**
+     * 执行nextMonthStart。
+     *
+     * @param today today
+     * @return 执行结果
+     */
     public static LocalDateTime nextMonthStart(LocalDate today) {
         return today.withDayOfMonth(1).plusMonths(1).atStartOfDay();
     }

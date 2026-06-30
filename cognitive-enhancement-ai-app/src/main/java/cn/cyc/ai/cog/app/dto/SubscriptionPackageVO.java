@@ -4,6 +4,9 @@ import lombok.Data;
 
 /**
  * C 端订阅套餐展示 VO。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 public class SubscriptionPackageVO {
@@ -52,4 +55,10 @@ public class SubscriptionPackageVO {
 
     /** 上架状态 */
     private String status;
+
+    /** 角标文案 */
+    private String badge;
+
+    /** 营销高亮 */
+    private String highlight;
 }

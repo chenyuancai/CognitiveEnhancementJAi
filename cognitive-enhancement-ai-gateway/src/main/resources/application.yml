@@ -26,6 +26,21 @@ spring:
               uri: http://localhost:8804
               predicates:
                 - Path=/api/app/**
+            # C 端练习 API（须在 platform 兜底 /api/** 之前）
+            - id: app-practice-service
+              uri: http://localhost:8804
+              predicates:
+                - Path=/api/practice/**
+            # SSE 推送（单副本）
+            - id: sse-service
+              uri: http://localhost:8806
+              predicates:
+                - Path=/api/sse/**
+            # SSE OpenAPI（须在 platform 文档路由之前，避免 /v3/api-docs/sse 被 admin 吞掉）
+            - id: sse-openapi
+              uri: http://localhost:8806
+              predicates:
+                - Path=/v3/api-docs/sse,/v3/api-docs/sse/**
             # 基础服务 OpenAPI（须在 platform 文档路由之前，避免 /v3/api-docs/base 被 admin 吞掉）
             - id: base-openapi
               uri: http://localhost:8805

@@ -5,6 +5,9 @@ import java.util.Optional;
 
 /**
  * 平台缓存 Redis L2 与失效广播 SPI（可选实现）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface PlatformRedisCacheSupport {
 

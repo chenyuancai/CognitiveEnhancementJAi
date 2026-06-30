@@ -18,10 +18,10 @@ import java.util.Arrays;
 
 /**
  * 权限点校验切面：解析 {@link RequirePermission} 并基于 {@link UserContext} 校验。
- *
  * <p>方法级注解优先于类级注解；{@code ADMIN} 角色放行。</p>
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Aspect
 @Component
@@ -29,6 +29,11 @@ public class PermissionAspect {
 
     @Before("@within(cn.cyc.ai.cog.admin.security.RequirePermission) "
             + "|| @annotation(cn.cyc.ai.cog.admin.security.RequirePermission)")
+    /**
+     * 执行check权限。
+     *
+     * @param joinPoint joinPoint
+     */
     public void checkPermission(JoinPoint joinPoint) {
         RequirePermission required = resolveAnnotation(joinPoint);
         if (required == null) {

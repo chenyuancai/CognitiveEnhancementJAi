@@ -18,18 +18,28 @@ import java.util.List;
  * 用户管理服务，提供注册、登录、查询等核心操作。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class UserService {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
+    /** 用户Mapper。 */
     private final SysUserMapper userMapper;
+    /** 角色Mapper。 */
     private final SysRoleMapper roleMapper;
+    /** 用户角色Mapper。 */
     private final SysUserRoleMapper userRoleMapper;
+    /** 账户Provisioner。 */
     private final ObjectProvider<AccountProvisioner> accountProvisioner;
+    /** 密码Encoder。 */
     private final BCryptPasswordEncoder passwordEncoder;
 
+    /**
+     * 创建用户服务。
+     */
     public UserService(SysUserMapper userMapper,
                      SysRoleMapper roleMapper,
                      SysUserRoleMapper userRoleMapper,
@@ -75,6 +85,12 @@ public class UserService {
         return toResult(user);
     }
 
+    /**
+     * 执行assign角色人编码。
+     *
+     * @param userId 用户 ID
+     * @param roleCode 角色编码
+     */
     private void assignRoleByCode(Long userId, String roleCode) {
         QueryWrapper<SysRoleEntity> wrapper = new QueryWrapper<>();
         wrapper.eq("role_code", roleCode);
@@ -137,6 +153,12 @@ public class UserService {
         return resultPage;
     }
 
+    /**
+     * 转换为结果。
+     *
+     * @param user 用户
+     * @return 转换结果
+     */
     private UserResult toResult(SysUserEntity user) {
         List<String> roles = userMapper.selectRoleCodesByUserId(user.getId());
         return new UserResult(
@@ -154,6 +176,12 @@ public class UserService {
         );
     }
 
+    /**
+     * 执行resolve租户编码。
+     *
+     * @param tenantId 租户 ID
+     * @return 执行结果
+     */
     private String resolveTenantCode(Long tenantId) {
         if (tenantId == null || tenantId == 1L) {
             return TenantContext.DEFAULT_TENANT_CODE;

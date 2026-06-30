@@ -6,14 +6,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Harness 执行取消令牌，支持 WebSocket CANCEL 中断后续步骤。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public class HarnessCancellation {
 
+    /** NONE。 */
     private static final HarnessCancellation NONE = new HarnessCancellation(false);
 
+    /** mutable。 */
     private final boolean mutable;
+    /** cancelled。 */
     private final AtomicBoolean cancelled;
 
+    /**
+     * 创建HarnessCancellation。
+     *
+     * @param mutable mutable
+     */
     private HarnessCancellation(boolean mutable) {
         this.mutable = mutable;
         this.cancelled = new AtomicBoolean(false);

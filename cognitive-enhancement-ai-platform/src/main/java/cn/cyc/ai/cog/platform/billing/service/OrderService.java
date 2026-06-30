@@ -17,6 +17,9 @@ import java.time.LocalDateTime;
 
 /**
  * 订单服务：分页查询、手动标记已支付、手动退款。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class OrderService {
@@ -173,6 +176,10 @@ public class OrderService {
         return updated;
     }
 
+    /**
+     * 执行copy订单。
+     * @return 执行结果
+     */
     private Order copyOrder(Order order,
                             String status,
                             String payChannel,

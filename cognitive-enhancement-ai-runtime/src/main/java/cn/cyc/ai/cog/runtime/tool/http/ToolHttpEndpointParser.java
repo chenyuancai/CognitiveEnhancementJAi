@@ -8,19 +8,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * 解析 Tool implRef 中的 HTTP 端点配置。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class ToolHttpEndpointParser {
 
+    /** OBJECTMapper。 */
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+    /**
+     * 创建ToolHttpEndpointParser。
+     */
     private ToolHttpEndpointParser() {
     }
 
     /**
      * HTTP 端点配置。
      *
-     * @param url    目标 URL
-     * @param method HTTP 方法
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     public record HttpEndpoint(String url, String method) {
     }

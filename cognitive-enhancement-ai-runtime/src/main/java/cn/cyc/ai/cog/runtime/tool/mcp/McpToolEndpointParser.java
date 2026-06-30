@@ -8,19 +8,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * 解析 Tool implRef 中的 MCP 端点配置。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class McpToolEndpointParser {
 
+    /** OBJECTMapper。 */
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+    /**
+     * 创建McpToolEndpointParser。
+     */
     private McpToolEndpointParser() {
     }
 
     /**
      * MCP 端点配置。
      *
-     * @param server   MCP Server 引用
-     * @param toolName MCP 工具名称
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     public record McpEndpoint(String server, String toolName) {
     }

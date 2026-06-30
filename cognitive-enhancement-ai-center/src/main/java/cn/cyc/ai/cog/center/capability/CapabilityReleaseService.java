@@ -26,16 +26,24 @@ import java.util.Objects;
  * Capability 发布、灰度与租户启停管理服务。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class CapabilityReleaseService {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(CapabilityReleaseService.class);
 
+    /** 能力Definition仓储。 */
     private final CapabilityDefinitionRepository capabilityDefinitionRepository;
+    /** releasePointer仓储。 */
     private final CapabilityReleasePointerRepository releasePointerRepository;
+    /** 租户Binding仓储。 */
     private final CapabilityTenantBindingRepository tenantBindingRepository;
 
+    /**
+     * 创建能力Release服务。
+     */
     public CapabilityReleaseService(CapabilityDefinitionRepository capabilityDefinitionRepository,
                                     CapabilityReleasePointerRepository releasePointerRepository,
                                     CapabilityTenantBindingRepository tenantBindingRepository) {
@@ -44,6 +52,12 @@ public class CapabilityReleaseService {
         this.tenantBindingRepository = tenantBindingRepository;
     }
 
+    /**
+     * 查询Versions列表。
+     *
+     * @param capabilityCode 能力编码
+     * @return 结果列表
+     */
     public List<CapabilityResult> listVersions(String capabilityCode) {
         ensureAnyVersionExists(capabilityCode);
         return capabilityDefinitionRepository.listVersionsByCapabilityCode(capabilityCode).stream()
@@ -51,6 +65,13 @@ public class CapabilityReleaseService {
                 .toList();
     }
 
+    /**
+     * 创建Draft。
+     *
+     * @param capabilityCode 能力编码
+     * @param request 请求
+     * @return 创建结果
+     */
     public CapabilityResult createDraft(String capabilityCode, CapabilityDraftRequest request) {
         CapabilityDefinition base = resolveBaseDefinition(capabilityCode, request);
         String version = resolveDraftVersion(capabilityCode, request == null ? null : request.version());
@@ -85,6 +106,13 @@ public class CapabilityReleaseService {
         return toResult(draft);
     }
 
+    /**
+     * 执行publish。
+     *
+     * @param capabilityCode 能力编码
+     * @param request 请求
+     * @return 执行结果
+     */
     public CapabilityResult publish(String capabilityCode, CapabilityPublishRequest request) {
         String version = Objects.requireNonNull(request.version(), "version 不能为空");
         CapabilityDefinition target = findVersion(capabilityCode, version);
@@ -123,6 +151,13 @@ public class CapabilityReleaseService {
         return toResult(published);
     }
 
+    /**
+     * 执行configureGray。
+     *
+     * @param capabilityCode 能力编码
+     * @param request 请求
+     * @return 执行结果
+     */
     public CapabilityReleasePointer configureGray(String capabilityCode, CapabilityGrayRequest request) {
         PromptGrayRule grayRule = Objects.requireNonNull(request.grayRule(), "grayRule 不能为空");
         findVersion(capabilityCode, grayRule.baselineVersion());
@@ -140,6 +175,10 @@ public class CapabilityReleaseService {
         return pointer;
     }
 
+    /**
+     * 执行configure租户。
+     * @return 执行结果
+     */
     public CapabilityTenantBinding configureTenant(String capabilityCode,
                                                    String tenantCode,
                                                    CapabilityTenantBindingRequest request) {
@@ -155,6 +194,13 @@ public class CapabilityReleaseService {
         return binding;
     }
 
+    /**
+     * 执行resolveBaseDefinition。
+     *
+     * @param capabilityCode 能力编码
+     * @param request 请求
+     * @return 执行结果
+     */
     private CapabilityDefinition resolveBaseDefinition(String capabilityCode, CapabilityDraftRequest request) {
         List<CapabilityDefinition> versions = capabilityDefinitionRepository.listVersionsByCapabilityCode(capabilityCode);
         if (versions.isEmpty()) {
@@ -165,6 +211,13 @@ public class CapabilityReleaseService {
                 .orElseThrow();
     }
 
+    /**
+     * 执行resolveDraft版本号。
+     *
+     * @param capabilityCode 能力编码
+     * @param requestedVersion requested版本号
+     * @return 执行结果
+     */
     private String resolveDraftVersion(String capabilityCode, String requestedVersion) {
         if (StringUtils.hasText(requestedVersion)) {
             capabilityDefinitionRepository.findByCapabilityCodeAndVersion(capabilityCode, requestedVersion)
@@ -180,6 +233,12 @@ public class CapabilityReleaseService {
         return bumpPatchVersion(latest);
     }
 
+    /**
+     * 执行bumpPatch版本号。
+     *
+     * @param version 版本号
+     * @return 执行结果
+     */
     private String bumpPatchVersion(String version) {
         String[] parts = version.split("\\.");
         if (parts.length >= 3) {
@@ -193,18 +252,36 @@ public class CapabilityReleaseService {
         return version + ".1";
     }
 
+    /**
+     * 查找版本号。
+     *
+     * @param capabilityCode 能力编码
+     * @param version 版本号
+     * @return 查找结果
+     */
     private CapabilityDefinition findVersion(String capabilityCode, String version) {
         return capabilityDefinitionRepository.findByCapabilityCodeAndVersion(capabilityCode, version)
                 .orElseThrow(() -> Errors.of(PlatformErrorCode.RUNTIME_CAPABILITY_NOT_FOUND,
                         "未找到 Capability 版本: " + capabilityCode + "@" + version));
     }
 
+    /**
+     * 执行ensureAny版本号Exists。
+     *
+     * @param capabilityCode 能力编码
+     */
     private void ensureAnyVersionExists(String capabilityCode) {
         if (capabilityDefinitionRepository.listVersionsByCapabilityCode(capabilityCode).isEmpty()) {
             throw Errors.of(PlatformErrorCode.RUNTIME_CAPABILITY_NOT_FOUND, "未找到 Capability: " + capabilityCode);
         }
     }
 
+    /**
+     * 执行offlineCopy。
+     *
+     * @param definition definition
+     * @return 执行结果
+     */
     private CapabilityDefinition offlineCopy(CapabilityDefinition definition) {
         return new CapabilityDefinition(
                 definition.capabilityCode(),
@@ -224,6 +301,12 @@ public class CapabilityReleaseService {
         );
     }
 
+    /**
+     * 转换为结果。
+     *
+     * @param definition definition
+     * @return 转换结果
+     */
     private CapabilityResult toResult(CapabilityDefinition definition) {
         return new CapabilityResult(
                 definition.capabilityCode(),

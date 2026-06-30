@@ -4,6 +4,7 @@ import cn.cyc.ai.cog.app.dto.AppPayOrderResultVO;
 import cn.cyc.ai.cog.app.dto.OrderVO;
 import cn.cyc.ai.cog.app.dto.QuotaPackageVO;
 import cn.cyc.ai.cog.app.dto.SubscriptionPackageVO;
+import cn.cyc.ai.cog.app.support.AppBillingLabelSupport;
 import cn.cyc.ai.cog.platform.billing.domain.Order;
 import cn.cyc.ai.cog.platform.billing.domain.QuotaPackage;
 import cn.cyc.ai.cog.platform.billing.domain.SubscriptionPackage;
@@ -12,6 +13,9 @@ import org.springframework.stereotype.Component;
 
 /**
  * 计费域领域对象 → C 端 VO 转换器。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class AppBillingVoAssembler {
@@ -39,6 +43,8 @@ public class AppBillingVoAssembler {
         vo.setSaleMode(pkg.saleMode());
         vo.setRequireContract(pkg.requireContract());
         vo.setStatus(pkg.status());
+        vo.setBadge(AppBillingLabelSupport.packageBadge(pkg.trialDays()));
+        vo.setHighlight(AppBillingLabelSupport.packageHighlight(pkg.originalPriceFen(), pkg.priceFen()));
         return vo;
     }
 
@@ -57,6 +63,7 @@ public class AppBillingVoAssembler {
         vo.setTokenAmount(pkg.tokenAmount());
         vo.setPriceFen(pkg.priceFen());
         vo.setStatus(pkg.status());
+        vo.setHighlight(AppBillingLabelSupport.packageHighlight(pkg.priceFen() + 1000, pkg.priceFen()));
         return vo;
     }
 
@@ -80,6 +87,7 @@ public class AppBillingVoAssembler {
         vo.setCurrency(order.currency());
         vo.setStatus(order.status());
         vo.setPayChannel(order.payChannel());
+        vo.setPayChannelLabel(AppBillingLabelSupport.payChannelLabel(order.payChannel()));
         vo.setPayTime(order.payTime());
         vo.setFulfillTime(order.fulfillTime());
         vo.setIdempotencyKey(order.idempotencyKey());
@@ -89,6 +97,12 @@ public class AppBillingVoAssembler {
         return vo;
     }
 
+    /**
+     * 转换为Pay结果Vo。
+     *
+     * @param result 结果
+     * @return 转换结果
+     */
     public AppPayOrderResultVO toPayResultVo(PaymentPrepayResult result) {
         AppPayOrderResultVO vo = new AppPayOrderResultVO();
         vo.setOrderId(result.orderId());

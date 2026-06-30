@@ -13,13 +13,21 @@ import java.util.List;
 
 /**
  * Base-Server OpenAPI 配置。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Configuration
 public class BaseOpenApiConfiguration {
 
+    /** 网关地址。 */
     @Value("${cog.openapi.gateway-url:http://localhost:8801}")
     private String gatewayUrl;
 
+    /**
+     * 执行baseOpenApi。
+     * @return 执行结果
+     */
     @Bean
     public OpenAPI baseOpenApi() {
         return new OpenAPI()
@@ -31,6 +39,10 @@ public class BaseOpenApiConfiguration {
                 .servers(List.of(new Server().url(gatewayUrl).description("API 网关")));
     }
 
+    /**
+     * 执行baseApis。
+     * @return 执行结果
+     */
     @Bean
     public GroupedOpenApi baseApis() {
         return GroupedOpenApi.builder()

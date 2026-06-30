@@ -14,11 +14,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 持久化会话消息仓储。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true")
@@ -43,6 +45,11 @@ public class PersistentConversationMessageRepository implements ConversationMess
         this.conversationMessageMapper = conversationMessageMapper;
     }
 
+    /**
+     * 执行save。
+     *
+     * @param message 消息
+     */
     @Override
     public void save(ConversationMessage message) {
         conversationMessageMapper.insert(toEntity(message));
@@ -50,6 +57,12 @@ public class PersistentConversationMessageRepository implements ConversationMess
                 message.sessionId(), message.messageId(), message.role());
     }
 
+    /**
+     * 查找人会话ID。
+     *
+     * @param sessionId 会话 ID
+     * @return 查找结果
+     */
     @Override
     public List<ConversationMessage> findBySessionId(String sessionId) {
         LambdaQueryWrapper<ConversationMessageEntity> queryWrapper = new LambdaQueryWrapper<ConversationMessageEntity>()
@@ -62,6 +75,24 @@ public class PersistentConversationMessageRepository implements ConversationMess
                 .toList();
     }
 
+    @Override
+    public Optional<ConversationMessage> findLatestBySessionId(String sessionId) {
+        LambdaQueryWrapper<ConversationMessageEntity> queryWrapper = new LambdaQueryWrapper<ConversationMessageEntity>()
+                .eq(ConversationMessageEntity::getTenantId, TenantContext.currentTenantId())
+                .eq(ConversationMessageEntity::getSessionId, sessionId)
+                .orderByDesc(ConversationMessageEntity::getRecordedAt)
+                .orderByDesc(ConversationMessageEntity::getId)
+                .last("LIMIT 1");
+        ConversationMessageEntity entity = conversationMessageMapper.selectOne(queryWrapper);
+        return Optional.ofNullable(entity).map(this::toDomain);
+    }
+
+    /**
+     * 转换为实体。
+     *
+     * @param message 消息
+     * @return 转换结果
+     */
     private ConversationMessageEntity toEntity(ConversationMessage message) {
         ConversationMessageEntity entity = new ConversationMessageEntity();
         entity.setTenantId(TenantIds.resolveId(message.tenantCode()));
@@ -74,6 +105,12 @@ public class PersistentConversationMessageRepository implements ConversationMess
         return entity;
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private ConversationMessage toDomain(ConversationMessageEntity entity) {
         return new ConversationMessage(
                 TenantIds.toCode(entity.getTenantId()),

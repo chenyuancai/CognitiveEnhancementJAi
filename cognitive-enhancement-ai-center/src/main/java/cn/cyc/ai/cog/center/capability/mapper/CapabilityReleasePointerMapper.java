@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
  * Capability 发布指针 Mapper。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Mapper
 public interface CapabilityReleasePointerMapper extends BaseMapper<CapabilityReleasePointerEntity> {

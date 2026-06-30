@@ -21,17 +21,25 @@ import java.util.Map;
  * TraceSpan 记录器，基于 ThreadLocal 维护父子关系。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class TraceSpanRecorder {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(TraceSpanRecorder.class);
 
+    /** SPANSTACK。 */
     private static final ThreadLocal<Deque<String>> SPAN_STACK = ThreadLocal.withInitial(ArrayDeque::new);
 
+    /** 链路Span仓储。 */
     private final TraceSpanRepository traceSpanRepository;
+    /** exportListeners。 */
     private final List<TraceSpanExportListener> exportListeners;
 
+    /**
+     * 创建TraceSpanRecorder。
+     */
     public TraceSpanRecorder(TraceSpanRepository traceSpanRepository,
                              List<TraceSpanExportListener> exportListeners) {
         this.traceSpanRepository = traceSpanRepository;
@@ -82,6 +90,9 @@ public class TraceSpanRecorder {
         SPAN_STACK.remove();
     }
 
+    /**
+     * 执行complete。
+     */
     private void complete(SpanScope scope,
                           TraceSpanStatus status,
                           Throwable error,
@@ -132,6 +143,11 @@ public class TraceSpanRecorder {
         return Map.copyOf(copied);
     }
 
+    /**
+     * 执行exportSpan。
+     *
+     * @param span span
+     */
     private void exportSpan(TraceSpan span) {
         if (exportListeners.isEmpty()) {
             return;
@@ -149,13 +165,8 @@ public class TraceSpanRecorder {
     /**
      * Span 作用域句柄。
      *
-     * @param traceId      链路 ID
-     * @param spanId       步骤 ID
-     * @param parentSpanId 父步骤 ID
-     * @param spanType     步骤类型
-     * @param spanName     步骤名称
-     * @param startNanos   开始时间
-     * @param attributes   初始属性
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     public record SpanScope(
             String traceId,

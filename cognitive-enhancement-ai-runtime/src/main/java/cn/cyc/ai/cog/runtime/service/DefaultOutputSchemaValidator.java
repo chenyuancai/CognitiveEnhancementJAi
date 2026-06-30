@@ -11,20 +11,27 @@ import org.springframework.stereotype.Component;
 
 /**
  * 默认能力输出 Schema 校验器。
- *
  * 当前版本只校验业务输出载荷 {@code businessOutput}，
  * 不把 runtime 附加元数据视为能力契约的一部分。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class DefaultOutputSchemaValidator implements OutputSchemaValidator {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(DefaultOutputSchemaValidator.class);
 
     private static final SchemaValueValidator VALUE_VALIDATOR =
             new SchemaValueValidator("output", "输出参数", true);
 
+    /**
+     * 校验参数。
+     *
+     * @param capability 能力
+     * @param executionResult execution结果
+     */
     @Override
     public void validate(CapabilityDefinition capability, ExecutionResult executionResult) {
         SchemaDefinition outputSchema = capability.outputSchema();

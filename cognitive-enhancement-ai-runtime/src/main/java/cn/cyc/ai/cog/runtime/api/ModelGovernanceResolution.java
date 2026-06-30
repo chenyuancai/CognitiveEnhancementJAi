@@ -6,12 +6,8 @@ import cn.cyc.ai.cog.runtime.model.governance.ModelCircuitBreakerState;
 /**
  * 模型治理解析结果。
  *
- * @param resolvedModel      本次实际调用的模型定义（含 timeoutMs）
- * @param primaryModelCode   主模型编码
- * @param resolvedModelCode  解析后的模型编码
- * @param fallbackApplied    是否已降级到 fallback
- * @param circuitState       主模型熔断状态
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ModelGovernanceResolution(
         ModelDefinition resolvedModel,

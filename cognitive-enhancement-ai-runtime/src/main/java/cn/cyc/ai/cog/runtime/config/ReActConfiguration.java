@@ -5,6 +5,9 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * ReAct 配置启用。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Configuration
 @EnableConfigurationProperties(ReActProperties.class)

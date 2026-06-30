@@ -29,18 +29,31 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * 文件服务对外 HTTP API（浏览器 / 网关直连）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "基础-文件", description = "Multipart 上传、下载、预览")
 @RestController
 @RequestMapping("/api/base/files")
 public class FileController {
 
+    /** 文件服务。 */
     private final FileService fileService;
 
+    /**
+     * 创建文件接口。
+     *
+     * @param fileService 文件服务
+     */
     public FileController(FileService fileService) {
         this.fileService = fileService;
     }
 
+    /**
+     * 执行upload。
+     * @return 执行结果
+     */
     @Operation(summary = "Multipart 上传")
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<FileInfoDTO> upload(@RequestPart("file") MultipartFile file,
@@ -49,18 +62,36 @@ public class FileController {
         return ApiResponse.success(fileService.upload(file, tenantId, bizCode));
     }
 
+    /**
+     * 获取人ID。
+     *
+     * @param id 主键 ID
+     * @return 人ID
+     */
     @Operation(summary = "文件详情")
     @GetMapping("/{id}")
     public ApiResponse<FileInfoDTO> getById(@PathVariable Long id) {
         return ApiResponse.success(fileService.getById(id));
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Operation(summary = "文件分页")
     @PostMapping("/page")
     public ApiResponse<PageResult<FileInfoDTO>> page(@RequestBody FilePageQuery query) {
         return ApiResponse.success(fileService.page(query));
     }
 
+    /**
+     * 执行ensure。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Operation(summary = "确认文件")
     @PostMapping("/ensure")
     public ApiResponse<Void> ensure(@Valid @RequestBody FileEnsureRequest request) {
@@ -68,6 +99,11 @@ public class FileController {
         return ApiResponse.success(null);
     }
 
+    /**
+     * 删除Item。
+     *
+     * @param id 主键 ID
+     */
     @Operation(summary = "删除文件")
     @DeleteMapping("/{id}")
     public ApiResponse<Void> delete(@PathVariable Long id) {
@@ -75,18 +111,37 @@ public class FileController {
         return ApiResponse.success(null);
     }
 
+    /**
+     * 执行download。
+     *
+     * @param id 主键 ID
+     * @return 统一错误响应
+     */
     @Operation(summary = "下载文件")
     @GetMapping("/{id}/download")
     public ResponseEntity<Resource> download(@PathVariable Long id) {
         return buildFileResponse(id, true);
     }
 
+    /**
+     * 执行preview。
+     *
+     * @param id 主键 ID
+     * @return 统一错误响应
+     */
     @Operation(summary = "预览文件")
     @GetMapping("/{id}/preview")
     public ResponseEntity<Resource> preview(@PathVariable Long id) {
         return buildFileResponse(id, false);
     }
 
+    /**
+     * 构建文件响应。
+     *
+     * @param id 主键 ID
+     * @param attachment attachment
+     * @return 构建结果
+     */
     private ResponseEntity<Resource> buildFileResponse(Long id, boolean attachment) {
         Resource resource = fileService.loadAsResource(id);
         String fileName = fileService.resolveOriginalName(id);

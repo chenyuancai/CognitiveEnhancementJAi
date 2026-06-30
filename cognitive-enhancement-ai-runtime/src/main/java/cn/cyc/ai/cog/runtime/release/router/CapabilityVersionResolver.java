@@ -14,16 +14,24 @@ import org.springframework.stereotype.Component;
  * Capability 运行时版本解析器：租户启停校验 + 发布指针灰度选版。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class CapabilityVersionResolver {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(CapabilityVersionResolver.class);
 
+    /** 能力Definition仓储。 */
     private final CapabilityDefinitionRepository capabilityDefinitionRepository;
+    /** 能力ReleaseRouter。 */
     private final CapabilityReleaseRouter capabilityReleaseRouter;
+    /** 租户Binding仓储。 */
     private final CapabilityTenantBindingRepository tenantBindingRepository;
 
+    /**
+     * 创建CapabilityVersionResolver。
+     */
     public CapabilityVersionResolver(CapabilityDefinitionRepository capabilityDefinitionRepository,
                                      CapabilityReleaseRouter capabilityReleaseRouter,
                                      CapabilityTenantBindingRepository tenantBindingRepository) {
@@ -56,6 +64,11 @@ public class CapabilityVersionResolver {
         return resolved;
     }
 
+    /**
+     * 执行assert租户是否启用。
+     *
+     * @param capabilityCode 能力编码
+     */
     private void assertTenantEnabled(String capabilityCode) {
         tenantBindingRepository.findByTenantAndCapability(TenantContext.currentTenantCode(), capabilityCode)
                 .filter(binding -> !binding.enabled())

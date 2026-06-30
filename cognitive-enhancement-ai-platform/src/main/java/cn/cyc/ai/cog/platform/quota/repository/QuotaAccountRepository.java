@@ -4,6 +4,9 @@ import cn.cyc.ai.cog.platform.quota.domain.QuotaAccount;
 
 /**
  * 额度账户仓储接口。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface QuotaAccountRepository {
 

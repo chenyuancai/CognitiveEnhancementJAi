@@ -10,11 +10,20 @@ import org.springframework.context.annotation.Bean;
 
 /**
  * 文件对象存储自动装配：引入本模块依赖即可注册 {@link FileStorageStrategy}。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @AutoConfiguration
 @EnableConfigurationProperties(FileStorageProperties.class)
 public class FileStorageAutoConfiguration {
 
+    /**
+     * 执行disk文件Storage策略。
+     *
+     * @param properties properties
+     * @return 执行结果
+     */
     @Bean
     @ConditionalOnMissingBean(FileStorageStrategy.class)
     @ConditionalOnProperty(name = "cog.file.storage-type", havingValue = "disk", matchIfMissing = true)

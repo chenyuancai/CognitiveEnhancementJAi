@@ -5,6 +5,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * C 端 API 限流配置（{@code cog.app.rate-limit.*}）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 @ConfigurationProperties(prefix = "cog.app.rate-limit")

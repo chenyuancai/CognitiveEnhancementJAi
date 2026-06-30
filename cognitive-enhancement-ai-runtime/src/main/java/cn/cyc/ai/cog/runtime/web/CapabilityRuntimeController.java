@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
  * Runtime 能力入口控制器。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "Runtime - 能力执行", description = "能力运行时入口：同步执行与 SSE 流式执行")
 @RestController
@@ -91,6 +92,13 @@ public class CapabilityRuntimeController {
                 .body(body);
     }
 
+    /**
+     * 执行流Execution。
+     *
+     * @param outputStream 输出流
+     * @param traceId 链路 Trace ID
+     * @param request 请求
+     */
     private void streamExecution(OutputStream outputStream, String traceId, CapabilityExecuteRequest request)
             throws IOException {
         TraceContext.setTraceId(traceId);
@@ -110,6 +118,13 @@ public class CapabilityRuntimeController {
         }
     }
 
+    /**
+     * 执行write事件。
+     *
+     * @param outputStream 输出流
+     * @param eventName 事件名称
+     * @param event 事件
+     */
     private void writeEvent(OutputStream outputStream, String eventName, CapabilityExecutionStreamEvent event)
             throws IOException {
         outputStream.write(("event: " + eventName + "\n").getBytes(StandardCharsets.UTF_8));
@@ -117,6 +132,12 @@ public class CapabilityRuntimeController {
         outputStream.flush();
     }
 
+    /**
+     * 执行map错误编码。
+     *
+     * @param exception exception
+     * @return 执行结果
+     */
     private ErrorCode mapErrorCode(RuntimeException exception) {
         if (exception instanceof ServiceException serviceException && serviceException.getCategory() != null) {
             return serviceException.getCategory();
@@ -124,6 +145,12 @@ public class CapabilityRuntimeController {
         return ErrorCode.SYSTEM_ERROR;
     }
 
+    /**
+     * 能力Execution流事件
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     private record CapabilityExecutionStreamEvent(
             String type,
             String traceId,
@@ -134,6 +161,13 @@ public class CapabilityRuntimeController {
             CapabilityExecuteResponse data
     ) {
 
+        /**
+         * 执行started。
+         *
+         * @param traceId 链路 Trace ID
+         * @param capabilityCode 能力编码
+         * @return 执行结果
+         */
         private static CapabilityExecutionStreamEvent started(String traceId, String capabilityCode) {
             return new CapabilityExecutionStreamEvent(
                     "STARTED",
@@ -146,6 +180,10 @@ public class CapabilityRuntimeController {
             );
         }
 
+        /**
+         * 执行completed。
+         * @return 执行结果
+         */
         private static CapabilityExecutionStreamEvent completed(String traceId,
                                                                 String capabilityCode,
                                                                 CapabilityExecuteResponse data) {
@@ -160,6 +198,10 @@ public class CapabilityRuntimeController {
             );
         }
 
+        /**
+         * 执行failed。
+         * @return 执行结果
+         */
         private static CapabilityExecutionStreamEvent failed(String traceId,
                                                              String capabilityCode,
                                                              ErrorCode errorCode,

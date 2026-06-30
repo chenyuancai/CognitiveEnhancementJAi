@@ -10,15 +10,21 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 
 /**
  * 网关响应式安全（方案 A：纯转发）。
- *
  * <p>不在网关验 JWT、不注入身份头；{@code Authorization} 原样转发，由 auth(8802) / starter(8803) 各自鉴权。</p>
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Configuration
 @EnableWebFluxSecurity
 public class GatewaySecurityConfig {
 
+    /**
+     * 执行网关Security过滤器Chain。
+     *
+     * @param http http
+     * @return 执行结果
+     */
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public SecurityWebFilterChain gatewaySecurityFilterChain(ServerHttpSecurity http) {

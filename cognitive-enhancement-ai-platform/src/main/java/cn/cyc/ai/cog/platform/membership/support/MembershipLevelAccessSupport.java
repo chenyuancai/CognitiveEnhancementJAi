@@ -10,6 +10,9 @@ import java.util.Map;
 
 /**
  * 会员等级可见性比较（基于 sortNo）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class MembershipLevelAccessSupport {

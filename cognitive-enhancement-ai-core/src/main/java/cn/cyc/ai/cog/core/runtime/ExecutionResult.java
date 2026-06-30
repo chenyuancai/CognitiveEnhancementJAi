@@ -6,11 +6,8 @@ import java.util.Map;
 /**
  * 一期统一执行结果。
  *
- * @param status            执行状态
- * @param message           状态说明
- * @param allowedSkillCodes 参与执行的技能编码列表
- * @param output            输出载荷
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ExecutionResult(
         String status,

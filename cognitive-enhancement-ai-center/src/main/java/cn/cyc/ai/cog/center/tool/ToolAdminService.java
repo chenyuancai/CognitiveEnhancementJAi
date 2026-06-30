@@ -18,6 +18,7 @@ import java.util.Objects;
  * Tool 管理服务。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class ToolAdminService extends AbstractMetadataAdminService<ToolDefinition, ToolUpsertRequest, ToolResult> {
@@ -95,6 +96,12 @@ public class ToolAdminService extends AbstractMetadataAdminService<ToolDefinitio
         );
     }
 
+    /**
+     * 执行默认Risk等级。
+     *
+     * @param riskLevel risk等级
+     * @return 执行结果
+     */
     private RiskLevel defaultRiskLevel(RiskLevel riskLevel) {
         return riskLevel == null ? RiskLevel.LOW : riskLevel;
     }
@@ -107,10 +114,24 @@ public class ToolAdminService extends AbstractMetadataAdminService<ToolDefinitio
         return sorters;
     }
 
+    /**
+     * 执行matches。
+     *
+     * @param expected expected
+     * @param actual actual
+     * @return 执行结果
+     */
     private boolean matches(ToolProtocolType expected, ToolProtocolType actual) {
         return expected == null || expected == actual;
     }
 
+    /**
+     * 执行matches。
+     *
+     * @param expected expected
+     * @param actual actual
+     * @return 执行结果
+     */
     private boolean matches(RiskLevel expected, RiskLevel actual) {
         return expected == null || expected == actual;
     }

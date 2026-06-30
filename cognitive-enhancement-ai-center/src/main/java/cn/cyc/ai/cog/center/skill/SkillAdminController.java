@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Skill 后台管理接口。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "Center - Skill", description = "Skill 技能元数据管理：绑定 Tool、依赖与输出治理规则")
 @RestController

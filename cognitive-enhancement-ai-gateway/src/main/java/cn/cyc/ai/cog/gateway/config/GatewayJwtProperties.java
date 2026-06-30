@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * 网关侧 legacy JWT 配置，需与单体 {@code cog.jwt.secret} 保持一致。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 @ConfigurationProperties(prefix = "cog.jwt")

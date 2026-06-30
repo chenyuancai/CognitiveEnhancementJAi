@@ -680,3 +680,165 @@ CREATE TABLE IF NOT EXISTS shedlock (
     locked_at  TIMESTAMP    NOT NULL,
     locked_by  VARCHAR(255) NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS qz_app_learning_profile (
+    id           BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id    BIGINT       NOT NULL,
+    user_id      BIGINT       NOT NULL,
+    profile_json CLOB         NOT NULL,
+    version_no   INT          NOT NULL DEFAULT 1,
+    create_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS qz_app_mistake_record (
+    id              BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id       BIGINT       NOT NULL,
+    user_id         BIGINT       NOT NULL,
+    session_id      VARCHAR(64)  NOT NULL,
+    trace_id        VARCHAR(64)  NOT NULL,
+    knowledge_point VARCHAR(128) NULL,
+    mistake_summary CLOB         NOT NULL,
+    user_approach   CLOB         NULL,
+    correction_hint CLOB         NULL,
+    status          VARCHAR(16)  NOT NULL DEFAULT 'OPEN',
+    create_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS qz_app_learning_plan (
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id   BIGINT       NOT NULL,
+    user_id     BIGINT       NOT NULL,
+    session_id  VARCHAR(64)  NULL,
+    trace_id    VARCHAR(64)  NOT NULL,
+    plan_title  VARCHAR(128) NOT NULL,
+    plan_json   CLOB         NOT NULL,
+    status      VARCHAR(16)  NOT NULL DEFAULT 'ACTIVE',
+    create_time TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS qz_app_practice_recommendation (
+    id              BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id       BIGINT       NOT NULL,
+    user_id         BIGINT       NOT NULL,
+    session_id      VARCHAR(64)  NOT NULL,
+    trace_id        VARCHAR(64)  NOT NULL,
+    knowledge_point VARCHAR(128) NULL,
+    prompt_text     CLOB         NOT NULL,
+    difficulty      VARCHAR(16)  NOT NULL DEFAULT 'EASY',
+    status          VARCHAR(16)  NOT NULL DEFAULT 'PENDING',
+    create_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS qz_app_message_reference (
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id   BIGINT       NOT NULL,
+    session_id  VARCHAR(64)  NOT NULL,
+    trace_id    VARCHAR(64)  NOT NULL,
+    message_id  VARCHAR(64)  NULL,
+    ref_type    VARCHAR(16)  NOT NULL,
+    ref_id      VARCHAR(64)  NOT NULL,
+    excerpt     VARCHAR(512) NULL,
+    create_time TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS qz_app_practice_session (
+    id                BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id         BIGINT       NOT NULL,
+    user_id           BIGINT       NOT NULL,
+    session_code      VARCHAR(64)  NOT NULL,
+    source_content_id BIGINT       NULL,
+    title             VARCHAR(256) NOT NULL,
+    question_count    INT          NOT NULL DEFAULT 10,
+    answered_count    INT          NOT NULL DEFAULT 0,
+    status            VARCHAR(16)  NOT NULL DEFAULT 'IN_PROGRESS',
+    accuracy          INT          NULL,
+    minutes           INT          NULL,
+    mode              VARCHAR(32)  NULL,
+    debrief_json      CLOB         NULL,
+    create_time       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS qz_app_practice_answer (
+    id                  BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id           BIGINT       NOT NULL,
+    session_id          BIGINT       NOT NULL,
+    question_id         VARCHAR(64)  NOT NULL,
+    question_type       VARCHAR(16)  NOT NULL,
+    answer_payload_json CLOB         NOT NULL,
+    score               INT          NULL,
+    ai_feedback_json    CLOB         NULL,
+    status              VARCHAR(16)  NOT NULL DEFAULT 'SUBMITTED',
+    create_time         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS qz_app_review_pending (
+    id                BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id         BIGINT       NOT NULL,
+    user_id           BIGINT       NOT NULL,
+    content_id        BIGINT       NULL,
+    title             VARCHAR(256) NOT NULL,
+    tag               VARCHAR(64)  NULL,
+    accuracy          INT          NULL,
+    due_at            TIMESTAMP    NULL,
+    urgency           VARCHAR(16)  NOT NULL DEFAULT 'NORMAL',
+    status            VARCHAR(16)  NOT NULL DEFAULT 'OPEN',
+    source_mistake_id BIGINT       NULL,
+    create_time       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS qz_app_import_task (
+    id              BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id       BIGINT       NOT NULL,
+    user_id         BIGINT       NOT NULL,
+    task_code       VARCHAR(64)  NOT NULL,
+    channel         VARCHAR(16)  NOT NULL,
+    import_biz_type VARCHAR(64)  NULL,
+    title           VARCHAR(256) NOT NULL,
+    file_name       VARCHAR(256) NULL,
+    file_id         BIGINT       NULL,
+    file_url        VARCHAR(512) NULL,
+    target_type     VARCHAR(64)  NULL,
+    tags_json       CLOB         NULL,
+    ai_enhanced     TINYINT      NOT NULL DEFAULT 0,
+    auto_quiz       TINYINT      NOT NULL DEFAULT 0,
+    status          VARCHAR(16)  NOT NULL DEFAULT 'pending',
+    stage           VARCHAR(32)  NULL,
+    progress        INT          NOT NULL DEFAULT 0,
+    error_message   CLOB         NULL,
+    library_item_id BIGINT       NULL,
+    result_json     CLOB         NULL,
+    create_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS qz_kb_content_chunk (
+    id           BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id    BIGINT       NOT NULL,
+    content_id   BIGINT       NOT NULL,
+    task_code    VARCHAR(64)  NULL,
+    chunk_index  INT          NOT NULL,
+    heading_path VARCHAR(512) NULL,
+    chunk_text   CLOB         NOT NULL,
+    token_est    INT          NULL,
+    create_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS qz_kb_vector_index_record (
+    id           BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id    BIGINT       NOT NULL,
+    content_id   BIGINT       NOT NULL,
+    chunk_id     BIGINT       NOT NULL,
+    model_code   VARCHAR(128) NULL,
+    dim          INT          NOT NULL,
+    vector_json  CLOB         NOT NULL,
+    create_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE qz_app_mistake_record ADD COLUMN IF NOT EXISTS content_id BIGINT NULL;
+ALTER TABLE qz_app_mistake_record ADD COLUMN IF NOT EXISTS score INT NULL;
+ALTER TABLE qz_app_mistake_record ADD COLUMN IF NOT EXISTS tag VARCHAR(64) NULL;
+ALTER TABLE qz_app_mistake_record ADD COLUMN IF NOT EXISTS source_type VARCHAR(16) NOT NULL DEFAULT 'TUTORING';

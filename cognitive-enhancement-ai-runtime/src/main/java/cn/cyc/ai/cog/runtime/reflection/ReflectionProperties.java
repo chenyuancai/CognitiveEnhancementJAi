@@ -10,6 +10,7 @@ import java.util.List;
  * 自反思配置。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 @ConfigurationProperties(prefix = "cog.runtime.reflection")

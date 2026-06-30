@@ -22,6 +22,7 @@ import java.util.Map;
  * 默认 LLM Gateway 实现，按 Provider 路由模型调用。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class DefaultLlmGateway implements LlmGateway {
@@ -35,8 +36,12 @@ public class DefaultLlmGateway implements LlmGateway {
      * Provider 处理器列表。
      */
     private final List<LlmProviderHandler> llmProviderHandlers;
+    /** 链路SpanRecorder。 */
     private final TraceSpanRecorder traceSpanRecorder;
 
+    /**
+     * 创建DefaultLlmGateway。
+     */
     public DefaultLlmGateway(List<LlmProviderHandler> llmProviderHandlers,
                              TraceSpanRecorder traceSpanRecorder) {
         this.llmProviderHandlers = llmProviderHandlers;
@@ -87,6 +92,14 @@ public class DefaultLlmGateway implements LlmGateway {
         }
     }
 
+    /**
+     * 执行chat。
+     *
+     * @param context 上下文
+     * @param model 模型
+     * @param request 请求
+     * @return 执行结果
+     */
     @Override
     public LlmConversationResult chat(ExecutionContext context, ModelDefinition model, LlmConversationRequest request) {
         LlmProviderHandler handler = resolveHandler(model);
@@ -107,6 +120,12 @@ public class DefaultLlmGateway implements LlmGateway {
         }
     }
 
+    /**
+     * 执行resolve处理器。
+     *
+     * @param model 模型
+     * @return 执行结果
+     */
     private LlmProviderHandler resolveHandler(ModelDefinition model) {
         return llmProviderHandlers.stream()
                 .filter(candidate -> candidate.supports(model))

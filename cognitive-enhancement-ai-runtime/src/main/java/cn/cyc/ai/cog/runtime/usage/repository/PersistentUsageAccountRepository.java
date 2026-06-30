@@ -18,6 +18,7 @@ import java.util.Optional;
  * 基于 MyBatis Plus 的用量额度账户仓储。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true")
@@ -37,6 +38,12 @@ public class PersistentUsageAccountRepository implements UsageAccountRepository 
         this.usageAccountMapper = usageAccountMapper;
     }
 
+    /**
+     * 查找人租户编码。
+     *
+     * @param tenantCode 租户编码
+     * @return 查找结果
+     */
     @Override
     public Optional<UsageAccount> findByTenantCode(String tenantCode) {
         String normalizedTenantCode = TenantContext.normalize(tenantCode);
@@ -46,11 +53,22 @@ public class PersistentUsageAccountRepository implements UsageAccountRepository 
                 .map(this::toDomain);
     }
 
+    /**
+     * 执行save。
+     *
+     * @param account 账户
+     */
     @Override
     public void save(UsageAccount account) {
         usageAccountMapper.saveOrUpdateByTenantCode(toEntity(account));
     }
 
+    /**
+     * 转换为实体。
+     *
+     * @param account 账户
+     * @return 转换结果
+     */
     private UsageAccountEntity toEntity(UsageAccount account) {
         UsageAccountEntity entity = new UsageAccountEntity();
         entity.setTenantId(TenantIds.resolveId(account.tenantCode()));
@@ -61,6 +79,12 @@ public class PersistentUsageAccountRepository implements UsageAccountRepository 
         return entity;
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private UsageAccount toDomain(UsageAccountEntity entity) {
         return new UsageAccount(
                 TenantIds.toCode(entity.getTenantId()),
@@ -71,6 +95,12 @@ public class PersistentUsageAccountRepository implements UsageAccountRepository 
         );
     }
 
+    /**
+     * 执行normalizeAmount。
+     *
+     * @param amount amount
+     * @return 执行结果
+     */
     private BigDecimal normalizeAmount(BigDecimal amount) {
         return amount == null ? BigDecimal.ZERO : amount;
     }

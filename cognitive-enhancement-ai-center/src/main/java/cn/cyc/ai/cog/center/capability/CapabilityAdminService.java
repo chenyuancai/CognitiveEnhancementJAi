@@ -18,6 +18,7 @@ import java.util.Objects;
  * 能力管理服务。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class CapabilityAdminService extends AbstractMetadataAdminService<CapabilityDefinition, CapabilityUpsertRequest, CapabilityResult> {
@@ -126,14 +127,35 @@ public class CapabilityAdminService extends AbstractMetadataAdminService<Capabil
         return sorters;
     }
 
+    /**
+     * 执行matches。
+     *
+     * @param expected expected
+     * @param actual actual
+     * @return 执行结果
+     */
     private boolean matches(String expected, String actual) {
         return !StringUtils.hasText(expected) || expected.equals(actual);
     }
 
+    /**
+     * 执行matches。
+     *
+     * @param expected expected
+     * @param actual actual
+     * @return 执行结果
+     */
     private boolean matches(RiskLevel expected, RiskLevel actual) {
         return expected == null || expected == actual;
     }
 
+    /**
+     * 执行matches。
+     *
+     * @param expected expected
+     * @param actual actual
+     * @return 执行结果
+     */
     private boolean matches(ExecutionMode expected, ExecutionMode actual) {
         return expected == null || expected == actual;
     }

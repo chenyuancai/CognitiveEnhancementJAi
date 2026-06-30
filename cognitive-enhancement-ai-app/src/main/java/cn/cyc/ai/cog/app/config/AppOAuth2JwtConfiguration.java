@@ -11,6 +11,9 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
  * <p>
  * 不启用全局 Resource Server 过滤器，仅提供 {@link JwtDecoder} Bean 供 Bearer 解析使用。
  * </p>
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Configuration
 @ConditionalOnProperty(name = "cog.app.oauth2-jwk-set-uri")

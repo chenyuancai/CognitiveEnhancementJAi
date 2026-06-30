@@ -18,6 +18,9 @@ import java.util.List;
 
 /**
  * 账户会员关系仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbAccountMembershipRepository implements AccountMembershipRepository {
@@ -32,6 +35,12 @@ public class DbAccountMembershipRepository implements AccountMembershipRepositor
         this.accountMembershipMapper = accountMembershipMapper;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Override
     public PageResult<AccountMembership> page(MemberPageQuery query) {
         LambdaQueryWrapper<AccountMembershipEntity> wrapper = new LambdaQueryWrapper<>();
@@ -48,6 +57,12 @@ public class DbAccountMembershipRepository implements AccountMembershipRepositor
                 page.getTotal(), page.getCurrent(), page.getSize());
     }
 
+    /**
+     * 查找人ID。
+     *
+     * @param id 主键 ID
+     * @return 查找结果
+     */
     @Override
     public AccountMembership findById(Long id) {
         AccountMembershipEntity entity = accountMembershipMapper.selectById(id);
@@ -57,6 +72,12 @@ public class DbAccountMembershipRepository implements AccountMembershipRepositor
         return toDomain(entity);
     }
 
+    /**
+     * 查找人账户ID。
+     *
+     * @param accountId 账户ID
+     * @return 查找结果
+     */
     @Override
     public AccountMembership findByAccountId(Long accountId) {
         AccountMembershipEntity entity = accountMembershipMapper.selectOne(new LambdaQueryWrapper<AccountMembershipEntity>()
@@ -65,6 +86,15 @@ public class DbAccountMembershipRepository implements AccountMembershipRepositor
         return entity == null ? null : toDomain(entity);
     }
 
+    /**
+     * 执行grantInitial。
+     *
+     * @param tenantId 租户 ID
+     * @param accountId 账户ID
+     * @param levelId 等级ID
+     * @param levelCode 等级编码
+     * @param source 来源
+     */
     @Override
     public void grantInitial(Long tenantId, Long accountId, Long levelId, String levelCode, String source) {
         AccountMembershipEntity membership = new AccountMembershipEntity();
@@ -76,6 +106,10 @@ public class DbAccountMembershipRepository implements AccountMembershipRepositor
         accountMembershipMapper.insert(membership);
     }
 
+    /**
+     * 执行upsertGrant。
+     * @return 执行结果
+     */
     @Override
     public AccountMembership upsertGrant(Long accountId, Long levelId, String levelCode,
                                          java.time.LocalDateTime expireAt, String source) {
@@ -100,6 +134,13 @@ public class DbAccountMembershipRepository implements AccountMembershipRepositor
         return toDomain(membership);
     }
 
+    /**
+     * 更新等级。
+     *
+     * @param id 主键 ID
+     * @param request 请求
+     * @return 更新结果
+     */
     @Override
     public AccountMembership updateLevel(Long id, MemberLevelRequest request) {
         AccountMembershipEntity membership = accountMembershipMapper.selectById(id);
@@ -114,6 +155,12 @@ public class DbAccountMembershipRepository implements AccountMembershipRepositor
         return toDomain(membership);
     }
 
+    /**
+     * 执行数量人租户。
+     *
+     * @param tenantId 租户 ID
+     * @return 执行结果
+     */
     @Override
     public long countByTenant(Long tenantId) {
         LambdaQueryWrapper<AccountMembershipEntity> wrapper = new LambdaQueryWrapper<>();
@@ -123,6 +170,12 @@ public class DbAccountMembershipRepository implements AccountMembershipRepositor
         return accountMembershipMapper.selectCount(wrapper);
     }
 
+    /**
+     * 查询人租户列表。
+     *
+     * @param tenantId 租户 ID
+     * @return 结果列表
+     */
     @Override
     public List<AccountMembership> listByTenant(Long tenantId) {
         LambdaQueryWrapper<AccountMembershipEntity> wrapper = new LambdaQueryWrapper<>();
@@ -132,6 +185,12 @@ public class DbAccountMembershipRepository implements AccountMembershipRepositor
         return accountMembershipMapper.selectList(wrapper).stream().map(this::toDomain).toList();
     }
 
+    /**
+     * 执行数量PaidMembers。
+     *
+     * @param tenantId 租户 ID
+     * @return 执行结果
+     */
     @Override
     public long countPaidMembers(Long tenantId) {
         LambdaQueryWrapper<AccountMembershipEntity> wrapper = new LambdaQueryWrapper<>();
@@ -142,6 +201,13 @@ public class DbAccountMembershipRepository implements AccountMembershipRepositor
         return accountMembershipMapper.selectCount(wrapper);
     }
 
+    /**
+     * 执行数量ExpiringWithin。
+     *
+     * @param tenantId 租户 ID
+     * @param days days
+     * @return 执行结果
+     */
     @Override
     public long countExpiringWithin(Long tenantId, int days) {
         java.time.LocalDateTime now = java.time.LocalDateTime.now();
@@ -156,6 +222,12 @@ public class DbAccountMembershipRepository implements AccountMembershipRepositor
         return accountMembershipMapper.selectCount(wrapper);
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private AccountMembership toDomain(AccountMembershipEntity entity) {
         return new AccountMembership(
                 entity.getId(),

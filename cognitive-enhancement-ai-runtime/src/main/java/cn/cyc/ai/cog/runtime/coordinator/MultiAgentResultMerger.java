@@ -11,6 +11,7 @@ import java.util.Map;
  * 多 Agent 结果合并器：按策略汇总主 Agent 与子 Agent 业务输出。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class MultiAgentResultMerger {
@@ -47,6 +48,12 @@ public class MultiAgentResultMerger {
         return merged;
     }
 
+    /**
+     * 执行extract回答。
+     *
+     * @param output 输出
+     * @return 执行结果
+     */
     @SuppressWarnings("unchecked")
     private String extractAnswer(Map<String, Object> output) {
         if (output == null) {
@@ -69,6 +76,12 @@ public class MultiAgentResultMerger {
         return null;
     }
 
+    /**
+     * 执行append回答。
+     *
+     * @param answers answers
+     * @param answer 回答
+     */
     private void appendAnswer(List<String> answers, String answer) {
         if (answer != null && !answer.isBlank()) {
             answers.add(answer.trim());

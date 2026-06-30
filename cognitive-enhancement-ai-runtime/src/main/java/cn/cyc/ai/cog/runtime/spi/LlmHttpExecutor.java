@@ -7,6 +7,7 @@ import cn.cyc.ai.cog.runtime.api.LlmHttpResponse;
  * LLM HTTP 执行器。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface LlmHttpExecutor {
 

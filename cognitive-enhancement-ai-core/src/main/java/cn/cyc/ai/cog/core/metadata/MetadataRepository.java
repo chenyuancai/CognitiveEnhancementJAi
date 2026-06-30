@@ -6,8 +6,8 @@ import java.util.Optional;
 /**
  * 核心元数据最小仓储接口。
  *
- * @param <T> 元数据类型
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface MetadataRepository<T extends MetadataDefinition> {
 

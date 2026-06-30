@@ -7,9 +7,13 @@ import com.fasterxml.jackson.databind.JsonNode;
  * OpenAI 兼容协议响应中的 usage 解析器。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class OpenAiCompatibleUsageParser {
 
+    /**
+     * 创建OpenAiCompatibleUsageParser。
+     */
     private OpenAiCompatibleUsageParser() {
     }
 

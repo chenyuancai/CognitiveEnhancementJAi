@@ -24,18 +24,29 @@ import java.util.Optional;
 
 /**
  * 模型目录数据库仓储。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true", matchIfMissing = true)
 public class DbModelCatalogRepository implements ModelCatalogRepository {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(DbModelCatalogRepository.class);
 
+    /** 提供者Mapper。 */
     private final ModelProviderMapper providerMapper;
+    /** 模型Mapper。 */
     private final ModelMapper modelMapper;
+    /** bindingMapper。 */
     private final ModelProviderBindingMapper bindingMapper;
+    /** api键Protector。 */
     private final ApiKeyProtector apiKeyProtector;
 
+    /**
+     * 创建Db模型Catalog仓储。
+     */
     public DbModelCatalogRepository(ModelProviderMapper providerMapper,
                                     ModelMapper modelMapper,
                                     ModelProviderBindingMapper bindingMapper,
@@ -46,6 +57,10 @@ public class DbModelCatalogRepository implements ModelCatalogRepository {
         this.apiKeyProtector = apiKeyProtector;
     }
 
+    /**
+     * 查询Providers列表。
+     * @return 结果列表
+     */
     @Override
     public List<ModelProviderDefinition> listProviders() {
         QueryWrapper<ModelProviderEntity> wrapper = tenantWrapper();
@@ -55,6 +70,12 @@ public class DbModelCatalogRepository implements ModelCatalogRepository {
                 .toList();
     }
 
+    /**
+     * 查找提供者人编码。
+     *
+     * @param providerCode 提供者编码
+     * @return 查找结果
+     */
     @Override
     public Optional<ModelProviderDefinition> findProviderByCode(String providerCode) {
         QueryWrapper<ModelProviderEntity> wrapper = tenantWrapper();
@@ -62,6 +83,12 @@ public class DbModelCatalogRepository implements ModelCatalogRepository {
         return Optional.ofNullable(providerMapper.selectOne(wrapper)).map(this::toProviderDefinition);
     }
 
+    /**
+     * 执行save提供者。
+     *
+     * @param provider 提供者
+     * @return 执行结果
+     */
     @Override
     public ModelProviderDefinition saveProvider(ModelProviderDefinition provider) {
         QueryWrapper<ModelProviderEntity> wrapper = tenantWrapper();
@@ -80,11 +107,19 @@ public class DbModelCatalogRepository implements ModelCatalogRepository {
         return toProviderDefinition(entity);
     }
 
+    /**
+     * 执行providersEmpty。
+     * @return 执行结果
+     */
     @Override
     public boolean providersEmpty() {
         return providerMapper.selectCount(tenantWrapper()) == 0;
     }
 
+    /**
+     * 查询Models列表。
+     * @return 结果列表
+     */
     @Override
     public List<ModelMasterDefinition> listModels() {
         QueryWrapper<ModelEntity> wrapper = tenantWrapper();
@@ -94,6 +129,12 @@ public class DbModelCatalogRepository implements ModelCatalogRepository {
                 .toList();
     }
 
+    /**
+     * 查找模型人编码。
+     *
+     * @param modelCode 模型编码
+     * @return 查找结果
+     */
     @Override
     public Optional<ModelMasterDefinition> findModelByCode(String modelCode) {
         QueryWrapper<ModelEntity> wrapper = tenantWrapper();
@@ -105,6 +146,12 @@ public class DbModelCatalogRepository implements ModelCatalogRepository {
         return Optional.of(toModelDefinition(entity, listBindings(modelCode)));
     }
 
+    /**
+     * 执行save模型。
+     *
+     * @param model 模型
+     * @return 执行结果
+     */
     @Override
     @Transactional
     public ModelMasterDefinition saveModel(ModelMasterDefinition model) {
@@ -122,11 +169,20 @@ public class DbModelCatalogRepository implements ModelCatalogRepository {
         return model;
     }
 
+    /**
+     * 执行modelsEmpty。
+     * @return 执行结果
+     */
     @Override
     public boolean modelsEmpty() {
         return modelMapper.selectCount(tenantWrapper()) == 0;
     }
 
+    /**
+     * 执行replaceBindings。
+     *
+     * @param model 模型
+     */
     private void replaceBindings(ModelMasterDefinition model) {
         QueryWrapper<ModelProviderBindingEntity> deleteWrapper = tenantWrapper();
         deleteWrapper.eq("model_code", model.modelCode());
@@ -137,6 +193,12 @@ public class DbModelCatalogRepository implements ModelCatalogRepository {
         }
     }
 
+    /**
+     * 查询Bindings列表。
+     *
+     * @param modelCode 模型编码
+     * @return 结果列表
+     */
     private List<ModelBindingDefinition> listBindings(String modelCode) {
         QueryWrapper<ModelProviderBindingEntity> wrapper = tenantWrapper();
         wrapper.eq("model_code", modelCode);
@@ -146,12 +208,22 @@ public class DbModelCatalogRepository implements ModelCatalogRepository {
                 .toList();
     }
 
+    /**
+     * 执行租户Wrapper。
+     * @return 执行结果
+     */
     private <T> QueryWrapper<T> tenantWrapper() {
         QueryWrapper<T> wrapper = new QueryWrapper<>();
         wrapper.eq("tenant_id", TenantContext.currentTenantId());
         return wrapper;
     }
 
+    /**
+     * 转换为提供者Definition。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private ModelProviderDefinition toProviderDefinition(ModelProviderEntity entity) {
         return new ModelProviderDefinition(
                 entity.getProviderCode(),
@@ -164,6 +236,12 @@ public class DbModelCatalogRepository implements ModelCatalogRepository {
         );
     }
 
+    /**
+     * 转换为提供者实体。
+     *
+     * @param definition definition
+     * @return 转换结果
+     */
     private ModelProviderEntity toProviderEntity(ModelProviderDefinition definition) {
         ModelProviderEntity entity = new ModelProviderEntity();
         entity.setTenantId(TenantContext.currentTenantId());
@@ -177,6 +255,13 @@ public class DbModelCatalogRepository implements ModelCatalogRepository {
         return entity;
     }
 
+    /**
+     * 转换为模型Definition。
+     *
+     * @param entity 实体
+     * @param bindings bindings
+     * @return 转换结果
+     */
     private ModelMasterDefinition toModelDefinition(ModelEntity entity, List<ModelBindingDefinition> bindings) {
         return new ModelMasterDefinition(
                 entity.getModelCode(),
@@ -190,6 +275,12 @@ public class DbModelCatalogRepository implements ModelCatalogRepository {
         );
     }
 
+    /**
+     * 转换为模型实体。
+     *
+     * @param model 模型
+     * @return 转换结果
+     */
     private ModelEntity toModelEntity(ModelMasterDefinition model) {
         ModelEntity entity = new ModelEntity();
         entity.setTenantId(TenantContext.currentTenantId());
@@ -203,6 +294,12 @@ public class DbModelCatalogRepository implements ModelCatalogRepository {
         return entity;
     }
 
+    /**
+     * 转换为BindingDefinition。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private ModelBindingDefinition toBindingDefinition(ModelProviderBindingEntity entity) {
         String apiKey = apiKeyProtector.tryReveal(entity.getApiKey());
         if (apiKey == null && StringUtils.hasText(entity.getApiKey())) {
@@ -222,6 +319,13 @@ public class DbModelCatalogRepository implements ModelCatalogRepository {
         );
     }
 
+    /**
+     * 转换为Binding实体。
+     *
+     * @param modelCode 模型编码
+     * @param binding binding
+     * @return 转换结果
+     */
     private ModelProviderBindingEntity toBindingEntity(String modelCode, ModelBindingDefinition binding) {
         ModelProviderBindingEntity entity = new ModelProviderBindingEntity();
         entity.setTenantId(TenantContext.currentTenantId());

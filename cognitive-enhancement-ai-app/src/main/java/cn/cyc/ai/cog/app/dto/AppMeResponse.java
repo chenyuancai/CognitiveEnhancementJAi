@@ -4,9 +4,18 @@ import lombok.Data;
 
 /**
  * C 端 {@code /api/app/auth/me} 响应体。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 public class AppMeResponse {
+
+    /** 账户 ID（契约顶层字段） */
+    private String accountId;
+
+    /** 用户 ID（契约顶层字段） */
+    private Long userId;
 
     /** 当前登录用户 */
     private AppMeUser user;
@@ -28,6 +37,9 @@ public class AppMeResponse {
 
     /**
      * 用户摘要。
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     @Data
     public static class AppMeUser {
@@ -41,6 +53,12 @@ public class AppMeResponse {
         /** 昵称 */
         private String nickname;
 
+        /** 展示名（契约 displayName） */
+        private String displayName;
+
+        /** 邮箱 */
+        private String email;
+
         /** 头像 URL */
         private String avatarUrl;
 
@@ -50,6 +68,9 @@ public class AppMeResponse {
 
     /**
      * 商业账户摘要。
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     @Data
     public static class AppMeAccount {
@@ -69,6 +90,9 @@ public class AppMeResponse {
 
     /**
      * 组织摘要。
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     @Data
     public static class AppMeOrganization {
@@ -85,6 +109,9 @@ public class AppMeResponse {
 
     /**
      * 会员摘要。
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     @Data
     public static class AppMeMembership {
@@ -97,13 +124,40 @@ public class AppMeResponse {
 
         /** 到期时间（ISO-8601） */
         private String expireAt;
+
+        /** 到期时间别名（契约 expiresAt） */
+        private String expiresAt;
+
+        /** 续费日期友好文案 */
+        private String renewAtLabel;
     }
 
     /**
      * 额度摘要。
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
      */
     @Data
     public static class AppMeQuota {
+
+        /** 总额度 */
+        private Long total;
+
+        /** 已用额度 */
+        private Long used;
+
+        /** 剩余额度 */
+        private Long remaining;
+
+        /** 剩余额度展示标签 */
+        private String remainingLabel;
+
+        /** 周期总额 */
+        private Long cycleTotal;
+
+        /** 周期已用 */
+        private Long cycleUsed;
 
         /** 周期剩余 Token */
         private Long cycleRemaining;
@@ -113,5 +167,8 @@ public class AppMeResponse {
 
         /** 充值剩余 Token */
         private Long topupRemaining;
+
+        /** 额度预警阈值 */
+        private Long warningThreshold;
     }
 }

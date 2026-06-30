@@ -11,12 +11,22 @@ import java.util.Map;
  * Agent DTO 定义。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class AgentDtos {
 
+    /**
+     * 创建AgentDtos。
+     */
     private AgentDtos() {
     }
 
+    /**
+     * 创建请求
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     public record CreateRequest(
             String agentCode,
             String agentName,
@@ -32,6 +42,12 @@ public final class AgentDtos {
     ) {
     }
 
+    /**
+     * 更新请求
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     public record UpdateRequest(
             String agentName,
             String roleDesc,
@@ -46,6 +62,12 @@ public final class AgentDtos {
     ) {
     }
 
+    /**
+     * Result 记录
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     public record Result(
             String agentCode,
             String agentName,

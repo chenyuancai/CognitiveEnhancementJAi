@@ -18,6 +18,7 @@ import java.util.List;
  * 持久化执行反馈仓储。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 @ConditionalOnProperty(name = "cog.persistence.enabled", havingValue = "true")
@@ -42,12 +43,23 @@ public class PersistentExecutionFeedbackRepository implements ExecutionFeedbackR
         this.executionFeedbackMapper = executionFeedbackMapper;
     }
 
+    /**
+     * 执行save。
+     *
+     * @param feedback feedback
+     */
     @Override
     public void save(ExecutionFeedback feedback) {
         executionFeedbackMapper.insert(toEntity(feedback));
         log.debug("持久化执行反馈, feedbackId={}, traceId={}", feedback.feedbackId(), feedback.traceId());
     }
 
+    /**
+     * 查找人链路ID。
+     *
+     * @param traceId 链路 Trace ID
+     * @return 查找结果
+     */
     @Override
     public List<ExecutionFeedback> findByTraceId(String traceId) {
         LambdaQueryWrapper<ExecutionFeedbackEntity> queryWrapper = new LambdaQueryWrapper<ExecutionFeedbackEntity>()
@@ -60,6 +72,12 @@ public class PersistentExecutionFeedbackRepository implements ExecutionFeedbackR
                 .toList();
     }
 
+    /**
+     * 查找人会话ID。
+     *
+     * @param sessionId 会话 ID
+     * @return 查找结果
+     */
     @Override
     public List<ExecutionFeedback> findBySessionId(String sessionId) {
         LambdaQueryWrapper<ExecutionFeedbackEntity> queryWrapper = new LambdaQueryWrapper<ExecutionFeedbackEntity>()
@@ -72,6 +90,12 @@ public class PersistentExecutionFeedbackRepository implements ExecutionFeedbackR
                 .toList();
     }
 
+    /**
+     * 转换为实体。
+     *
+     * @param feedback feedback
+     * @return 转换结果
+     */
     private ExecutionFeedbackEntity toEntity(ExecutionFeedback feedback) {
         ExecutionFeedbackEntity entity = new ExecutionFeedbackEntity();
         entity.setTenantId(TenantIds.resolveId(feedback.tenantCode()));
@@ -86,6 +110,12 @@ public class PersistentExecutionFeedbackRepository implements ExecutionFeedbackR
         return entity;
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private ExecutionFeedback toDomain(ExecutionFeedbackEntity entity) {
         return new ExecutionFeedback(
                 TenantIds.toCode(entity.getTenantId()),

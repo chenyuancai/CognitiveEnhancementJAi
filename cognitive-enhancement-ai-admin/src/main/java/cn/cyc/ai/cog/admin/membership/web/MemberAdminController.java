@@ -17,17 +17,35 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Member管理后台接口
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 @Tag(name = "会员-会员管理", description = "会员查询、等级调整、状态启停")
 @RestController
 @RequestMapping("/api/admin/membership/members")
 public class MemberAdminController {
 
+    /** member服务。 */
     private final MemberService memberService;
 
+    /**
+     * 创建Member管理后台接口。
+     *
+     * @param memberService member服务
+     */
     public MemberAdminController(MemberService memberService) {
         this.memberService = memberService;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Operation(summary = "分页查询会员", description = "支持 accountId/levelCode 过滤。需要 admin:member:update 权限点。")
     @RequirePermission("admin:member:update")
     @PostMapping("/page")
@@ -35,6 +53,12 @@ public class MemberAdminController {
         return ApiResponse.success(memberService.page(query).map(this::toVo));
     }
 
+    /**
+     * 更新等级。
+     *
+     * @param request 请求
+     * @return 更新结果
+     */
     @Operation(summary = "调整会员等级", description = "设置等级与到期时间。需要 admin:member:update 权限点。")
     @RequirePermission("admin:member:update")
     @PostMapping("/level")
@@ -42,6 +66,12 @@ public class MemberAdminController {
         return ApiResponse.success(toVo(memberService.updateLevel(request.getId(), request)));
     }
 
+    /**
+     * 转换为Vo。
+     *
+     * @param membership 会员
+     * @return 转换结果
+     */
     private AccountMembershipVO toVo(AccountMembership membership) {
         AccountMembershipVO vo = new AccountMembershipVO();
         vo.setId(membership.id());

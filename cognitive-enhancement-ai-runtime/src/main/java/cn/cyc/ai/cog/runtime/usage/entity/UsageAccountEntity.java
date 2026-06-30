@@ -12,6 +12,7 @@ import java.time.Instant;
  * 租户用量额度账户实体。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

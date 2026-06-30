@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * C 端支付回调接口：接收微信/支付宝/MOCK 支付结果通知。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "App-支付回调", description = "微信/支付宝/MOCK 支付结果通知")
 @RestController

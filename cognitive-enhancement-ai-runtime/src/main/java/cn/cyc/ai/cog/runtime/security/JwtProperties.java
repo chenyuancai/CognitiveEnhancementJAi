@@ -9,6 +9,7 @@ import java.util.List;
  * JWT 配置属性。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Data
 @ConfigurationProperties(prefix = "cog.jwt")

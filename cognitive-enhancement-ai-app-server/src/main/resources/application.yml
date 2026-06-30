@@ -42,6 +42,10 @@ cog:
     dev-auth-bypass: true
     trust-gateway-headers: false
     oauth2-jwk-set-uri: http://localhost:8802/oauth2/jwks
+    tutoring:
+      runtime-capability-code: capability.chat.generate
+      context-max-messages: 10
+      context-max-chars-per-message: 500
   billing:
     pay-callback:
       mock-secret: dev-mock-secret
@@ -49,7 +53,7 @@ cog:
   runtime:
     usage:
       account:
-        enabled: false
+        enabled: true
         backend: admin-quota
         default-balance-amount: 100.000000
         preflight-cost-amount: 1.000000
@@ -98,3 +102,6 @@ cog:
     file:
       url: http://localhost:8805
       feign-enabled: true
+  sse:
+    enabled: true
+    url: http://localhost:8806

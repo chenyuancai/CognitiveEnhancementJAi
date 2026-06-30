@@ -13,15 +13,20 @@ import java.util.Map;
  * JSON 序列化/反序列化工具，用于 Entity 与 Record 之间的复杂字段转换。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public final class JsonConverter {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(JsonConverter.class);
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
             .findAndRegisterModules()
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
+    /**
+     * 创建JsonConverter。
+     */
     private JsonConverter() {
     }
 

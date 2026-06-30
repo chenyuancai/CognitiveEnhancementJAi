@@ -5,6 +5,9 @@ import cn.cyc.ai.cog.platform.billing.domain.FinancialRecord;
 
 /**
  * 资金流水仓储接口。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public interface FinancialRecordRepository {
 

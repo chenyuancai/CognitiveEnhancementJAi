@@ -19,8 +19,10 @@ import java.util.List;
 
 /**
  * 基础文件服务 Feign 客户端（供 admin / app / runtime 等进程调用）。
- *
  * <p>默认直连 {@code cog.base.file.url}，生产可改为服务发现。</p>
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @FeignClient(
         name = BaseFileConstants.SERVICE_NAME,

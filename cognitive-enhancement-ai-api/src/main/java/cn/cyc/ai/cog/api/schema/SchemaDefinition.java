@@ -6,6 +6,9 @@ import java.util.Objects;
 
 /**
  * 平台通用 Schema 定义对象。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record SchemaDefinition(
         String type,

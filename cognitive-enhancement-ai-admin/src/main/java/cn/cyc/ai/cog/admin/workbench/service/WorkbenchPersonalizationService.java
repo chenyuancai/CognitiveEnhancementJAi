@@ -22,12 +22,21 @@ import java.util.Set;
 
 /**
  * 工作台 2A 角色化首页：按角色 + 子域权限组装待办、指标与快捷入口。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class WorkbenchPersonalizationService {
 
+    /** workbench服务。 */
     private final WorkbenchService workbenchService;
 
+    /**
+     * 创建WorkbenchPersonalization服务。
+     *
+     * @param workbenchService workbench服务
+     */
     public WorkbenchPersonalizationService(WorkbenchService workbenchService) {
         this.workbenchService = workbenchService;
     }
@@ -50,6 +59,14 @@ public class WorkbenchPersonalizationService {
         return result;
     }
 
+    /**
+     * 构建Todos。
+     *
+     * @param role 角色
+     * @param user 用户
+     * @param todo todo
+     * @return 构建结果
+     */
     private List<WorkbenchTodoItem> buildTodos(WorkbenchRole role, AuthUser user, DashboardTodo todo) {
         List<WorkbenchTodoItem> items = new ArrayList<>();
         addTodo(items, role, user, EnumSet.of(WorkbenchRole.ADMIN, WorkbenchRole.CONTENT),
@@ -73,6 +90,10 @@ public class WorkbenchPersonalizationService {
         return items;
     }
 
+    /**
+     * 构建Metrics。
+     * @return 构建结果
+     */
     private List<WorkbenchMetricCard> buildMetrics(WorkbenchRole role, AuthUser user,
                                                    DashboardOverview overview, List<TrendSeries> trends) {
         List<WorkbenchMetricCard> metrics = new ArrayList<>();
@@ -106,6 +127,13 @@ public class WorkbenchPersonalizationService {
         return metrics;
     }
 
+    /**
+     * 构建QuickEntries。
+     *
+     * @param role 角色
+     * @param user 用户
+     * @return 构建结果
+     */
     private List<WorkbenchQuickEntry> buildQuickEntries(WorkbenchRole role, AuthUser user) {
         List<WorkbenchQuickEntry> entries = new ArrayList<>();
         addQuickEntry(entries, role, user, EnumSet.of(WorkbenchRole.ADMIN, WorkbenchRole.OPERATOR, WorkbenchRole.SUPPORT),
@@ -139,6 +167,9 @@ public class WorkbenchPersonalizationService {
         return entries;
     }
 
+    /**
+     * 执行addTodo。
+     */
     private void addTodo(List<WorkbenchTodoItem> items, WorkbenchRole role, AuthUser user,
                          Set<WorkbenchRole> allowedRoles, String key, String label,
                          long count, String link, String... permissions) {
@@ -153,6 +184,9 @@ public class WorkbenchPersonalizationService {
         items.add(item);
     }
 
+    /**
+     * 执行addMetric。
+     */
     private void addMetric(List<WorkbenchMetricCard> metrics, WorkbenchRole role, AuthUser user,
                            Set<WorkbenchRole> allowedRoles, String key, String label,
                            long value, String unit, String... permissions) {
@@ -167,6 +201,9 @@ public class WorkbenchPersonalizationService {
         metrics.add(card);
     }
 
+    /**
+     * 执行addQuickEntry。
+     */
     private void addQuickEntry(List<WorkbenchQuickEntry> entries, WorkbenchRole role, AuthUser user,
                                Set<WorkbenchRole> allowedRoles, String key, String label,
                                String link, String canonicalPermission, String aliasPermission) {
@@ -184,6 +221,13 @@ public class WorkbenchPersonalizationService {
         entries.add(entry);
     }
 
+    /**
+     * 执行sumTrend。
+     *
+     * @param trends trends
+     * @param metric metric
+     * @return 执行结果
+     */
     private long sumTrend(List<TrendSeries> trends, String metric) {
         if (trends == null) {
             return 0L;

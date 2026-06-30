@@ -22,8 +22,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 订单管理接口（计费-订单）。
- *
  * <p>当前不接真实支付网关：支付通过「手动标记已支付」，退款通过「手动退款」完成。</p>
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "计费-订单管理", description = "订单查询、手动标记已支付、手动退款")
 @RestController
@@ -45,6 +47,12 @@ public class OrderAdminController {
         this.billingAdminVoAssembler = billingAdminVoAssembler;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Operation(summary = "分页查询订单", description = "支持 orderNo/userId/status 过滤。需要 admin:order:update 权限点。")
     @RequirePermission("admin:order:update")
     @PostMapping("/page")
@@ -52,6 +60,12 @@ public class OrderAdminController {
         return ApiResponse.success(orderService.page(query).map(billingAdminVoAssembler::toOrderVo));
     }
 
+    /**
+     * 执行detail。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     @Operation(summary = "订单详情", description = "需要 admin:order:update 权限点。")
     @RequirePermission("admin:order:update")
     @GetMapping("/{id}")
@@ -59,6 +73,12 @@ public class OrderAdminController {
         return ApiResponse.success(billingAdminVoAssembler.toOrderVo(orderService.detail(id)));
     }
 
+    /**
+     * 执行markPaid。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Operation(summary = "手动标记已支付", description = "仅待支付订单可操作。需要 admin:order:update 权限点。")
     @RequirePermission("admin:order:update")
     @PostMapping("/mark-paid")
@@ -66,6 +86,12 @@ public class OrderAdminController {
         return ApiResponse.success(billingAdminVoAssembler.toOrderVo(orderService.markPaid(request.getOrderId(), request)));
     }
 
+    /**
+     * 执行cancel。
+     *
+     * @param command command
+     * @return 执行结果
+     */
     @Operation(summary = "取消待支付订单", description = "仅待支付订单可取消为 CLOSED。需要 admin:order:update 权限点。")
     @RequirePermission("admin:order:update")
     @PostMapping("/cancel")
@@ -73,6 +99,12 @@ public class OrderAdminController {
         return ApiResponse.success(billingAdminVoAssembler.toOrderVo(orderService.cancel(command.id())));
     }
 
+    /**
+     * 执行refund。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Operation(summary = "手动退款", description = "仅已支付订单可操作。需要 admin:order:refund 权限点。")
     @RequirePermission("admin:order:refund")
     @PostMapping("/refund")

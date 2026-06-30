@@ -14,17 +14,35 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * AuditLog管理后台接口
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 @Tag(name = "系统-审计日志", description = "管理后台操作审计")
 @RestController
 @RequestMapping("/api/admin/system/audit-logs")
 public class AuditLogAdminController {
 
+    /** auditLog服务。 */
     private final AuditLogService auditLogService;
 
+    /**
+     * 创建AuditLog管理后台接口。
+     *
+     * @param auditLogService auditLog服务
+     */
     public AuditLogAdminController(AuditLogService auditLogService) {
         this.auditLogService = auditLogService;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Operation(summary = "审计日志分页")
     @RequirePermission("admin:dict:read")
     @PostMapping("/page")
@@ -33,6 +51,12 @@ public class AuditLogAdminController {
         return ApiResponse.success(page.map(this::toVo));
     }
 
+    /**
+     * 转换为Vo。
+     *
+     * @param log 日志记录器
+     * @return 转换结果
+     */
     private AuditLogVO toVo(AuditLog log) {
         AuditLogVO vo = new AuditLogVO();
         vo.setId(log.id());

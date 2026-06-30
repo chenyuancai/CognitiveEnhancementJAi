@@ -20,18 +20,30 @@ import java.util.Map;
  * 默认 HTTP Tool 执行器。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class DefaultToolHttpExecutor implements ToolHttpExecutor {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(DefaultToolHttpExecutor.class);
 
+    /** http客户端。 */
     private final HttpClient httpClient;
 
+    /**
+     * 创建DefaultToolHttpExecutor。
+     */
     public DefaultToolHttpExecutor() {
         this.httpClient = HttpClient.newBuilder().build();
     }
 
+    /**
+     * 执行操作。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Override
     public ToolHttpResponse execute(ToolHttpRequest request) {
         long start = System.currentTimeMillis();
@@ -56,6 +68,13 @@ public class DefaultToolHttpExecutor implements ToolHttpExecutor {
         }
     }
 
+    /**
+     * 构建Http请求。
+     *
+     * @param builder 构建器
+     * @param request 请求
+     * @return 构建结果
+     */
     private HttpRequest buildHttpRequest(HttpRequest.Builder builder, ToolHttpRequest request) {
         String method = request.method() == null ? "POST" : request.method().toUpperCase(Locale.ROOT);
         return switch (method) {

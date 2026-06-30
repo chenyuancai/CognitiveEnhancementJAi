@@ -5,9 +5,8 @@ import java.util.List;
 /**
  * 任务规划结果。
  *
- * @param goal  任务目标摘要
- * @param steps 规划步骤
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record TaskPlan(String goal, List<TaskPlanStep> steps) {
 }

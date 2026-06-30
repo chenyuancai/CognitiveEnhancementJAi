@@ -19,6 +19,7 @@ import java.util.Map;
  * 知识检索服务。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class KnowledgeRetrievalService {
@@ -96,6 +97,13 @@ public class KnowledgeRetrievalService {
                 .toList();
     }
 
+    /**
+     * 执行computeMatchScore。
+     *
+     * @param fragment fragment
+     * @param queryLower 查询Lower
+     * @return 执行结果
+     */
     private int computeMatchScore(KnowledgeFragment fragment, String queryLower) {
         String title = fragment.title() == null ? "" : fragment.title().toLowerCase(Locale.ROOT);
         String content = fragment.content() == null ? "" : fragment.content().toLowerCase(Locale.ROOT);
@@ -109,6 +117,12 @@ public class KnowledgeRetrievalService {
         return score;
     }
 
+    /**
+     * ScoredFragment 记录
+     *
+     * @author cyc
+     * @date 2026/6/15 14:18
+     */
     private record ScoredFragment(KnowledgeFragment fragment, int priority, int matchScore) {
     }
 }

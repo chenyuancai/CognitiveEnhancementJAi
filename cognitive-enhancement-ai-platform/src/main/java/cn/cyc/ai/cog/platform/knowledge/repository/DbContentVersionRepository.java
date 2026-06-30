@@ -13,16 +13,30 @@ import java.util.Optional;
 
 /**
  * 内容版本仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbContentVersionRepository implements ContentVersionRepository {
 
+    /** 内容版本号Mapper。 */
     private final ContentVersionMapper contentVersionMapper;
 
+    /**
+     * 创建Db内容版本号仓储。
+     *
+     * @param contentVersionMapper 内容版本号Mapper
+     */
     public DbContentVersionRepository(ContentVersionMapper contentVersionMapper) {
         this.contentVersionMapper = contentVersionMapper;
     }
 
+    /**
+     * 执行append。
+     *
+     * @param version 版本号
+     */
     @Override
     public void append(ContentVersion version) {
         ContentVersionEntity entity = new ContentVersionEntity();
@@ -38,6 +52,12 @@ public class DbContentVersionRepository implements ContentVersionRepository {
         contentVersionMapper.insert(entity);
     }
 
+    /**
+     * 查询人内容ID列表。
+     *
+     * @param contentId 内容ID
+     * @return 结果列表
+     */
     @Override
     public List<ContentVersion> listByContentId(Long contentId) {
         return contentVersionMapper.selectList(new LambdaQueryWrapper<ContentVersionEntity>()
@@ -48,6 +68,13 @@ public class DbContentVersionRepository implements ContentVersionRepository {
                 .toList();
     }
 
+    /**
+     * 查找Item。
+     *
+     * @param contentId 内容ID
+     * @param versionNo 版本号，每次更新递增
+     * @return 查找结果
+     */
     @Override
     public Optional<ContentVersion> find(Long contentId, int versionNo) {
         ContentVersionEntity entity = contentVersionMapper.selectOne(new LambdaQueryWrapper<ContentVersionEntity>()
@@ -56,6 +83,12 @@ public class DbContentVersionRepository implements ContentVersionRepository {
         return Optional.ofNullable(entity).map(this::toDomain);
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private ContentVersion toDomain(ContentVersionEntity entity) {
         return new ContentVersion(
                 entity.getId(),

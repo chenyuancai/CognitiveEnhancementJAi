@@ -7,6 +7,9 @@ import java.util.Map;
 
 /**
  * 多轮对话 + 工具 schema 的 LLM 请求。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record LlmConversationRequest(
         List<ChatMessage> messages,

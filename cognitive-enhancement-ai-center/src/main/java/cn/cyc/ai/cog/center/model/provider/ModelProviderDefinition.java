@@ -7,6 +7,9 @@ import java.util.Objects;
 
 /**
  * 模型提供商定义。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ModelProviderDefinition(
         String providerCode,
@@ -25,11 +28,19 @@ public record ModelProviderDefinition(
         status = Objects.requireNonNull(status, "status 不能为空");
     }
 
+    /**
+     * 执行编码。
+     * @return 执行结果
+     */
     @Override
     public String code() {
         return providerCode;
     }
 
+    /**
+     * 执行名称。
+     * @return 执行结果
+     */
     @Override
     public String name() {
         return providerName;

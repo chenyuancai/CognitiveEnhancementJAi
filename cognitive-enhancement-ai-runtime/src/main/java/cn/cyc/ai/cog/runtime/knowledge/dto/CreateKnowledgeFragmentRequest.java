@@ -7,12 +7,8 @@ import java.util.List;
 /**
  * 创建知识片段请求。
  *
- * @param knowledgeCode 知识库编码
- * @param title         标题
- * @param content       内容
- * @param tags          标签列表
- * @param status        状态
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record CreateKnowledgeFragmentRequest(
         String knowledgeCode,

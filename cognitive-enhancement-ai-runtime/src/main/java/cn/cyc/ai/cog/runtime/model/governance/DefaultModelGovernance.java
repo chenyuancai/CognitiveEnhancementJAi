@@ -21,17 +21,26 @@ import java.util.List;
  * 默认模型治理：路由解析、降级与熔断。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class DefaultModelGovernance {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(DefaultModelGovernance.class);
 
+    /** 模型Definition仓储。 */
     private final ModelDefinitionRepository modelDefinitionRepository;
+    /** llmRouteRegistry。 */
     private final LlmRouteRegistry llmRouteRegistry;
+    /** circuitBreakerRegistry。 */
     private final InMemoryModelCircuitBreakerRegistry circuitBreakerRegistry;
+    /** properties。 */
     private final ModelCircuitBreakerProperties properties;
 
+    /**
+     * 创建DefaultModelGovernance。
+     */
     public DefaultModelGovernance(ModelDefinitionRepository modelDefinitionRepository,
                                   LlmRouteRegistry llmRouteRegistry,
                                   InMemoryModelCircuitBreakerRegistry circuitBreakerRegistry,
@@ -69,6 +78,12 @@ public class DefaultModelGovernance {
         return resolveBalancedModel(primaryModelCode);
     }
 
+    /**
+     * 执行resolveBalanced模型。
+     *
+     * @param primaryModelCode primary模型编码
+     * @return 执行结果
+     */
     private ModelGovernanceResolution resolveBalancedModel(String primaryModelCode) {
         ModelDefinition primary = loadEnabledModel(primaryModelCode);
         if (!properties.isEnabled()) {
@@ -91,6 +106,12 @@ public class DefaultModelGovernance {
         );
     }
 
+    /**
+     * 执行resolveQualityFirst模型。
+     *
+     * @param primaryModelCode primary模型编码
+     * @return 执行结果
+     */
     private ModelGovernanceResolution resolveQualityFirstModel(String primaryModelCode) {
         ModelDefinition primary = loadEnabledModel(primaryModelCode);
         if (!properties.isEnabled()) {
@@ -112,6 +133,12 @@ public class DefaultModelGovernance {
         );
     }
 
+    /**
+     * 执行resolveCostFirst模型。
+     *
+     * @param primaryModelCode primary模型编码
+     * @return 执行结果
+     */
     private ModelGovernanceResolution resolveCostFirstModel(String primaryModelCode) {
         ModelDefinition primary = loadEnabledModel(primaryModelCode);
         String fallbackCode = primary.fallbackModelCode();
@@ -175,6 +202,10 @@ public class DefaultModelGovernance {
                 .toList();
     }
 
+    /**
+     * 执行resolveFallback。
+     * @return 执行结果
+     */
     private ModelGovernanceResolution resolveFallback(ModelDefinition primary,
                                                       String primaryModelCode,
                                                       ModelCircuitBreakerState circuitState) {
@@ -194,6 +225,13 @@ public class DefaultModelGovernance {
         );
     }
 
+    /**
+     * 转换为状态结果。
+     *
+     * @param tenantCode 租户编码
+     * @param definition definition
+     * @return 转换结果
+     */
     private ModelGovernanceStateResult toStateResult(String tenantCode, ModelDefinition definition) {
         InMemoryModelCircuitBreakerRegistry.CircuitBreakerSnapshot snapshot =
                 circuitBreakerRegistry.snapshot(tenantCode, definition.modelCode());
@@ -207,6 +245,12 @@ public class DefaultModelGovernance {
         );
     }
 
+    /**
+     * 执行load是否启用模型。
+     *
+     * @param modelCode 模型编码
+     * @return 执行结果
+     */
     private ModelDefinition loadEnabledModel(String modelCode) {
         ModelDefinition modelDefinition = llmRouteRegistry.findPrimaryRoute(modelCode)
                 .or(() -> modelDefinitionRepository.findByCode(modelCode))

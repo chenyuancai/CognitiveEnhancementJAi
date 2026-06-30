@@ -24,6 +24,9 @@ import java.time.LocalDateTime;
  */
 /**
  * 租户仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbTenantRepository implements TenantRepository {
@@ -38,6 +41,12 @@ public class DbTenantRepository implements TenantRepository {
         this.sysTenantMapper = sysTenantMapper;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Override
     public PageResult<Tenant> page(TenantPageQuery query) {
         LambdaQueryWrapper<SysTenantEntity> wrapper = new LambdaQueryWrapper<>();
@@ -60,6 +69,12 @@ public class DbTenantRepository implements TenantRepository {
                 page.getSize());
     }
 
+    /**
+     * 执行require人ID。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     @Override
     public Tenant requireById(Long id) {
         SysTenantEntity entity = sysTenantMapper.selectById(id);
@@ -69,6 +84,12 @@ public class DbTenantRepository implements TenantRepository {
         return toDomain(entity);
     }
 
+    /**
+     * 创建Item。
+     *
+     * @param request 请求
+     * @return 创建结果
+     */
     @Override
     public Tenant create(TenantSaveRequest request) {
         assertCodeUnique(request.getTenantCode(), null);
@@ -82,6 +103,13 @@ public class DbTenantRepository implements TenantRepository {
         return toDomain(tenant);
     }
 
+    /**
+     * 更新Item。
+     *
+     * @param id 主键 ID
+     * @param request 请求
+     * @return 更新结果
+     */
     @Override
     public Tenant update(Long id, TenantSaveRequest request) {
         SysTenantEntity tenant = sysTenantMapper.selectById(id);
@@ -99,6 +127,13 @@ public class DbTenantRepository implements TenantRepository {
         return toDomain(sysTenantMapper.selectById(id));
     }
 
+    /**
+     * 更新状态。
+     *
+     * @param id 主键 ID
+     * @param status 状态
+     * @return 更新结果
+     */
     @Override
     public Tenant updateStatus(Long id, String status) {
         if (!EnableStatus.isValid(status)) {
@@ -117,6 +152,14 @@ public class DbTenantRepository implements TenantRepository {
         return toDomain(tenant);
     }
 
+    /**
+     * 执行insertForOrganization。
+     *
+     * @param tenantCode 租户编码
+     * @param tenantName 租户名称
+     * @param segment segment
+     * @return 执行结果
+     */
     @Override
     public Tenant insertForOrganization(String tenantCode, String tenantName, String segment) {
         SysTenantEntity tenant = new SysTenantEntity();
@@ -132,6 +175,12 @@ public class DbTenantRepository implements TenantRepository {
         return toDomain(tenant);
     }
 
+    /**
+     * 执行map请求。
+     *
+     * @param tenant 租户
+     * @param request 请求
+     */
     private void mapRequest(SysTenantEntity tenant, TenantSaveRequest request) {
         tenant.setTenantCode(request.getTenantCode().trim());
         tenant.setTenantName(request.getTenantName().trim());
@@ -141,6 +190,12 @@ public class DbTenantRepository implements TenantRepository {
                 : CommonConstants.STATUS_ENABLED);
     }
 
+    /**
+     * 执行assert编码Unique。
+     *
+     * @param tenantCode 租户编码
+     * @param excludeId excludeID
+     */
     private void assertCodeUnique(String tenantCode, Long excludeId) {
         SysTenantEntity existing = sysTenantMapper.selectOne(new LambdaQueryWrapper<SysTenantEntity>()
                 .eq(SysTenantEntity::getTenantCode, tenantCode.trim())
@@ -150,6 +205,12 @@ public class DbTenantRepository implements TenantRepository {
         }
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private Tenant toDomain(SysTenantEntity entity) {
         return new Tenant(
                 entity.getId(),

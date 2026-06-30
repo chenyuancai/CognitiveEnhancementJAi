@@ -28,6 +28,9 @@ import java.util.List;
 
 /**
  * 管理端组织治理接口：2B/2G 组织、部门与成员。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "账号治理-组织", description = "2B/2G 组织、部门、成员管理")
 @RestController
@@ -56,6 +59,12 @@ public class OrgAdminController {
         this.orgAdminVoAssembler = orgAdminVoAssembler;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Operation(summary = "分页查询组织")
     @RequirePermission("admin:user:view")
     @PostMapping("/page")
@@ -63,6 +72,12 @@ public class OrgAdminController {
         return ApiResponse.success(orgService.page(query).map(orgAdminVoAssembler::toOrgVo));
     }
 
+    /**
+     * 执行detail。
+     *
+     * @param orgId orgID
+     * @return 执行结果
+     */
     @Operation(summary = "组织详情")
     @RequirePermission("admin:user:view")
     @GetMapping("/{orgId}")
@@ -70,6 +85,12 @@ public class OrgAdminController {
         return ApiResponse.success(orgAdminVoAssembler.toOrgVo(orgService.detail(orgId)));
     }
 
+    /**
+     * 创建Item。
+     *
+     * @param request 请求
+     * @return 创建结果
+     */
     @Operation(summary = "开通组织（2B/2G）", description = "创建独立租户 + 账户 + 组织 + 默认会员额度")
     @RequirePermission("admin:user:update")
     @PostMapping
@@ -77,6 +98,12 @@ public class OrgAdminController {
         return ApiResponse.success(orgAdminVoAssembler.toOrgVo(accountService.createOrganization(request)));
     }
 
+    /**
+     * 执行departments。
+     *
+     * @param orgId orgID
+     * @return 执行结果
+     */
     @Operation(summary = "部门列表")
     @RequirePermission("admin:user:view")
     @GetMapping("/{orgId}/departments")
@@ -85,6 +112,12 @@ public class OrgAdminController {
                 orgService.listDepartments(orgId).stream().map(orgAdminVoAssembler::toDeptVo).toList());
     }
 
+    /**
+     * 创建Department。
+     *
+     * @param request 请求
+     * @return 创建结果
+     */
     @Operation(summary = "新增部门")
     @RequirePermission("admin:user:update")
     @PostMapping("/departments")
@@ -92,6 +125,12 @@ public class OrgAdminController {
         return ApiResponse.success(orgAdminVoAssembler.toDeptVo(orgService.createDepartment(request.getOrgId(), request)));
     }
 
+    /**
+     * 更新Department。
+     *
+     * @param request 请求
+     * @return 更新结果
+     */
     @Operation(summary = "编辑部门")
     @RequirePermission("admin:user:update")
     @PostMapping("/departments/update")
@@ -99,6 +138,12 @@ public class OrgAdminController {
         return ApiResponse.success(orgAdminVoAssembler.toDeptVo(orgService.updateDepartment(request.getOrgId(), request.getId(), request)));
     }
 
+    /**
+     * 删除Department。
+     *
+     * @param orgId orgID
+     * @param deptId deptID
+     */
     @Operation(summary = "删除部门")
     @RequirePermission("admin:user:update")
     @DeleteMapping("/{orgId}/departments/{deptId}")
@@ -107,6 +152,12 @@ public class OrgAdminController {
         return ApiResponse.success(null);
     }
 
+    /**
+     * 执行members。
+     *
+     * @param orgId orgID
+     * @return 执行结果
+     */
     @Operation(summary = "成员列表")
     @RequirePermission("admin:user:view")
     @GetMapping("/{orgId}/members")
@@ -115,6 +166,12 @@ public class OrgAdminController {
                 orgService.listMembers(orgId).stream().map(orgAdminVoAssembler::toMemberVo).toList());
     }
 
+    /**
+     * 执行addMember。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Operation(summary = "添加成员")
     @RequirePermission("admin:user:update")
     @PostMapping("/members")
@@ -122,6 +179,12 @@ public class OrgAdminController {
         return ApiResponse.success(orgAdminVoAssembler.toMemberVo(orgService.addMember(request.getOrgId(), request)));
     }
 
+    /**
+     * 删除Member。
+     *
+     * @param orgId orgID
+     * @param memberId memberID
+     */
     @Operation(summary = "移除成员")
     @RequirePermission("admin:user:update")
     @DeleteMapping("/{orgId}/members/{memberId}")

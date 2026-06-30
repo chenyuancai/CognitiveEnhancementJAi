@@ -20,15 +20,33 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Db文件仓储
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 @Repository
 public class DbFileRepository implements FileRepository {
 
+    /** 文件Mapper。 */
     private final FileMapper fileMapper;
 
+    /**
+     * 创建Db文件仓储。
+     *
+     * @param fileMapper 文件Mapper
+     */
     public DbFileRepository(FileMapper fileMapper) {
         this.fileMapper = fileMapper;
     }
 
+    /**
+     * 执行save。
+     *
+     * @param entity 实体
+     * @return 执行结果
+     */
     @Override
     public FileEntity save(FileEntity entity) {
         if (entity.getId() == null) {
@@ -39,11 +57,23 @@ public class DbFileRepository implements FileRepository {
         return entity;
     }
 
+    /**
+     * 查找人ID。
+     *
+     * @param id 主键 ID
+     * @return 查找结果
+     */
     @Override
     public Optional<FileEntity> findById(Long id) {
         return Optional.ofNullable(fileMapper.selectById(id));
     }
 
+    /**
+     * 查找人Ids。
+     *
+     * @param ids ids
+     * @return 查找结果
+     */
     @Override
     public List<FileEntity> findByIds(List<Long> ids) {
         if (CollectionUtils.isEmpty(ids)) {
@@ -52,6 +82,12 @@ public class DbFileRepository implements FileRepository {
         return fileMapper.selectList(new LambdaQueryWrapper<FileEntity>().in(FileEntity::getId, ids));
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Override
     public PageResult<FileEntity> page(FilePageQuery query) {
         int current = query.getCurrent() == null || query.getCurrent() < 1 ? 1 : query.getCurrent();
@@ -74,6 +110,13 @@ public class DbFileRepository implements FileRepository {
         return PageResult.of(page.getRecords(), page.getTotal(), current, size);
     }
 
+    /**
+     * 更新状态。
+     *
+     * @param ids ids
+     * @param status 状态
+     * @return 更新结果
+     */
     @Override
     public void updateStatus(List<Long> ids, int status) {
         if (CollectionUtils.isEmpty(ids)) {
@@ -84,6 +127,11 @@ public class DbFileRepository implements FileRepository {
                 .set(FileEntity::getStatus, status));
     }
 
+    /**
+     * 删除人ID。
+     *
+     * @param id 主键 ID
+     */
     @Override
     public void deleteById(Long id) {
         FileEntity entity = fileMapper.selectById(id);

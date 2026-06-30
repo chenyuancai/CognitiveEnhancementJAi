@@ -24,42 +24,80 @@ import java.util.List;
 
 /**
  * 枚举类型管理（整数值）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "基础-枚举类型", description = "枚举类型 CRUD 与树查询")
 @RestController
 @RequestMapping("/api/base/enum/types")
 public class EnumTypeController {
 
+    /** dict类型服务。 */
     private final DictTypeService dictTypeService;
 
+    /**
+     * 创建Enum类型接口。
+     *
+     * @param dictTypeService dict类型服务
+     */
     public EnumTypeController(DictTypeService dictTypeService) {
         this.dictTypeService = dictTypeService;
     }
 
+    /**
+     * 执行save。
+     *
+     * @param request 请求
+     * @return 执行结果
+     */
     @Operation(summary = "保存枚举类型")
     @PostMapping("/save")
     public ApiResponse<DictTypeVO> save(@Valid @RequestBody DictTypeSaveRequest request) {
         return ApiResponse.success(dictTypeService.save(DictKindEnum.ENUM.getValue(), request));
     }
 
+    /**
+     * 删除Item。
+     *
+     * @param id 主键 ID
+     */
     @Operation(summary = "删除枚举类型")
     @DeleteMapping("/delete/{id}")
     public ApiResponse<Boolean> delete(@PathVariable Long id) {
         return ApiResponse.success(dictTypeService.delete(id));
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Operation(summary = "枚举类型分页")
     @PostMapping("/page")
     public ApiResponse<PageResult<DictTypeVO>> page(@RequestBody DictTypePageQuery query) {
         return ApiResponse.success(dictTypeService.page(DictKindEnum.ENUM.getValue(), query));
     }
 
+    /**
+     * 执行tree。
+     *
+     * @param code 编码
+     * @return 执行结果
+     */
     @Operation(summary = "枚举类型树")
     @GetMapping("/tree")
     public ApiResponse<List<DictTypeTreeVO>> tree(@RequestParam(required = false) String code) {
         return ApiResponse.success(dictTypeService.tree(DictKindEnum.ENUM.getValue(), code));
     }
 
+    /**
+     * 获取人编码。
+     *
+     * @param code 编码
+     * @return 人编码
+     */
     @Operation(summary = "按编码查询枚举类型")
     @GetMapping("/get/{code}")
     public ApiResponse<DictTypeVO> getByCode(@PathVariable String code) {

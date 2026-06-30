@@ -4,6 +4,12 @@ import cn.cyc.ai.cog.platform.operations.domain.InAppMessage;
 
 import java.util.List;
 
+/**
+ * InC端消息仓储
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 public interface InAppMessageRepository {
 
     InAppMessage save(Long tenantId, Long userId, String templateCode, String title, String content);

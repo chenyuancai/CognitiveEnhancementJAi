@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Runtime 知识管理接口。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "Runtime - 知识库", description = "知识片段、场景绑定与检索")
 @RestController

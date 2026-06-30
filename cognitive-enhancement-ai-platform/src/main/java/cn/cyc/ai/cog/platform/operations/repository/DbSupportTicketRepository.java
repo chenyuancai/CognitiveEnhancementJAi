@@ -22,6 +22,9 @@ import java.util.UUID;
 
 /**
  * 客服工单仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbSupportTicketRepository implements SupportTicketRepository {
@@ -33,12 +36,24 @@ public class DbSupportTicketRepository implements SupportTicketRepository {
             SupportTicketStatus.CLOSED.code()
     );
 
+    /** 支持TicketMapper。 */
     private final SupportTicketMapper supportTicketMapper;
 
+    /**
+     * 创建Db支持Ticket仓储。
+     *
+     * @param supportTicketMapper 支持TicketMapper
+     */
     public DbSupportTicketRepository(SupportTicketMapper supportTicketMapper) {
         this.supportTicketMapper = supportTicketMapper;
     }
 
+    /**
+     * 执行分页。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Override
     public PageResult<SupportTicket> page(SupportTicketPageQuery query) {
         LambdaQueryWrapper<SupportTicketEntity> wrapper = new LambdaQueryWrapper<>();
@@ -69,11 +84,23 @@ public class DbSupportTicketRepository implements SupportTicketRepository {
                 page.getTotal(), page.getCurrent(), page.getSize());
     }
 
+    /**
+     * 查找人ID。
+     *
+     * @param id 主键 ID
+     * @return 查找结果
+     */
     @Override
     public SupportTicket findById(Long id) {
         return toDomain(require(id));
     }
 
+    /**
+     * 执行数量Pending。
+     *
+     * @param tenantId 租户 ID
+     * @return 执行结果
+     */
     @Override
     public long countPending(Long tenantId) {
         LambdaQueryWrapper<SupportTicketEntity> wrapper = new LambdaQueryWrapper<>();
@@ -85,6 +112,12 @@ public class DbSupportTicketRepository implements SupportTicketRepository {
         return supportTicketMapper.selectCount(wrapper);
     }
 
+    /**
+     * 创建Item。
+     *
+     * @param request 请求
+     * @return 创建结果
+     */
     @Override
     public SupportTicket create(SupportTicketSaveRequest request) {
         SupportTicketEntity entity = map(request, new SupportTicketEntity());
@@ -94,6 +127,13 @@ public class DbSupportTicketRepository implements SupportTicketRepository {
         return toDomain(entity);
     }
 
+    /**
+     * 更新Item。
+     *
+     * @param id 主键 ID
+     * @param request 请求
+     * @return 更新结果
+     */
     @Override
     public SupportTicket update(Long id, SupportTicketSaveRequest request) {
         SupportTicketEntity entity = map(request, require(id));
@@ -101,6 +141,13 @@ public class DbSupportTicketRepository implements SupportTicketRepository {
         return toDomain(entity);
     }
 
+    /**
+     * 更新状态。
+     *
+     * @param id 主键 ID
+     * @param request 请求
+     * @return 更新结果
+     */
     @Override
     public SupportTicket updateStatus(Long id, SupportTicketStatusUpdateRequest request) {
         String status = request.getStatus().trim().toUpperCase();
@@ -121,12 +168,24 @@ public class DbSupportTicketRepository implements SupportTicketRepository {
         return toDomain(entity);
     }
 
+    /**
+     * 删除Item。
+     *
+     * @param id 主键 ID
+     */
     @Override
     public void delete(Long id) {
         require(id);
         supportTicketMapper.deleteById(id);
     }
 
+    /**
+     * 执行map。
+     *
+     * @param request 请求
+     * @param entity 实体
+     * @return 执行结果
+     */
     private SupportTicketEntity map(SupportTicketSaveRequest request, SupportTicketEntity entity) {
         entity.setTitle(request.getTitle().trim());
         entity.setBody(request.getBody());
@@ -137,6 +196,12 @@ public class DbSupportTicketRepository implements SupportTicketRepository {
         return entity;
     }
 
+    /**
+     * 执行require。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     private SupportTicketEntity require(Long id) {
         SupportTicketEntity entity = supportTicketMapper.selectById(id);
         if (entity == null) {
@@ -145,10 +210,20 @@ public class DbSupportTicketRepository implements SupportTicketRepository {
         return entity;
     }
 
+    /**
+     * 执行generateTicketNo。
+     * @return 执行结果
+     */
     private String generateTicketNo() {
         return "TK" + System.currentTimeMillis() + UUID.randomUUID().toString().substring(0, 6);
     }
 
+    /**
+     * 转换为Domain。
+     *
+     * @param entity 实体
+     * @return 转换结果
+     */
     private SupportTicket toDomain(SupportTicketEntity entity) {
         return new SupportTicket(
                 entity.getId(),

@@ -3,12 +3,8 @@ package cn.cyc.ai.cog.runtime.planner;
 /**
  * 任务规划步骤。
  *
- * @param order       步骤序号
- * @param action      动作编码
- * @param description 步骤描述
- * @param status      步骤状态
- * @param toolCode    建议使用的 Tool 编码（可选）
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record TaskPlanStep(int order, String action, String description, String status, String toolCode) {
 

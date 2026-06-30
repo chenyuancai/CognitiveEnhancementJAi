@@ -8,6 +8,9 @@ import java.util.Objects;
 
 /**
  * 模型主数据（含多提供商绑定）。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ModelMasterDefinition(
         String modelCode,
@@ -34,11 +37,19 @@ public record ModelMasterDefinition(
         }
     }
 
+    /**
+     * 执行编码。
+     * @return 执行结果
+     */
     @Override
     public String code() {
         return modelCode;
     }
 
+    /**
+     * 执行名称。
+     * @return 执行结果
+     */
     @Override
     public String name() {
         return modelName;

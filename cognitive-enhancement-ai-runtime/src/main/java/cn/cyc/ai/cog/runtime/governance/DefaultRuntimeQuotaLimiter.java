@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 基于内存滑动窗口的默认运行时限流器。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class DefaultRuntimeQuotaLimiter implements RuntimeQuotaLimiter {

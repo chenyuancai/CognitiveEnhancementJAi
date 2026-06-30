@@ -12,21 +12,38 @@ import org.springframework.stereotype.Component;
  * Java 本地 Tool Adapter。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class JavaLocalToolAdapter implements ToolAdapter {
 
+    /** local工具Registry。 */
     private final LocalToolRegistry localToolRegistry;
 
+    /**
+     * 创建JavaLocalToolAdapter。
+     *
+     * @param localToolRegistry local工具Registry
+     */
     public JavaLocalToolAdapter(LocalToolRegistry localToolRegistry) {
         this.localToolRegistry = localToolRegistry;
     }
 
+    /**
+     * 执行protocol类型。
+     * @return 执行结果
+     */
     @Override
     public ToolProtocolType protocolType() {
         return ToolProtocolType.JAVA_LOCAL;
     }
 
+    /**
+     * 执行操作。
+     *
+     * @param context 上下文
+     * @return 执行结果
+     */
     @Override
     public Object invoke(ToolAdapterContext context) {
         ToolDefinition tool = context.tool();

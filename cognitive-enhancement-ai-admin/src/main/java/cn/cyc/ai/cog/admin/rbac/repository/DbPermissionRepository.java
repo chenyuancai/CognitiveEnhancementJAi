@@ -14,6 +14,9 @@ import java.util.List;
 
 /**
  * 权限点仓储 MyBatis 实现。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Repository
 public class DbPermissionRepository implements PermissionRepository {
@@ -28,6 +31,10 @@ public class DbPermissionRepository implements PermissionRepository {
         this.permissionMapper = permissionMapper;
     }
 
+    /**
+     * 查询All列表。
+     * @return 结果列表
+     */
     @Override
     public List<PermissionEntity> listAll() {
         return permissionMapper.selectList(new LambdaQueryWrapper<PermissionEntity>()
@@ -35,6 +42,10 @@ public class DbPermissionRepository implements PermissionRepository {
                 .orderByAsc(PermissionEntity::getId));
     }
 
+    /**
+     * 查询Custom列表。
+     * @return 结果列表
+     */
     @Override
     public List<PermissionEntity> listCustom() {
         return permissionMapper.selectList(new LambdaQueryWrapper<PermissionEntity>()
@@ -42,6 +53,12 @@ public class DbPermissionRepository implements PermissionRepository {
                 .orderByDesc(PermissionEntity::getId));
     }
 
+    /**
+     * 查询是否启用人Scope列表。
+     *
+     * @param scope scope
+     * @return 结果列表
+     */
     @Override
     public List<PermissionEntity> listEnabledByScope(String scope) {
         LambdaQueryWrapper<PermissionEntity> wrapper = new LambdaQueryWrapper<PermissionEntity>()
@@ -53,16 +70,34 @@ public class DbPermissionRepository implements PermissionRepository {
         return permissionMapper.selectList(wrapper);
     }
 
+    /**
+     * 查询Codes人角色ID列表。
+     *
+     * @param roleId 角色ID
+     * @return 结果列表
+     */
     @Override
     public List<String> listCodesByRoleId(Long roleId) {
         return permissionMapper.selectCodesByRoleId(roleId);
     }
 
+    /**
+     * 查询人用户ID列表。
+     *
+     * @param userId 用户 ID
+     * @return 结果列表
+     */
     @Override
     public List<PermissionEntity> listByUserId(Long userId) {
         return permissionMapper.selectByUserId(userId);
     }
 
+    /**
+     * 查询人Codes列表。
+     *
+     * @param codes codes
+     * @return 结果列表
+     */
     @Override
     public List<PermissionEntity> listByCodes(List<String> codes) {
         if (codes == null || codes.isEmpty()) {
@@ -72,6 +107,13 @@ public class DbPermissionRepository implements PermissionRepository {
                 .in(PermissionEntity::getPermissionCode, codes));
     }
 
+    /**
+     * 判断是否为编码Available。
+     *
+     * @param code 编码
+     * @param excludeId excludeID
+     * @return 是否满足条件
+     */
     @Override
     public boolean isCodeAvailable(String code, Long excludeId) {
         LambdaQueryWrapper<PermissionEntity> wrapper = new LambdaQueryWrapper<PermissionEntity>()
@@ -82,6 +124,12 @@ public class DbPermissionRepository implements PermissionRepository {
         return permissionMapper.selectCount(wrapper) == 0;
     }
 
+    /**
+     * 执行require人ID。
+     *
+     * @param id 主键 ID
+     * @return 执行结果
+     */
     @Override
     public PermissionEntity requireById(Long id) {
         PermissionEntity entity = permissionMapper.selectById(id);
@@ -91,18 +139,35 @@ public class DbPermissionRepository implements PermissionRepository {
         return entity;
     }
 
+    /**
+     * 执行insert。
+     *
+     * @param entity 实体
+     * @return 执行结果
+     */
     @Override
     public PermissionEntity insert(PermissionEntity entity) {
         permissionMapper.insert(entity);
         return entity;
     }
 
+    /**
+     * 更新Item。
+     *
+     * @param entity 实体
+     * @return 更新结果
+     */
     @Override
     public PermissionEntity update(PermissionEntity entity) {
         permissionMapper.updateById(entity);
         return entity;
     }
 
+    /**
+     * 删除人ID。
+     *
+     * @param id 主键 ID
+     */
     @Override
     public void deleteById(Long id) {
         permissionMapper.deleteById(id);

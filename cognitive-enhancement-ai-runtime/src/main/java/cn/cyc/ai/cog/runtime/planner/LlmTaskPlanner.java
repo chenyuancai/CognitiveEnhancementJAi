@@ -28,21 +28,32 @@ import java.util.Optional;
  * LLM 驱动任务规划器：通过模型生成分步计划。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class LlmTaskPlanner implements TaskPlanner {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(LlmTaskPlanner.class);
     private static final TypeReference<Map<String, Object>> MAP_TYPE = new TypeReference<>() {
     };
 
+    /** properties。 */
     private final PlanningProperties properties;
+    /** 模型Governance。 */
     private final DefaultModelGovernance modelGovernance;
+    /** llm网关。 */
     private final LlmGateway llmGateway;
+    /** JSON 序列化器 */
     private final ObjectMapper objectMapper;
+    /** 链路SpanRecorder。 */
     private final TraceSpanRecorder traceSpanRecorder;
+    /** fallbackPlanner。 */
     private final RuleBasedTaskPlanner fallbackPlanner;
 
+    /**
+     * 创建LlmTaskPlanner。
+     */
     public LlmTaskPlanner(PlanningProperties properties,
                           DefaultModelGovernance modelGovernance,
                           LlmGateway llmGateway,
@@ -57,6 +68,12 @@ public class LlmTaskPlanner implements TaskPlanner {
         this.fallbackPlanner = fallbackPlanner;
     }
 
+    /**
+     * 执行计划。
+     *
+     * @param context 上下文
+     * @return 执行结果
+     */
     @Override
     public Optional<TaskPlan> plan(ExecutionContext context) {
         if (!RuntimeContextParameters.flag(context, "planningEnabled")) {
@@ -146,6 +163,12 @@ public class LlmTaskPlanner implements TaskPlanner {
         }
     }
 
+    /**
+     * 执行extractJSON。
+     *
+     * @param answer 回答
+     * @return 执行结果
+     */
     private String extractJson(String answer) {
         int start = answer.indexOf('{');
         int end = answer.lastIndexOf('}');
@@ -155,6 +178,13 @@ public class LlmTaskPlanner implements TaskPlanner {
         return answer.trim();
     }
 
+    /**
+     * 转换为Int。
+     *
+     * @param value 值
+     * @param defaultValue 默认值
+     * @return 转换结果
+     */
     private int toInt(Object value, int defaultValue) {
         if (value instanceof Number number) {
             return number.intValue();
@@ -165,6 +195,13 @@ public class LlmTaskPlanner implements TaskPlanner {
         return defaultValue;
     }
 
+    /**
+     * 转换为Text。
+     *
+     * @param value 值
+     * @param defaultValue 默认值
+     * @return 转换结果
+     */
     private String toText(Object value, String defaultValue) {
         if (value == null) {
             return defaultValue;
@@ -179,6 +216,12 @@ public class LlmTaskPlanner implements TaskPlanner {
         return text;
     }
 
+    /**
+     * 执行resolveGoal。
+     *
+     * @param context 上下文
+     * @return 执行结果
+     */
     private String resolveGoal(ExecutionContext context) {
         Map<String, Object> input = context.request().input();
         Object question = input.get("question");

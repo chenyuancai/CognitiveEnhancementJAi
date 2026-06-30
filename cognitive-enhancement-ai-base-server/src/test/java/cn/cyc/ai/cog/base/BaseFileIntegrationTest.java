@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -87,6 +88,34 @@ class BaseFileIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success", is(true)))
                 .andExpect(jsonPath("$.data.originalName", is("a.bin")));
+    }
+
+    @Test
+    void shouldUploadAndDownloadBytesViaPublicApi() throws Exception {
+        String base64 = Base64.getEncoder().encodeToString("public-bytes".getBytes(StandardCharsets.UTF_8));
+        MvcResult upload = mockMvc.perform(post("/api/base/files/upload-bytes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "tenantId": 1,
+                                  "bizCode": "cog",
+                                  "fileName": "public.txt",
+                                  "contentType": "text/plain",
+                                  "base64Content": "%s"
+                                }
+                                """.formatted(base64)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)))
+                .andExpect(jsonPath("$.data.originalName", is("public.txt")))
+                .andReturn();
+
+        long fileId = objectMapper.readTree(upload.getResponse().getContentAsString())
+                .path("data").path("id").asLong();
+
+        mockMvc.perform(get("/api/base/files/" + fileId + "/bytes"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", org.hamcrest.Matchers.containsString("application/octet-stream")))
+                .andExpect(result -> assertEquals("public-bytes", result.getResponse().getContentAsString()));
     }
 
     @Test

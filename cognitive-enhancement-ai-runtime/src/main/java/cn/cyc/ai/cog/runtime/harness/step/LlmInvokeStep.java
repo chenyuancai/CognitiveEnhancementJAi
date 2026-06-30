@@ -16,6 +16,7 @@ import cn.cyc.ai.cog.runtime.harness.dto.HarnessContext;
 import cn.cyc.ai.cog.runtime.harness.dto.HarnessScenario;
 import cn.cyc.ai.cog.runtime.harness.spi.HarnessStep;
 import cn.cyc.ai.cog.runtime.harness.spi.HarnessStepResult;
+import cn.cyc.ai.cog.runtime.harness.support.HarnessImportWorkflowSupport;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
@@ -24,20 +25,28 @@ import java.util.Map;
 
 /**
  * LLM 调用验证步骤，验证 LLM Gateway 能正确调用外部模型。
- *
  * <p>默认使用百炼 qwen-plus 模型。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Component
 public class LlmInvokeStep implements HarnessStep {
 
+    /** llm网关。 */
     private final LlmGateway llmGateway;
+    /** usageMeter。 */
     private final UsageMeter usageMeter;
+    /** 模型仓储。 */
     private final ModelDefinitionRepository modelRepository;
+    /** 能力仓储。 */
     private final CapabilityDefinitionRepository capabilityRepository;
+    /** 智能体仓储。 */
     private final AgentDefinitionRepository agentRepository;
 
+    /**
+     * 创建LlmInvokeStep。
+     */
     public LlmInvokeStep(LlmGateway llmGateway,
                          UsageMeter usageMeter,
                          ModelDefinitionRepository modelRepository,
@@ -50,23 +59,44 @@ public class LlmInvokeStep implements HarnessStep {
         this.agentRepository = agentRepository;
     }
 
+    /**
+     * 执行step编码。
+     * @return 执行结果
+     */
     @Override
     public String stepCode() {
         return "LLM_INVOKE";
     }
 
+    /**
+     * 执行step名称。
+     * @return 执行结果
+     */
     @Override
     public String stepName() {
         return "LLM 调用验证";
     }
 
+    /**
+     * 执行描述。
+     * @return 执行结果
+     */
     @Override
     public String description() {
         return "验证 LLM Gateway 能正确调用外部模型（默认百炼 qwen-plus）";
     }
 
+    /**
+     * 执行操作。
+     *
+     * @param ctx ctx
+     * @return 执行结果
+     */
     @Override
     public HarnessStepResult run(HarnessContext ctx) {
+        if (HarnessImportWorkflowSupport.isImportKbFileParse(ctx.scenario())) {
+            return HarnessImportWorkflowSupport.skipStep(this, "导入工作流场景，跳过 LLM 调用");
+        }
         HarnessScenario scenario = ctx.scenario();
         String modelCode = scenario != null && scenario.modelCode() != null
                 ? scenario.modelCode()
@@ -135,6 +165,12 @@ public class LlmInvokeStep implements HarnessStep {
         }
     }
 
+    /**
+     * 执行recordUsage。
+     *
+     * @param context 上下文
+     * @param llmResult llm结果
+     */
     private void recordUsage(ExecutionContext context, LlmInvocationResult llmResult) {
         if (context.capability() == null || context.agent() == null) {
             return;
@@ -152,6 +188,13 @@ public class LlmInvokeStep implements HarnessStep {
         usageMeter.record(context, executionResult);
     }
 
+    /**
+     * 执行truncate。
+     *
+     * @param text text
+     * @param maxLen maxLen
+     * @return 执行结果
+     */
     private String truncate(String text, int maxLen) {
         if (text == null) {
             return "";

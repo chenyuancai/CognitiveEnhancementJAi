@@ -6,6 +6,9 @@ import java.util.Objects;
 
 /**
  * 模型与提供商的多对多绑定。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record ModelBindingDefinition(
         String modelCode,

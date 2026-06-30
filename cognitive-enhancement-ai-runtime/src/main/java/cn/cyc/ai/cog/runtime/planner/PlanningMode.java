@@ -4,9 +4,11 @@ package cn.cyc.ai.cog.runtime.planner;
  * 任务规划模式。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public enum PlanningMode {
 
+    /** rule。 */
     RULE,
     LLM;
 

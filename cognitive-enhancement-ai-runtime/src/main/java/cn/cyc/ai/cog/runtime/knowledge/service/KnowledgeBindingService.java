@@ -13,6 +13,7 @@ import java.util.UUID;
  * 场景知识绑定服务。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Service
 public class KnowledgeBindingService {

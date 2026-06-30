@@ -7,6 +7,12 @@ import cn.cyc.ai.cog.platform.knowledge.dto.ContentImportJobPageQuery;
 
 import java.time.LocalDateTime;
 
+/**
+ * 内容ImportJob仓储
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
+ */
 public interface ContentImportJobRepository {
 
     PageResult<ContentImportJob> page(ContentImportJobPageQuery query);

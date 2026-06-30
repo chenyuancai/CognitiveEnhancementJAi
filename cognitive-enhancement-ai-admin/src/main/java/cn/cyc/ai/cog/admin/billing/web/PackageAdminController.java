@@ -26,6 +26,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 管理端计费套餐接口：订阅套餐、额度包、订阅记录与资金流水。
+ *
+ * @author cyc
+ * @date 2026/6/15 14:18
  */
 @Tag(name = "计费-套餐", description = "订阅套餐与额度包管理")
 @RestController
@@ -54,6 +57,12 @@ public class PackageAdminController {
         this.billingAdminVoAssembler = billingAdminVoAssembler;
     }
 
+    /**
+     * 执行分页SubscriptionPackages。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Operation(summary = "订阅套餐分页")
     @RequirePermission("admin:package:update")
     @PostMapping("/subscription-packages/page")
@@ -62,6 +71,10 @@ public class PackageAdminController {
                 packageService.pageSubscriptionPackages(query).map(billingAdminVoAssembler::toSubscriptionPackageVo));
     }
 
+    /**
+     * 创建SubscriptionPackage。
+     * @return 创建结果
+     */
     @Operation(summary = "新增订阅套餐")
     @RequirePermission("admin:package:update")
     @PostMapping("/subscription-packages")
@@ -71,6 +84,10 @@ public class PackageAdminController {
                 billingAdminVoAssembler.toSubscriptionPackageVo(packageService.saveSubscriptionPackage(null, request)));
     }
 
+    /**
+     * 更新SubscriptionPackage。
+     * @return 更新结果
+     */
     @Operation(summary = "编辑订阅套餐")
     @RequirePermission("admin:package:update")
     @PostMapping("/subscription-packages/update")
@@ -80,6 +97,12 @@ public class PackageAdminController {
                 billingAdminVoAssembler.toSubscriptionPackageVo(packageService.saveSubscriptionPackage(request.getId(), request)));
     }
 
+    /**
+     * 执行分页额度Packages。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Operation(summary = "额度包分页")
     @RequirePermission("admin:quota-package:update")
     @PostMapping("/quota-packages/page")
@@ -88,6 +111,12 @@ public class PackageAdminController {
                 packageService.pageQuotaPackages(query).map(billingAdminVoAssembler::toQuotaPackageVo));
     }
 
+    /**
+     * 创建额度Package。
+     *
+     * @param request 请求
+     * @return 创建结果
+     */
     @Operation(summary = "新增额度包")
     @RequirePermission("admin:quota-package:update")
     @PostMapping("/quota-packages")
@@ -96,6 +125,12 @@ public class PackageAdminController {
                 billingAdminVoAssembler.toQuotaPackageVo(packageService.saveQuotaPackage(null, request)));
     }
 
+    /**
+     * 更新额度Package。
+     *
+     * @param request 请求
+     * @return 更新结果
+     */
     @Operation(summary = "编辑额度包")
     @RequirePermission("admin:quota-package:update")
     @PostMapping("/quota-packages/update")
@@ -104,6 +139,12 @@ public class PackageAdminController {
                 billingAdminVoAssembler.toQuotaPackageVo(packageService.saveQuotaPackage(request.getId(), request)));
     }
 
+    /**
+     * 执行分页Subscriptions。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Operation(summary = "订阅记录分页")
     @RequirePermission("admin:order:update")
     @PostMapping("/subscriptions/page")
@@ -113,6 +154,12 @@ public class PackageAdminController {
                         .map(billingAdminVoAssembler::toSubscriptionVo));
     }
 
+    /**
+     * 执行分页FinancialRecords。
+     *
+     * @param query 查询
+     * @return 执行结果
+     */
     @Operation(summary = "资金流水分页")
     @RequirePermission("admin:order:update")
     @PostMapping("/financial-records/page")

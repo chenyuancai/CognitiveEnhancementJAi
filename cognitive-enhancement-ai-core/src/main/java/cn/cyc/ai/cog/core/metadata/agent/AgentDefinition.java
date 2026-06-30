@@ -13,6 +13,7 @@ import java.util.Objects;
  * Agent 定义对象。
  *
  * @author cyc
+ * @date 2026/6/15 14:18
  */
 public record AgentDefinition(
         String agentCode,
@@ -49,11 +50,19 @@ public record AgentDefinition(
         status = Objects.requireNonNull(status, "status 不能为空");
     }
 
+    /**
+     * 执行编码。
+     * @return 执行结果
+     */
     @Override
     public String code() {
         return agentCode;
     }
 
+    /**
+     * 执行名称。
+     * @return 执行结果
+     */
     @Override
     public String name() {
         return agentName;
